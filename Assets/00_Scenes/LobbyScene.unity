@@ -1541,7 +1541,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 20, y: -25}
-  m_SizeDelta: {x: 450, y: -50}
+  m_SizeDelta: {x: 400, y: -50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1083715411
 MonoBehaviour:
@@ -2087,8 +2087,9 @@ GameObject:
   - component: {fileID: 1470776622}
   - component: {fileID: 1470776621}
   - component: {fileID: 1470776620}
+  - component: {fileID: 1470776624}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: LobbyUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2177,6 +2178,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1470776624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470776619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f19c843b5c86eb4180d646a4ce5da81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playbutton: {fileID: 1827641509}
 --- !u!1 &1527579373
 GameObject:
   m_ObjectHideFlags: 0
@@ -2779,7 +2793,7 @@ GameObject:
   - component: {fileID: 1827641510}
   - component: {fileID: 1827641509}
   m_Layer: 5
-  m_Name: PlayButton
+  m_Name: Playbutton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2800,11 +2814,11 @@ RectTransform:
   - {fileID: 1049267990}
   m_Father: {fileID: 171581174}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 100}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -300}
   m_SizeDelta: {x: 400, y: 150}
-  m_Pivot: {x: 1, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1827641509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2862,7 +2876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8, g: 0.6666667, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.8, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
