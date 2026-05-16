@@ -71,20 +71,30 @@ public class LobbyController : ProjectBehaviour
     }
     public async Task<bool> JoinRoomAsync(string joinCode)
     {
-        JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-        if (allocation == null)
+        if (string.IsNullOrEmpty(joinCode)) 
+            return false; 
+
+        try
+        {
+            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+
+            UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            transport.SetClientRelayData(
+                allocation.RelayServer.IpV4,
+                (ushort)allocation.RelayServer.Port,
+                allocation.AllocationIdBytes,
+                allocation.Key,
+                allocation.ConnectionData,
+                allocation.HostConnectionData);
+
+            NetworkManager.Singleton.StartClient();
+        }
+        catch (RelayServiceException ex)
+        {
+            Debug.Log(ex);
             return false;
+        }
 
-        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetClientRelayData(
-            allocation.RelayServer.IpV4,
-            (ushort)allocation.RelayServer.Port,
-            allocation.AllocationIdBytes,
-            allocation.Key,
-            allocation.ConnectionData,
-            allocation.HostConnectionData);
-
-        NetworkManager.Singleton.StartClient();
         return true;
     }
     public void CancelRoom()

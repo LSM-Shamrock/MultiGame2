@@ -30,6 +30,24 @@ public class ComponentField : AutoInjectionField
 }
 
 
+
+[AttributeUsage(AttributeTargets.Field)]
+public class ParentField : AutoInjectionField
+{
+    public override bool Inject(ProjectBehaviour target, FieldInfo field)
+    {
+        var find = target.GetComponentInParent(field.FieldType);
+        if (find == null)
+        {
+            Debug.LogWarning($"{target.gameObject.name}의 부모에서 {field.FieldType.Name} 컴포넌트를 찾지 못함", target);
+            return false;
+        }
+
+        field.SetValue(target, find);
+        return true;
+    }
+}
+
 [AttributeUsage(AttributeTargets.Field)]
 public class ChildField : AutoInjectionField
 {
@@ -70,7 +88,6 @@ public class ChildField : AutoInjectionField
         return true;
     }
 }
-
 
 [AttributeUsage(AttributeTargets.Field)]
 public class ChildrenGroupField : AutoInjectionField
