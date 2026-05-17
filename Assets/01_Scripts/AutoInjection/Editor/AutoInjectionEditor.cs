@@ -140,41 +140,41 @@ public class AutoInjectionEditor : Editor
 
     static void InjectFromAllScenes()
     {
-        var sceneSetup = EditorSceneManager.GetSceneManagerSetup();
+        // 빌드 씬 경로 목록을 먼저 수집
+        var buildScenePaths = new HashSet<string>(
+            EditorBuildSettings.scenes
+                .Where(s => s.enabled)
+                .Select(s => s.path)
+        );
 
+        var sceneSetup = EditorSceneManager.GetSceneManagerSetup();
         try
         {
             var openScenePaths = new List<string>();
-
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 var scene = SceneManager.GetSceneAt(i);
-
                 if (!scene.isLoaded)
+                    continue;
+                // 빌드 씬에 포함된 경우만 처리
+                if (!buildScenePaths.Contains(scene.path))
                     continue;
 
                 openScenePaths.Add(scene.path);
-
                 foreach (var root in scene.GetRootGameObjects())
                     InjectFromSceneObject(root);
-
                 if (scene.isDirty)
                     EditorSceneManager.SaveScene(scene);
             }
-
             foreach (var buildSettingsScene in EditorBuildSettings.scenes)
             {
                 if (!buildSettingsScene.enabled)
                     continue;
-
                 if (openScenePaths.Contains(buildSettingsScene.path))
                     continue;
-
                 var scene = EditorSceneManager.OpenScene(buildSettingsScene.path, OpenSceneMode.Single);
-
                 foreach (var root in scene.GetRootGameObjects())
                     InjectFromSceneObject(root);
-
                 if (scene.isDirty)
                     EditorSceneManager.SaveScene(scene);
             }

@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class LobbyUI : ProjectBehaviour
 {
+    [ChildField] public Button PlayButton;
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
     [ChildField] public TMP_InputField JoinCodeInput;
