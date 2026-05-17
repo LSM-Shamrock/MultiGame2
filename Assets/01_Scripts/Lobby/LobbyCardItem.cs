@@ -2,7 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyCardItem : ProjectBehaviour
+[AutoInjectionTarget]
+public class LobbyCardItem : MonoBehaviour
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private Image FadeImage;

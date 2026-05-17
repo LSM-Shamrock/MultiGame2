@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 8
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c36156f58fc3534c813e99a5378c2e1, type: 3}
+  m_Name: StaticDB
+  m_EditorClassIdentifier: 
+  _cards:
+  - CodeName: Slime
+    DisplayName: "\uC2AC\uB77C\uC784"
+    CostMP: 2
+  - CodeName: Bat
+    DisplayName: "\uBC15\uC950"
+    CostMP: 2
+  - CodeName: Golem
+    DisplayName: "\uACE8\uB818"
+    CostMP: 6
+  - CodeName: Skeleton
+    DisplayName: "\uD574\uACE8"
+    CostMP: 3
+  - CodeName: Goblin
+    DisplayName: "\uACE0\uBE14\uB9B0"
+    CostMP: 3
+  - CodeName: Dragon
+    DisplayName: "\uB4DC\uB798\uACE4"
+    CostMP: 4
+  - CodeName: ElectricDragon
+    DisplayName: "\uC77C\uB809\uD2B8\uB9AD\uB4DC\uB798\uACE4"
+    CostMP: 6
+  - CodeName: WaveSpirit
+    DisplayName: "\uD30C\uB3C4\uC815\uB839"
+    CostMP: 6

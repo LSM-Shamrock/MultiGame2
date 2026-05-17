@@ -7,15 +7,13 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[CustomEditor(typeof(ProjectBehaviour), true)]
-[CanEditMultipleObjects]
 public class AutoInjectionEditor : Editor
 {
-    static IEnumerable<FieldInfo> GetPublicOrSerializeFields(ProjectBehaviour target)
+    static IEnumerable<FieldInfo> GetPublicOrSerializeFields(MonoBehaviour target)
     {
         var type = target.GetType();
 
-        while (type != null && type != typeof(ProjectBehaviour))
+        while (type != null && type != typeof(MonoBehaviour))
         {
             var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
             var fields = type.GetFields(flags);
@@ -30,8 +28,16 @@ public class AutoInjectionEditor : Editor
         }
     }
 
-    static bool ClearAllFields(ProjectBehaviour target)
+    static bool IsTargetBehaviour(MonoBehaviour target)
     {
+        return Attribute.IsDefined(target.GetType(), typeof(AutoInjectionTarget), true);
+    }
+
+    static bool ClearAllFields(MonoBehaviour target)
+    {
+        if (!IsTargetBehaviour(target))
+            return false;
+
         bool isChanged = false;
 
         foreach (var field in GetPublicOrSerializeFields(target))
@@ -59,9 +65,11 @@ public class AutoInjectionEditor : Editor
 
         return isChanged;
     }
-
-    static bool InjectAllFields(ProjectBehaviour target)
+    static bool InjectAllFields(MonoBehaviour target)
     {
+        if (!IsTargetBehaviour(target))
+            return false;
+
         bool isChanged = false;
 
         Undo.RecordObject(target, "Inject Auto Fields");
@@ -88,7 +96,7 @@ public class AutoInjectionEditor : Editor
 
     static void InjectFromSceneObject(GameObject root)
     {
-        var components = root.GetComponentsInChildren<ProjectBehaviour>(true);
+        var components = root.GetComponentsInChildren<MonoBehaviour>(true);
 
         foreach (var com in components)
         {
@@ -98,7 +106,7 @@ public class AutoInjectionEditor : Editor
             InjectAllFields(com);
         }
     }
-
+    
     static void InjectFromPrefabAsset(GameObject prefabRoot)
     {
         var assetPath = AssetDatabase.GetAssetPath(prefabRoot);
@@ -109,7 +117,7 @@ public class AutoInjectionEditor : Editor
             return;
         }
 
-        var components = prefabRoot.GetComponentsInChildren<ProjectBehaviour>(true);
+        var components = prefabRoot.GetComponentsInChildren<MonoBehaviour>(true);
 
         if (components.Any(c => c == null))
         {
@@ -136,7 +144,6 @@ public class AutoInjectionEditor : Editor
         if (isChanged)
             PrefabUtility.SavePrefabAsset(prefabRoot);
     }
-
 
     static void InjectFromAllScenes()
     {
@@ -184,7 +191,7 @@ public class AutoInjectionEditor : Editor
             EditorSceneManager.RestoreSceneManagerSetup(sceneSetup);
         }
     }
-
+    
     static void InjectFromAllPrefabs()
     {
         var guids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
@@ -204,25 +211,37 @@ public class AutoInjectionEditor : Editor
 
 
     #region 커스텀 에디터 코드
-    const string TopMenuPath = "Tools/** Auto Inject Fields **";
-    const string HierarchyMenuPath = "GameObject/** Inject Fields From Hierarchy **";
-    const string PrefabMenuPath = "Assets/** Inject Fields From Prefabs **";
+    const string MENUPATH_CONTEXT_INJECT = "CONTEXT/MonoBehaviour/** Inject Fields **";
+    const string MENUPATH_CONTEXT_CLEAR = "CONTEXT/MonoBehaviour/** Clear Fields **";
+    const string MENUPATH_TOPBAR = "Tools/** Auto Inject Fields **";
+    const string MENUPATH_HIERARCHY = "GameObject/** Inject Fields From Hierarchy **";
+    const string MENUPATH_PREFAB = "Assets/** Inject Fields From Prefabs **";
 
-    public override void OnInspectorGUI()
+
+    [MenuItem(MENUPATH_CONTEXT_INJECT, false, -902)]
+    static void ContextMenu_Inject(MenuCommand command)
     {
-        DrawDefaultInspector();
-
-        if (target is ProjectBehaviour targetObject)
-        {
-            if (GUILayout.Button("Find Components"))
-                InjectAllFields(targetObject);
-
-            if (GUILayout.Button("Clear Components"))
-                ClearAllFields(targetObject);
-        }
+        InjectAllFields(command.context as MonoBehaviour);
+    }
+    [MenuItem(MENUPATH_CONTEXT_INJECT, true)]
+    static bool ContextMenu_Inject_Validate(MenuCommand command)
+    {
+        return IsTargetBehaviour(command.context as MonoBehaviour);
     }
 
-    [MenuItem(TopMenuPath)]
+    [MenuItem(MENUPATH_CONTEXT_CLEAR, false, -901)]
+    static void ContextMenu_Clear(MenuCommand command)
+    {
+        ClearAllFields(command.context as MonoBehaviour);
+    }
+    [MenuItem(MENUPATH_CONTEXT_CLEAR, true)]
+    static bool ContextMenu_Clear_Validate(MenuCommand command)
+    {
+        return IsTargetBehaviour(command.context as MonoBehaviour);
+    }
+
+
+    [MenuItem(MENUPATH_TOPBAR)]
     static void TopMenu()
     {
         try
@@ -235,8 +254,18 @@ public class AutoInjectionEditor : Editor
         }
     }
 
-    [MenuItem(HierarchyMenuPath, true)]
-    static bool ValidateHierarchyMenu()
+
+    [MenuItem(MENUPATH_HIERARCHY, false, -900)]
+    static void HierarchyMenu()
+    {
+        foreach (var obj in Selection.gameObjects)
+        {
+            InjectFromSceneObject(obj);
+        }
+    }
+
+    [MenuItem(MENUPATH_HIERARCHY, true)]
+    static bool HierarchyMenu_Validate()
     {
         var objects = Selection.objects;
         var gameObjects = Selection.gameObjects;
@@ -253,17 +282,18 @@ public class AutoInjectionEditor : Editor
         return true;
     }
 
-    [MenuItem(HierarchyMenuPath, false, -900)]
-    static void HierarchyMenu()
+
+    [MenuItem(MENUPATH_PREFAB, false, -900)]
+    static void Prefabmenu()
     {
         foreach (var obj in Selection.gameObjects)
         {
-            InjectFromSceneObject(obj);
+            InjectFromPrefabAsset(obj);
         }
     }
 
-    [MenuItem(PrefabMenuPath, true)]
-    static bool ValidatePrefabMenu()
+    [MenuItem(MENUPATH_PREFAB, true)]
+    static bool PrefabMenu_Validate()
     {
         var objects = Selection.objects;
         var gameObjects = Selection.gameObjects;
@@ -278,15 +308,6 @@ public class AutoInjectionEditor : Editor
         }
 
         return true;
-    }
-
-    [MenuItem(PrefabMenuPath, false, -900)]
-    static void Prefabmenu()
-    {
-        foreach (var obj in Selection.gameObjects)
-        {
-            InjectFromPrefabAsset(obj);
-        }
     }
     #endregion
 }

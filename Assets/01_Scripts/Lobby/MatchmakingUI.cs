@@ -2,7 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchmakingUI : ProjectBehaviour
+[AutoInjectionTarget]
+public class MatchmakingUI : MonoBehaviour
 {
     [ChildField] public Button CancleButton;
     [ChildField] public TextMeshProUGUI JoinCodeText;

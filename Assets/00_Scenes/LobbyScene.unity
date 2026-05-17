@@ -776,9 +776,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1470776623}
-  - {fileID: 929026896}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &461577895
@@ -2117,7 +2115,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1643623538}
-  m_Father: {fileID: 461577894}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3512,7 +3510,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 171581174}
-  m_Father: {fileID: 461577894}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3536,6 +3534,7 @@ MonoBehaviour:
   JoinButton: {fileID: 50245295}
   JoinCodeInput: {fileID: 2138516155}
   PlayerNameInput: {fileID: 994126599}
+  MatchmakingUI: {fileID: 929026897}
 --- !u!1001 &1544296317
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5430,3 +5429,5 @@ SceneRoots:
   - {fileID: 728791991}
   - {fileID: 1932016346}
   - {fileID: 461577894}
+  - {fileID: 1470776623}
+  - {fileID: 929026896}

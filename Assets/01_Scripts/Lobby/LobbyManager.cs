@@ -12,64 +12,55 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class LobbyController : ProjectBehaviour
+[AutoInjectionTarget]
+public class LobbyManager : MonoBehaviour
 {
+    private static LobbyManager _instance;
+    public static LobbyManager Instance => _instance ?? (_instance = FindAnyObjectByType<LobbyManager>());
+
     [SerializeField, ChildField] private LobbyUI LobbyUI;
     [SerializeField, ChildField] private MatchmakingUI MatchmakingUI;
 
     private const int MAXPLAYERS = 2;
     private string SCENE_NAME_TO_CHANGE = "GameScene";
-    private string _joinCode;
+
+    public string JoinCode { get; private set; }
 
     private Lobby _autoMatchingLobby;
     private float _heartbeatTimer;
     private bool _isHeartbeating;
-    private const string JOIN_CODE_KEY = "joinCode";
     private const string LOBBY_NAME = "AutoMatch";
+    private const string JOIN_CODE_KEY = "JoinCode";
     private const float HEARTBEAT_INTERVAL = 15f;
 
 
-    private void Start()
+    private CardData[] _currentDeck;
+    public CardData[] CurrentDeck
     {
-        LobbyUI.CreateButton.onClick.AddListener(OnClick_CreateButton);
-        LobbyUI.JoinButton.onClick.AddListener(OnClick_JoinButton);
-        LobbyUI.PlayButton.onClick.AddListener(OnClick_AutoMatching);
-        MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
+        get
+        {
+            if (_currentDeck == null)
+            {
+                _currentDeck = new CardData[8];
+                for (int i = 0; i < 8; i++) 
+                    _currentDeck[i] = StaticDB.Instance.CardDataList[i];
+            }
+            return _currentDeck;
+        }
     }
+
+
+
+
+
+    private void Awake()
+    {
+        _instance = this;
+    }
+
     private void Update()
     {
         HeartbeatLobby();
-    }
-
-
-    private async void OnClick_CreateButton()
-    {
-        await CreateRoomAndCodeAsync();
-
-        MatchmakingUI.JoinCodeText.text = _joinCode;
-        MatchmakingUI.gameObject.SetActive(true);
-    }
-    private async void OnClick_JoinButton()
-    {
-        string inputJoinCode = LobbyUI.JoinCodeInput.text;
-
-        if (await JoinRoomWithCodeAsync(inputJoinCode))
-        {
-            MatchmakingUI.JoinCodeText.text = inputJoinCode;
-            MatchmakingUI.gameObject.SetActive(true);
-        }
-    }
-    private async void OnClick_AutoMatching()
-    {
-        await AutoMatchingAsync();
-
-        MatchmakingUI.JoinCodeText.text = "매치메이킹";
-        MatchmakingUI.gameObject.SetActive(true);
-    }
-    private void OnClick_CancleButton()
-    {
-        CancelRoom();
-        MatchmakingUI.gameObject.SetActive(false);
     }
 
 
@@ -77,7 +68,7 @@ public class LobbyController : ProjectBehaviour
     {
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
 
-        _joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        JoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetHostRelayData(
@@ -120,7 +111,7 @@ public class LobbyController : ProjectBehaviour
         }
     }
     
-    public void CancelRoom()
+    public void CancleRoom()
     {
         if (NetworkManager.Singleton == null) 
             return;
@@ -174,7 +165,7 @@ public class LobbyController : ProjectBehaviour
             IsPrivate = false,
             Data = new Dictionary<string, DataObject>
             {
-                { JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, _joinCode) }
+                { JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, JoinCode) }
             }
         };
 
@@ -186,9 +177,9 @@ public class LobbyController : ProjectBehaviour
         {
             _autoMatchingLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
 
-            _joinCode = _autoMatchingLobby.Data[JOIN_CODE_KEY].Value;
+            JoinCode = _autoMatchingLobby.Data[JOIN_CODE_KEY].Value;
 
-            return await JoinRoomWithCodeAsync(_joinCode);
+            return await JoinRoomWithCodeAsync(JoinCode);
         }
         catch (LobbyServiceException)
         {

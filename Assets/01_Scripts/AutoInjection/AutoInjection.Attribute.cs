@@ -3,16 +3,49 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+[AttributeUsage(AttributeTargets.Class)]
+public class AutoInjectionTarget : Attribute
+{
+
+}
 [AttributeUsage(AttributeTargets.Field)]
 public abstract class AutoInjectionField : PropertyAttribute
 {
-    public abstract bool Inject(ProjectBehaviour target, FieldInfo field);
+    public abstract bool Inject(MonoBehaviour target, FieldInfo field);
 }
+
+
+[AttributeUsage(AttributeTargets.Field)]
+public class SceneComponentField : AutoInjectionField
+{
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
+    {
+        #if UNITY_EDITOR
+        if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(target))
+            return false;
+        #endif
+
+        var component = UnityEngine.Object.FindAnyObjectByType(field.FieldType, FindObjectsInactive.Include);
+        if (component == null)
+        {
+            Debug.LogWarning($"씬에서 {field.FieldType.Name} 컴포넌트를 찾지 못함", target);
+            return false;
+        }
+
+        if (Equals(field.GetValue(target), component))
+            return false;
+
+        field.SetValue(target, component);
+        return true;
+    }
+}
+
+
 
 [AttributeUsage(AttributeTargets.Field)]
 public class ComponentField : AutoInjectionField
 {
-    public override bool Inject(ProjectBehaviour target, FieldInfo field)
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
     {
         var component = target.GetComponent(field.FieldType);
         if (component == null)
@@ -29,12 +62,10 @@ public class ComponentField : AutoInjectionField
     }
 }
 
-
-
 [AttributeUsage(AttributeTargets.Field)]
 public class ParentField : AutoInjectionField
 {
-    public override bool Inject(ProjectBehaviour target, FieldInfo field)
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
     {
         var find = target.GetComponentInParent(field.FieldType);
         if (find == null)
@@ -59,7 +90,7 @@ public class ChildField : AutoInjectionField
         _childName = childName; 
     }
 
-    public override bool Inject(ProjectBehaviour target, FieldInfo field)
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
     {
         var nameToFind = _childName;
         if (nameToFind == null)
@@ -100,7 +131,7 @@ public class ChildrenGroupField : AutoInjectionField
         _childrenGroupName = childrenGroupName; 
     }
 
-    public override bool Inject(ProjectBehaviour target, FieldInfo field)
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
     {
         if (field.FieldType.IsArray == false)
         {
