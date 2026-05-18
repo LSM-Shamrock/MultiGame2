@@ -1,10 +1,12 @@
 ﻿using System;
+using UnityEngine;
 
+[Serializable]
 public class CardData
 {
-    public readonly string CodeName;
-    public readonly string DisplayName;
-    public readonly int CostMP;
+    public string CodeName;
+    public string DisplayName;
+    public int CostMP;
 
     public string SummonUnit => CodeName;
 }

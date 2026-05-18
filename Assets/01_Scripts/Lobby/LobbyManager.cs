@@ -34,14 +34,15 @@ public class LobbyManager : MonoBehaviour
     private const float HEARTBEAT_INTERVAL = 15f;
 
 
-    private CardData[] _currentDeck;
-    public CardData[] CurrentDeck
+    private ObservableArray<CardData> _currentDeck;
+    public ObservableArray<CardData> CurrentDeck
     {
         get
         {
             if (_currentDeck == null)
             {
-                _currentDeck = new CardData[8];
+                _currentDeck = new ObservableArray<CardData>(8);
+
                 for (int i = 0; i < 8; i++) 
                     _currentDeck[i] = StaticDB.Instance.CardDataList[i];
             }

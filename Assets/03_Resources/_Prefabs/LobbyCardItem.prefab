@@ -226,6 +226,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6816d8ee8f5494b4295362207b2afab6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CardImage: {fileID: 7745264596340366140}
+  FadeImage: {fileID: 7554412254383122814}
+  MpText: {fileID: 753342243856502371}
 --- !u!1 &5320380252649983485
 GameObject:
   m_ObjectHideFlags: 0
