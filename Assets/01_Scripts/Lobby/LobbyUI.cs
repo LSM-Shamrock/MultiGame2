@@ -18,6 +18,8 @@ public class LobbyUI : MonoBehaviour
         JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
+
+        LobbyManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
     }
 
     private void Update()
@@ -27,32 +29,37 @@ public class LobbyUI : MonoBehaviour
 
     private async void OnClick_CreateButton()
     {
+        MatchmakingUI.JoinCodeText.text = "방 생성 중";
+
         await LobbyManager.Instance.CreateRoomAndCodeAsync();
 
         MatchmakingUI.JoinCodeText.text = LobbyManager.Instance.JoinCode;
-        MatchmakingUI.gameObject.SetActive(true);
     }
     private async void OnClick_JoinButton()
     {
+        MatchmakingUI.JoinCodeText.text = "방 접속 중";
+
         string inputJoinCode = JoinCodeInput.text;
 
         if (await LobbyManager.Instance.JoinRoomWithCodeAsync(inputJoinCode))
         {
             MatchmakingUI.JoinCodeText.text = inputJoinCode;
-            MatchmakingUI.gameObject.SetActive(true);
         }
     }
     private async void OnClick_AutoMatching()
     {
-        await LobbyManager.Instance.AutoMatchingAsync();
+        MatchmakingUI.JoinCodeText.text = "자동 매칭";
 
-        MatchmakingUI.JoinCodeText.text = "매치메이킹";
-        MatchmakingUI.gameObject.SetActive(true);
+        await LobbyManager.Instance.AutoMatchingAsync();
     }
     private void OnClick_CancleButton()
     {
         LobbyManager.Instance.CancleRoom();
-        MatchmakingUI.gameObject.SetActive(false);
     }
 
+
+    private void OnChanged_MatchingInProgress(bool value)
+    {
+        MatchmakingUI.gameObject.SetActive(value);
+    }
 }

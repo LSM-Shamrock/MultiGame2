@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 [AutoInjectionTarget]
 public class LobbyManager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class LobbyManager : MonoBehaviour
     private string SCENE_NAME_TO_CHANGE = "GameScene";
 
     public string JoinCode { get; private set; }
+    public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
 
     private Lobby _autoMatchingLobby;
     private float _heartbeatTimer;
@@ -51,9 +53,6 @@ public class LobbyManager : MonoBehaviour
     }
 
 
-
-
-
     private void Awake()
     {
         _instance = this;
@@ -67,6 +66,8 @@ public class LobbyManager : MonoBehaviour
 
     public async Task CreateRoomAndCodeAsync()
     {
+        IsMatchingInProgress.Value = true;
+
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
 
         JoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
@@ -90,6 +91,8 @@ public class LobbyManager : MonoBehaviour
 
         try
         {
+            IsMatchingInProgress.Value = true;
+
             JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -108,10 +111,13 @@ public class LobbyManager : MonoBehaviour
         catch (RelayServiceException ex)
         {
             Debug.Log(ex);
+
+            IsMatchingInProgress.Value = false;
+
             return false;
         }
     }
-    
+
     public void CancleRoom()
     {
         if (NetworkManager.Singleton == null) 
@@ -130,11 +136,15 @@ public class LobbyManager : MonoBehaviour
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
         NetworkManager.Singleton.Shutdown();
-    }
 
+        JoinCode = null;
+        IsMatchingInProgress.Value = false;
+    }
 
     public async Task AutoMatchingAsync()
     {
+        IsMatchingInProgress.Value = true;
+
         // 빈 로비 탐색
         QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
         {
@@ -211,6 +221,11 @@ public class LobbyManager : MonoBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
+
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            IsMatchingInProgress.Value = false;
         }
     }
     private async void OnClientConnected(ulong clientId)
