@@ -31,9 +31,9 @@ public class LobbyUI : MonoBehaviour
     {
         MatchmakingUI.JoinCodeText.text = "방 생성 중";
 
-        await LobbyManager.Instance.CreateRoomAndCodeAsync();
+        await LobbyManager.Instance.CreateLobbyAsync();
 
-        MatchmakingUI.JoinCodeText.text = LobbyManager.Instance.JoinCode;
+        MatchmakingUI.JoinCodeText.text = LobbyManager.Instance.LobbyId;
     }
     private async void OnClick_JoinButton()
     {
@@ -41,7 +41,7 @@ public class LobbyUI : MonoBehaviour
 
         string inputJoinCode = JoinCodeInput.text;
 
-        if (await LobbyManager.Instance.JoinRoomWithCodeAsync(inputJoinCode))
+        if (await LobbyManager.Instance.JoinLobbyAsync(inputJoinCode))
         {
             MatchmakingUI.JoinCodeText.text = inputJoinCode;
         }

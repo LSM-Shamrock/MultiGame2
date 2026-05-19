@@ -758,7 +758,7 @@ GameObject:
   - component: {fileID: 461577894}
   - component: {fileID: 461577895}
   m_Layer: 0
-  m_Name: Lobby
+  m_Name: LobbyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

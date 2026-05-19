@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b3afc5e766a472543a98c0e74541d142
+guid: 0f77ccf227d0bf5478a4deed100375d1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -935459964207048727
-    second: "\uB808\uB4DC \uCF54\uC5B4_0"
+      213: -237478074338862812
+    second: BlueCore_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,9 +49,9 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 9
+  alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 60
+  spritePixelsToUnits: 35
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\uB808\uB4DC \uCF54\uC5B4_0"
+      name: BlueCore_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 156
-        height: 208
+        width: 35
+        height: 40
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9e7d6db6e149403f0800000000000000
-      internalID: -935459964207048727
+      spriteID: 429961913fe44bcf0800000000000000
+      internalID: -237478074338862812
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\uB808\uB4DC \uCF54\uC5B4_0": -935459964207048727
+      BlueCore_0: -237478074338862812
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

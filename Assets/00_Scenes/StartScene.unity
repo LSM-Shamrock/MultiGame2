@@ -476,7 +476,7 @@ MonoBehaviour:
     NetworkProfilingMetrics: 1
     OldPrefabList: []
   RunInBackground: 1
-  LogLevel: 1
+  LogLevel: 2
 --- !u!1 &1629858385
 GameObject:
   m_ObjectHideFlags: 0

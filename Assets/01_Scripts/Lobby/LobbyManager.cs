@@ -23,20 +23,18 @@ public class LobbyManager : MonoBehaviour
     [SerializeField, ChildField] private MatchmakingUI MatchmakingUI;
 
     private const int MAXPLAYERS = 2;
-    private string SCENE_NAME_TO_CHANGE = "GameScene";
+    private const string SCENE_NAME_TO_CHANGE = "GameScene";
 
-    public string JoinCode { get; private set; }
     public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
 
-    private Lobby _autoMatchingLobby;
+    public string LobbyId => _currentLobby.Id;
+    private Lobby _currentLobby;
     private float _heartbeatTimer;
     private bool _isHeartbeating;
     private const string LOBBY_NAME = "AutoMatch";
     private const string JOIN_CODE_KEY = "JoinCode";
     private const float HEARTBEAT_INTERVAL = 15f;
 
-
-    private ObservableArray<CardData> _currentDeck;
     public ObservableArray<CardData> CurrentDeck
     {
         get
@@ -51,6 +49,7 @@ public class LobbyManager : MonoBehaviour
             return _currentDeck;
         }
     }
+    private ObservableArray<CardData> _currentDeck;
 
 
     private void Awake()
@@ -60,17 +59,14 @@ public class LobbyManager : MonoBehaviour
 
     private void Update()
     {
-        HeartbeatLobby();
+        Heartbeat();
     }
 
-
-    public async Task CreateRoomAndCodeAsync()
+    private async Task<string> CreateRoomAsync()
     {
-        IsMatchingInProgress.Value = true;
-
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
 
-        JoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
         UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         transport.SetHostRelayData(
@@ -83,16 +79,16 @@ public class LobbyManager : MonoBehaviour
         NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+        return joinCode;
     }
-    public async Task<bool> JoinRoomWithCodeAsync(string joinCode)
+    private async Task<bool> JoinRoomAsync(string joinCode)
     {
         if (string.IsNullOrEmpty(joinCode)) 
             return false; 
 
         try
         {
-            IsMatchingInProgress.Value = true;
-
             JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
@@ -112,108 +108,93 @@ public class LobbyManager : MonoBehaviour
         {
             Debug.Log(ex);
 
+            return false;
+        }
+    }
+
+    public async Task CreateLobbyAsync(bool isPrivate = true)
+    {
+        IsMatchingInProgress.Value = true;
+
+        string joinCode = await CreateRoomAsync();
+
+        CreateLobbyOptions options = new CreateLobbyOptions()
+        {
+            IsPrivate = isPrivate,
+            Data = new Dictionary<string, DataObject>
+            {
+                { JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
+            }
+        };
+
+        _currentLobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, options);
+    }
+    public async Task<bool> JoinLobbyAsync(string lobbyId)
+    {
+        IsMatchingInProgress.Value = true;
+
+        try
+        {
+            _currentLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
+
+            return await JoinRoomAsync(_currentLobby.Data[JOIN_CODE_KEY].Value);
+        }
+        catch (LobbyServiceException ex)
+        {
+            Debug.Log(ex);
+
             IsMatchingInProgress.Value = false;
 
             return false;
         }
     }
 
+    public async Task AutoMatchingAsync()
+    {
+        IsMatchingInProgress.Value = true;
+
+        QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
+        {
+            Filters = new List<QueryFilter>
+            {
+                new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
+            }
+        });
+
+        bool joined = false;
+        if (query.Results.Count > 0)
+        {
+            joined = await JoinLobbyAsync(query.Results[0].Id);
+            Debug.Log("찾은 로비로 접속 시도 결과 " + joined);
+        }
+        if (!joined)
+        {
+            await CreateLobbyAsync(isPrivate: false);
+            Debug.Log("로비 새로 생성함");
+        }
+    }
+    
     public void CancleRoom()
     {
         if (NetworkManager.Singleton == null) 
             return;
 
-        if (_autoMatchingLobby != null)
+        if (_currentLobby != null)
         {
             if (NetworkManager.Singleton.IsHost)
-                LobbyService.Instance.DeleteLobbyAsync(_autoMatchingLobby.Id);
+                LobbyService.Instance.DeleteLobbyAsync(_currentLobby.Id);
             else
-                LobbyService.Instance.RemovePlayerAsync(_autoMatchingLobby.Id, AuthenticationService.Instance.PlayerId);
+                LobbyService.Instance.RemovePlayerAsync(_currentLobby.Id, AuthenticationService.Instance.PlayerId);
 
-            _autoMatchingLobby = null;
+            _currentLobby = null;
         }
 
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
         NetworkManager.Singleton.Shutdown();
 
-        JoinCode = null;
         IsMatchingInProgress.Value = false;
     }
-
-    public async Task AutoMatchingAsync()
-    {
-        IsMatchingInProgress.Value = true;
-
-        // 빈 로비 탐색
-        QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
-        {
-            Filters = new List<QueryFilter>
-            {
-                // 빈 슬롯이 1개 이상인 로비만
-                new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
-            }
-        });
-
-        if (query.Results.Count > 0)
-        {
-            bool joined = await AutoMatching_JoinLobbyAsync(query.Results[0]);
-            if (!joined)
-                await AutoMatching_CreateLobbyAsync();
-
-        }
-        else
-        {
-            await AutoMatching_CreateLobbyAsync();
-        }
-    }
-    private async Task AutoMatching_CreateLobbyAsync()
-    {
-        await CreateRoomAndCodeAsync();
-
-        CreateLobbyOptions options = new CreateLobbyOptions()
-        {
-            IsPrivate = false,
-            Data = new Dictionary<string, DataObject>
-            {
-                { JOIN_CODE_KEY, new DataObject(DataObject.VisibilityOptions.Public, JoinCode) }
-            }
-        };
-
-        _autoMatchingLobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, options);
-    }
-    private async Task<bool> AutoMatching_JoinLobbyAsync(Lobby lobby)
-    {
-        try
-        {
-            _autoMatchingLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id);
-
-            JoinCode = _autoMatchingLobby.Data[JOIN_CODE_KEY].Value;
-
-            return await JoinRoomWithCodeAsync(JoinCode);
-        }
-        catch (LobbyServiceException)
-        {
-            return false;
-        }
-        
-    }
-    private async void HeartbeatLobby()
-    {
-        if (_isHeartbeating) return;
-        if (_autoMatchingLobby == null) return;
-        if (!NetworkManager.Singleton.IsHost) return;
-
-        _heartbeatTimer += Time.deltaTime;
-        if (_heartbeatTimer >= HEARTBEAT_INTERVAL)
-        {
-            _heartbeatTimer = 0f;
-            _isHeartbeating = true;
-            await LobbyService.Instance.SendHeartbeatPingAsync(_autoMatchingLobby.Id);
-            _isHeartbeating = false;
-        }
-    }
-
 
     private void OnClientDisconnected(ulong clientId)
     {
@@ -234,13 +215,29 @@ public class LobbyManager : MonoBehaviour
         if (NetworkManager.Singleton.IsHost && NetworkManager.Singleton.ConnectedClients.Count >= MAXPLAYERS)
         {
             // 더 이상 참가자 받지 않도록 로비 삭제
-            if (_autoMatchingLobby != null)
+            if (_currentLobby != null)
             {
-                await LobbyService.Instance.DeleteLobbyAsync(_autoMatchingLobby.Id);
-                _autoMatchingLobby = null;
+                await LobbyService.Instance.DeleteLobbyAsync(_currentLobby.Id);
+                _currentLobby = null;
             }
 
             NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+        }
+    }
+
+    private async void Heartbeat()
+    {
+        if (_isHeartbeating) return;
+        if (_currentLobby == null) return;
+        if (_currentLobby.HostId != AuthenticationService.Instance.PlayerId) return;
+
+        _heartbeatTimer += Time.deltaTime;
+        if (_heartbeatTimer >= HEARTBEAT_INTERVAL)
+        {
+            _heartbeatTimer = 0f;
+            _isHeartbeating = true;
+            await LobbyService.Instance.SendHeartbeatPingAsync(_currentLobby.Id);
+            _isHeartbeating = false;
         }
     }
 }
