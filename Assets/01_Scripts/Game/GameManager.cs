@@ -20,10 +20,10 @@ public class GameManager : NetworkBehaviour
     {
         _instance = this;
 
+        ClientIds = NetworkManager.Singleton.ConnectedClientsIds;
+
         if (IsHost)
         {
-            ClientIds = NetworkManager.Singleton.ConnectedClientsIds;
-
             SpawnCore(CoreSpawnPos1, ClientIds[0]);
             SpawnCore(CoreSpawnPos2, ClientIds[1]);
         }
@@ -37,6 +37,6 @@ public class GameManager : NetworkBehaviour
     {
         GameObject go = Instantiate(PlayerCorePrefab, spawnPos.position, spawnPos.rotation);
         NetworkObject obj = go.GetComponent<NetworkObject>();
-        obj.SpawnWithOwnership(clientId);
+        obj.SpawnAsPlayerObject(clientId);
     }
 }

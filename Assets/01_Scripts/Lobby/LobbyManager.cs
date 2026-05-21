@@ -19,14 +19,14 @@ using UnityEngine.UI;
 [Serializable]
 public class PlayerSessionData
 {
-    public readonly string LobbyId;
+    public readonly string LobbyPlayerId;
     public readonly ulong ClientId;
     public readonly string PlayerName;
 
     [JsonConstructor]
-    public PlayerSessionData(string lobbyId, ulong clientId, string playerName)
+    public PlayerSessionData(string lobbyPlayerId, ulong clientId, string playerName)
     {
-        LobbyId = lobbyId;
+        LobbyPlayerId = lobbyPlayerId;
         ClientId = clientId;
         PlayerName = playerName;
     }
@@ -70,8 +70,8 @@ public class LobbyManager : MonoBehaviour
     }
     private ObservableArray<CardData> _currentDeck;
 
-    private Dictionary<ulong, PlayerSessionData> _playerSessionDatas = new();
-    public IReadOnlyDictionary<ulong, PlayerSessionData> PlayerSessionDatas => _playerSessionDatas;
+    public PlayerSessionData LocalPlayerSessionData { get; private set; }
+    public PlayerSessionData OpponentPlayerSessionData { get; private set; }
 
     private void Awake()
     {
@@ -174,7 +174,8 @@ public class LobbyManager : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
 
         IsMatchingInProgress.Value = false;
-        _playerSessionDatas.Clear();
+        LocalPlayerSessionData = null;
+        OpponentPlayerSessionData = null;
     }
 
     private async Task HeartbeatAsync()
@@ -221,7 +222,12 @@ public class LobbyManager : MonoBehaviour
                 {
                     case "PlayerSessionData":
                         PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
-                        _playerSessionDatas[obj.ClientId] = obj;
+
+                        if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
+                            OpponentPlayerSessionData = obj;
+                        else
+                            LocalPlayerSessionData = obj;
+
                         await StartGameAsync();
                         break;
                 }
@@ -303,19 +309,14 @@ public class LobbyManager : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsHost) return;
         if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return;
-        if (_playerSessionDatas.Count != MAXPLAYERS) return;
+        if (LocalPlayerSessionData == null ||OpponentPlayerSessionData == null) return;
 
-        // 더 이상 참가자 받지 않도록 로비 삭제
+        // 더 이상 참가자 받지 않도록 로비 잠금
         if (_lobby != null)
         {
-            await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
-            _lobby = null;
+            await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions { IsLocked = true });
         }
 
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
-
-
-        foreach (var data in _playerSessionDatas.Values)
-            Debug.Log($"{JsonConvert.SerializeObject(data)}");
     }
 }

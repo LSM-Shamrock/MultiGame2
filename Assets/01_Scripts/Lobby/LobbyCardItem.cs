@@ -68,7 +68,6 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
         {
             if (_index >= collection.Count)
             {
-                Debug.Log(gameObject);
                 gameObject.SetActive(false);
                 return;
             }
