@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
@@ -12,21 +13,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
 [AutoInjectionTarget]
 public class LobbyManager : MonoBehaviour
 {
     private static LobbyManager _instance;
     public static LobbyManager Instance => _instance ?? (_instance = FindAnyObjectByType<LobbyManager>());
 
-    [SerializeField, ChildField] private LobbyUI LobbyUI;
-    [SerializeField, ChildField] private MatchmakingUI MatchmakingUI;
-
     private const int MAXPLAYERS = 2;
     private const string SCENE_NAME_TO_CHANGE = "GameScene";
 
     public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
-
+    
+    public string PlayerName { get; set; }
     public string LobbyId => _lobby.Id;
     private Lobby _lobby;
     private float _heartbeatTimer;
@@ -53,7 +51,13 @@ public class LobbyManager : MonoBehaviour
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this);
+            return;
+        }
         _instance = this;
+        DontDestroyOnLoad(this);
     }
     private void Update()
     {

@@ -17,9 +17,11 @@ public class LobbyUI : MonoBehaviour
         CreateButton.onClick.AddListener(OnClick_CreateButton);
         JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
+        PlayerNameInput.onValueChanged.AddListener(OnValueChanged_PlayerNameInput);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
 
         LobbyManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
+
     }
 
     private void Update()
@@ -56,7 +58,10 @@ public class LobbyUI : MonoBehaviour
     {
         await LobbyManager.Instance.CancelMatcingAsync();
     }
-
+    private void OnValueChanged_PlayerNameInput(string value)
+    {
+        LobbyManager.Instance.PlayerName = value;
+    }
 
     private void OnChanged_MatchingInProgress(bool value)
     {
