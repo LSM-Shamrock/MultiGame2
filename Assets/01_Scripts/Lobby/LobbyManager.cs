@@ -29,7 +29,7 @@ public class LobbyManager : MonoBehaviour
     private Lobby _lobby;
     private float _heartbeatTimer;
     private bool _isHeartbeating;
-    private const string LOBBY_NAME = "AutoMatch";
+    private const string LOBBY_NAME = "Lobby";
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
     private const float HEARTBEAT_INTERVAL = 15f;
 
