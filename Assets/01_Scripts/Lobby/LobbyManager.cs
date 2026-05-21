@@ -59,9 +59,9 @@ public class LobbyManager : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(this);
     }
-    private void Update()
+    private async void Update()
     {
-        Heartbeat();
+        await LobbyHeartbeatAsync();
     }
 
     public async Task CreateLobbyAsync(bool isPrivate = true)
@@ -146,6 +146,22 @@ public class LobbyManager : MonoBehaviour
         IsMatchingInProgress.Value = false;
     }
 
+    private async Task LobbyHeartbeatAsync()
+    {
+        if (_isHeartbeating) return;
+        if (_lobby == null) return;
+        if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
+
+        _heartbeatTimer += Time.deltaTime;
+        if (_heartbeatTimer >= HEARTBEAT_INTERVAL)
+        {
+            _heartbeatTimer = 0f;
+            _isHeartbeating = true;
+            await LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
+            _isHeartbeating = false;
+        }
+    }
+    
     private async Task<string> CreateRoomAsync()
     {
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
@@ -195,23 +211,6 @@ public class LobbyManager : MonoBehaviour
             return false;
         }
     }
-    
-    private async void Heartbeat()
-    {
-        if (_isHeartbeating) return;
-        if (_lobby == null) return;
-        if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
-
-        _heartbeatTimer += Time.deltaTime;
-        if (_heartbeatTimer >= HEARTBEAT_INTERVAL)
-        {
-            _heartbeatTimer = 0f;
-            _isHeartbeating = true;
-            await LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
-            _isHeartbeating = false;
-        }
-    }
-
     private void OnClientDisconnected(ulong clientId)
     {
         if (NetworkManager.Singleton.IsHost)
