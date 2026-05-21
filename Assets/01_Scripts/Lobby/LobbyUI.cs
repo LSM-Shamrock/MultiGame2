@@ -52,9 +52,9 @@ public class LobbyUI : MonoBehaviour
 
         await LobbyManager.Instance.AutoMatchingAsync();
     }
-    private void OnClick_CancleButton()
+    private async void OnClick_CancleButton()
     {
-        LobbyManager.Instance.CancelMatcingAsync();
+        await LobbyManager.Instance.CancelMatcingAsync();
     }
 
 
