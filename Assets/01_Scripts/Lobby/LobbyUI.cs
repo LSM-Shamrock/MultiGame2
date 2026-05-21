@@ -54,7 +54,7 @@ public class LobbyUI : MonoBehaviour
     }
     private void OnClick_CancleButton()
     {
-        LobbyManager.Instance.CancleRoom();
+        LobbyManager.Instance.CancelMatcingAsync();
     }
 
 
