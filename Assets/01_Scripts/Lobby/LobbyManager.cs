@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
@@ -12,6 +14,20 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+[Serializable]
+public class PlayerSessionData
+{
+    public string LobbyId;
+    public ulong ClientId;
+
+    [JsonConstructor]
+    public PlayerSessionData(string lobbyId, ulong clientId)
+    {
+        LobbyId = lobbyId;
+        ClientId = clientId;
+    }
+}
 
 [AutoInjectionTarget]
 public class LobbyManager : MonoBehaviour
@@ -27,6 +43,8 @@ public class LobbyManager : MonoBehaviour
     public string PlayerName { get; set; }
     public string LobbyId => _lobby.Id;
     private Lobby _lobby;
+    private LobbyEventCallbacks _lobbyEventCallbacks = new();
+    private ILobbyEvents _lobbyEvents;
     private float _heartbeatTimer;
     private bool _isHeartbeating;
     private const string LOBBY_NAME = "Lobby";
@@ -49,6 +67,9 @@ public class LobbyManager : MonoBehaviour
     }
     private ObservableArray<CardData> _currentDeck;
 
+    private Dictionary<ulong, PlayerSessionData> _playerSessionDatas = new();
+    public IReadOnlyDictionary<ulong, PlayerSessionData> PlayerSessionDatas => _playerSessionDatas;
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -58,10 +79,14 @@ public class LobbyManager : MonoBehaviour
         }
         _instance = this;
         DontDestroyOnLoad(this);
+
+        _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
     }
+
+
     private async void Update()
     {
-        await LobbyHeartbeatAsync();
+        await HeartbeatAsync();
     }
 
     public async Task CreateLobbyAsync(bool isPrivate = true)
@@ -80,6 +105,7 @@ public class LobbyManager : MonoBehaviour
         };
 
         _lobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, options);
+        _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
     }
     public async Task<bool> JoinLobbyAsync(string lobbyId)
     {
@@ -88,6 +114,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
+            _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
             return await JoinRoomAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
         }
@@ -144,9 +171,10 @@ public class LobbyManager : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
 
         IsMatchingInProgress.Value = false;
+        _playerSessionDatas.Clear();
     }
 
-    private async Task LobbyHeartbeatAsync()
+    private async Task HeartbeatAsync()
     {
         if (_isHeartbeating) return;
         if (_lobby == null) return;
@@ -161,7 +189,43 @@ public class LobbyManager : MonoBehaviour
             _isHeartbeating = false;
         }
     }
-    
+    private async Task UploadLobbyPlayerDataAsync()
+    {
+        PlayerSessionData data = new PlayerSessionData(_lobby.Id, NetworkManager.Singleton.LocalClientId);
+        string json = JsonConvert.SerializeObject(data);
+
+        Debug.Log("자신의 데이터 업로드");
+
+        await LobbyService.Instance.UpdatePlayerAsync(_lobby.Id, AuthenticationService.Instance.PlayerId, new UpdatePlayerOptions
+        {
+            Data = new Dictionary<string, PlayerDataObject>
+            {
+                { "PlayerSessionData", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
+            }
+        });
+    }
+    private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    {
+        foreach (var (playerIndex, playerData) in playerDatas)
+        {
+            foreach (var (dataKey, dataValue) in playerData)
+            {
+                string dataString = dataValue.Value.Value;
+                
+                Debug.Log($"로비 플레이어 데이터 할당됨. \n데이터 키: {dataKey} 데이터: {dataString}");
+
+                switch (dataKey)
+                {
+                    case "PlayerSessionData":
+                        PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
+                        _playerSessionDatas[obj.ClientId] = obj;
+                        await StartGameAsync();
+                        break;
+                }
+            }
+        }
+    }
+
     private async Task<string> CreateRoomAsync()
     {
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
@@ -201,6 +265,8 @@ public class LobbyManager : MonoBehaviour
                 allocation.HostConnectionData);
 
             NetworkManager.Singleton.StartClient();
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
             return true;
         }
@@ -226,17 +292,27 @@ public class LobbyManager : MonoBehaviour
     }
     private async void OnClientConnected(ulong clientId)
     {
-        // 게임 시작
-        if (NetworkManager.Singleton.IsHost && NetworkManager.Singleton.ConnectedClients.Count >= MAXPLAYERS)
-        {
-            // 더 이상 참가자 받지 않도록 로비 삭제
-            if (_lobby != null)
-            {
-                await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
-                _lobby = null;
-            }
+        if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
+            await UploadLobbyPlayerDataAsync();
+    }
 
-            NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+    private async Task StartGameAsync()
+    {
+        if (!NetworkManager.Singleton.IsHost) return;
+        if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return;
+        if (_playerSessionDatas.Count != MAXPLAYERS) return;
+
+        // 더 이상 참가자 받지 않도록 로비 삭제
+        if (_lobby != null)
+        {
+            await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
+            _lobby = null;
         }
+
+        NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+
+
+        foreach (var data in _playerSessionDatas.Values)
+            Debug.Log($"{JsonConvert.SerializeObject(data)}");
     }
 }

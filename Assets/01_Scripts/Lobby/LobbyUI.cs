@@ -21,7 +21,16 @@ public class LobbyUI : MonoBehaviour
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
 
         LobbyManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
+    }
+    private void OnDestroy()
+    {
+        CreateButton.onClick.RemoveAllListeners();
+        JoinButton.onClick.RemoveAllListeners();
+        PlayButton.onClick.RemoveAllListeners();
+        PlayerNameInput.onValueChanged.RemoveAllListeners();
+        MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
+        LobbyManager.Instance.IsMatchingInProgress.OnValueChanged -= OnChanged_MatchingInProgress;
     }
 
     private void Update()
