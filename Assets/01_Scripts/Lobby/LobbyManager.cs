@@ -15,27 +15,20 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public enum PlayerNumber
-{
-    Player1,
-    Player2,
-}
 
 [Serializable]
 public class PlayerSessionData
 {
-    public string LobbyId;
-    public ulong ClientId;
-    public string PlayerName;
-    public PlayerNumber PlayerNumber;
+    public readonly string LobbyId;
+    public readonly ulong ClientId;
+    public readonly string PlayerName;
 
     [JsonConstructor]
-    public PlayerSessionData(string lobbyId, ulong clientId, string playerName, PlayerNumber playerNumber)
+    public PlayerSessionData(string lobbyId, ulong clientId, string playerName)
     {
         LobbyId = lobbyId;
         ClientId = clientId;
         PlayerName = playerName;
-        PlayerNumber = playerNumber;
     }
 }
 
@@ -201,8 +194,7 @@ public class LobbyManager : MonoBehaviour
     }
     private async Task UploadLobbyPlayerDataAsync()
     {
-        PlayerNumber playerNumber = AuthenticationService.Instance.PlayerId == _lobby.HostId ? PlayerNumber.Player1 : PlayerNumber.Player2;
-        PlayerSessionData data = new PlayerSessionData(_lobby.Id, NetworkManager.Singleton.LocalClientId, PlayerName, playerNumber);
+        PlayerSessionData data = new PlayerSessionData(_lobby.Id, NetworkManager.Singleton.LocalClientId, PlayerName);
         string json = JsonConvert.SerializeObject(data);
 
         Debug.Log("자신의 데이터 업로드");

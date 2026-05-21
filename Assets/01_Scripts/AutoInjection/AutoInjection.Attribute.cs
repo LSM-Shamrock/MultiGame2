@@ -14,7 +14,7 @@ public abstract class AutoInjectionField : PropertyAttribute
     public abstract bool Inject(MonoBehaviour target, FieldInfo field);
 }
 
-
+#region Component
 [AttributeUsage(AttributeTargets.Field)]
 public class SceneComponentField : AutoInjectionField
 {
@@ -39,8 +39,6 @@ public class SceneComponentField : AutoInjectionField
         return true;
     }
 }
-
-
 
 [AttributeUsage(AttributeTargets.Field)]
 public class ComponentField : AutoInjectionField
@@ -94,12 +92,7 @@ public class ChildField : AutoInjectionField
     {
         var nameToFind = _childName;
         if (nameToFind == null)
-        {
-            nameToFind = field.Name;
-            nameToFind = nameToFind.Replace("<", "").Replace(">k__BackingField", "");
-            nameToFind = nameToFind.TrimStart('_');
-            nameToFind = char.ToUpperInvariant(nameToFind[0]) + nameToFind[1..];
-        }
+            nameToFind = AutoInjectionUtil.GetDefaultFindNameByFieldName(field.Name);
 
         var find = AutoInjectionUtil.FindChildByNameRecursive(target.transform, nameToFind);
         if (find == null)
@@ -142,12 +135,7 @@ public class ChildrenGroupField : AutoInjectionField
 
         var nameToFind = _childrenGroupName;
         if (nameToFind == null)
-        {
-            nameToFind = field.Name;
-            nameToFind = nameToFind.Replace("<", "").Replace(">k__BackingField", "");
-            nameToFind = nameToFind.TrimStart('_');
-            nameToFind = char.ToUpperInvariant(nameToFind[0]) + nameToFind[1..];
-        }
+            nameToFind = AutoInjectionUtil.GetDefaultFindNameByFieldName(field.Name);
 
         var find = AutoInjectionUtil.FindChildByNameRecursive(target.transform, nameToFind);
         if (find == null)
@@ -164,5 +152,59 @@ public class ChildrenGroupField : AutoInjectionField
         return true;
     }
 }
+#endregion
 
+[AttributeUsage(AttributeTargets.Field)]
+public class AssetField : AutoInjectionField
+{
+    private readonly string _assetPass;
 
+    public AssetField(string assetPass = null)
+    {
+        _assetPass = assetPass;
+    }
+
+    public override bool Inject(MonoBehaviour target, FieldInfo field)
+    {
+        string assetPath = _assetPass;
+        if (assetPath == null)
+            assetPath = AutoInjectionUtil.GetDefaultFindNameByFieldName(field.Name);
+
+        #if UNITY_EDITOR
+
+        // 경로에 확장자가 없으면 타입 기반으로 에셋 검색
+        UnityEngine.Object asset;
+        if (System.IO.Path.HasExtension(assetPath))
+        {
+            asset = UnityEditor.AssetDatabase.LoadAssetAtPath(assetPath, field.FieldType);
+        }
+        else
+        {
+            var guids = UnityEditor.AssetDatabase.FindAssets($"{assetPath} t:{field.FieldType.Name}");
+            if (guids.Length == 0)
+            {
+                Debug.LogWarning($"AssetDatabase에서 '{assetPath}' 이름의 {field.FieldType.Name} 에셋을 찾지 못함", target);
+                return false;
+            }
+            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+
+            asset = UnityEditor.AssetDatabase.LoadAssetAtPath(path, field.FieldType);
+        }
+
+        if (asset == null)
+        {
+            Debug.LogWarning($"AssetDatabase에서 '{assetPath}' 경로의 {field.FieldType.Name} 에셋을 찾지 못함", target);
+            return false;
+        }
+
+        if (Equals(field.GetValue(target), asset))
+            return false;
+
+        field.SetValue(target, asset);
+        return true;
+
+        #else
+        return false;
+        #endif
+    }
+}

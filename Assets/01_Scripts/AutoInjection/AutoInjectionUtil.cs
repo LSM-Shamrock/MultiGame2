@@ -30,4 +30,15 @@ public class AutoInjectionUtil
 
         return target.GetComponent(t);
     }
+
+    public static string GetDefaultFindNameByFieldName(string fieldName)
+    {
+        string findName = fieldName;
+        
+        findName = findName.Replace("<", "").Replace(">k__BackingField", "");
+        findName = findName.TrimStart('_');
+        findName = char.ToUpperInvariant(findName[0]) + findName[1..];
+
+        return findName;
+    }
 }

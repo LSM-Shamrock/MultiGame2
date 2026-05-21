@@ -2,30 +2,41 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+
+[AutoInjectionTarget]
+public class GameManager : NetworkBehaviour
 {
     private static GameManager _instance;
     public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
 
-    public PlayerNumber LocalPlayerNumber { get; private set; }
-    public PlayerNumber OtherPlayerNumber { get; private set; }
+    [SerializeField, ChildField] private Transform RotateRoot;
+    [SerializeField, ChildField] private Transform CoreSpawnPos1;
+    [SerializeField, ChildField] private Transform CoreSpawnPos2;
+    [SerializeField, AssetField("PlayerCore")] private GameObject PlayerCorePrefab;
 
-    private Dictionary<PlayerNumber, PlayerSessionData> _playerSessionDatas = new();
-    public IReadOnlyDictionary<PlayerNumber, PlayerSessionData> PlayerSessionDatas => _playerSessionDatas;
+    public IReadOnlyList<ulong> ClientIds { get; private set; } 
 
     private void Start()
     {
         _instance = this;
 
-        foreach (var (clientId, data) in LobbyManager.Instance.PlayerSessionDatas)
+        if (IsHost)
         {
-            bool isLocal = clientId == NetworkManager.Singleton.LocalClientId;
-            if (isLocal)
-                LocalPlayerNumber = data.PlayerNumber;
-            else
-                OtherPlayerNumber = data.PlayerNumber;
+            ClientIds = NetworkManager.Singleton.ConnectedClientsIds;
 
-            _playerSessionDatas[data.PlayerNumber] = data;
+            SpawnCore(CoreSpawnPos1, ClientIds[0]);
+            SpawnCore(CoreSpawnPos2, ClientIds[1]);
         }
+        else
+        {
+            RotateRoot.Rotate(0, 180, 0);
+        }
+    }
+
+    private void SpawnCore(Transform spawnPos, ulong clientId)
+    {
+        GameObject go = Instantiate(PlayerCorePrefab, spawnPos.position, spawnPos.rotation);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        obj.SpawnWithOwnership(clientId);
     }
 }
