@@ -16,7 +16,7 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
     private bool _isDeck;
     private bool _isInteractable;
 
-    private void OnEnable()
+    private void Start()
     {
         _index = transform.GetSiblingIndex();
         _isDeck = transform.parent.name == "Deck";
@@ -25,7 +25,7 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
 
         LobbyManager.Instance.CurrentDeck.OnAnyValueChanged += OnChangeDeck;
     }
-    private void OnDisable()
+    private void OnDestroy()
     {
         LobbyManager.Instance.CurrentDeck.OnAnyValueChanged -= OnChangeDeck;
     }
@@ -68,6 +68,7 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
         {
             if (_index >= collection.Count)
             {
+                Debug.Log(gameObject);
                 gameObject.SetActive(false);
                 return;
             }
