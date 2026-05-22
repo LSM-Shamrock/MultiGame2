@@ -15,9 +15,9 @@ public class GameUI : MonoBehaviour
         _localPlayerNameText.text = LobbyManager.Instance.PlayerName;
         _otherPlayerNameText.text = LobbyManager.Instance.OpponentPlayerSessionData.PlayerName;
 
-        GameManager.Instance.LocalPlayerCore.MP.OnValueChanged += OnMpChanged;
-        GameManager.Instance.LocalPlayerCore.HandCardIds.OnListChanged += OnHandChanged;
-
+        PlayerCore playerCore = GameManager.Instance.LocalPlayerCore;
+        playerCore.MP.OnValueChanged += OnMpChanged;
+        playerCore.HandCardIds.OnListChanged += OnHandChanged;
         Debug.Log("Game UI Initialized");
     }
 
@@ -39,5 +39,15 @@ public class GameUI : MonoBehaviour
         }
 
         Debug.Log("OnHandChanged");
+    }
+
+    private void RefreshHandCards(int[] handCardIds)
+    {
+        for (int i = 0; i < handCardIds.Length; i++)
+        {
+            int cardId = handCardIds[i];
+            CardData cardData = StaticDB.Instance.CardDataTable[cardId];
+            _handCards[i].SetCardData(cardData);
+        }
     }
 }

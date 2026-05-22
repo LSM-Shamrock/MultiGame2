@@ -15,8 +15,16 @@ public class PlayerCore : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         GameManager.Instance.OnPlayerCoreSpawned(this);
-        
-        if (IsHost)
+
+        DeckCardIds.OnListChanged += OnDeckCardIdsChanged;
+        HandCardIds.OnListChanged += OnHandCardIdsChanged;
+
+        SetupDatas();
+    }
+
+    public void SetupDatas()
+    {
+        if (IsServer)
         {
             var deckCardIds = LobbyManager.Instance.PlayerSessionDatas[OwnerClientId].DeckCardIds;
             foreach (var cardId in deckCardIds) 
@@ -25,6 +33,8 @@ public class PlayerCore : NetworkBehaviour
             SetupHandAndNextCards(deckCardIds);
 
             StartCoroutine(MpUpdateRoutine());
+
+            Debug.Log("플레이어 데이터 초기 할당됨");
         }
     }
 
@@ -59,13 +69,29 @@ public class PlayerCore : NetworkBehaviour
 
         while (true)
         {
-            yield return wait;
-
             if (MP.Value < 10)
+            {
+                yield return wait;
                 MP.Value += 1f;
+            }
+            else
+            {
+                if (MP.Value > 10)
+                    MP.Value = 10;
 
-            if (MP.Value > 10)
-                MP.Value = 10;
+                yield return null;
+            }
         }
+    }
+
+
+
+    private void OnDeckCardIdsChanged(NetworkListEvent<int> changedEvent)
+    {
+        Debug.Log($"덱 할당됨: {changedEvent.Value}");
+    }
+    private void OnHandCardIdsChanged(NetworkListEvent<int> changedEvent)
+    {
+        Debug.Log($"패 할당됨: {changedEvent.Value}");
     }
 }

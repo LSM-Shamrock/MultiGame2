@@ -58,11 +58,11 @@ public class GameManager : MonoBehaviour
         {
             LocalPlayerCore = playerCore;
             GameUI.Initialize();
+            LocalPlayerCore.SetupDatas();
         }
         else
         {
             OpponentPlayerCore = playerCore;
         }
-
     }
 }
