@@ -22,7 +22,10 @@ public class MpBarUI : MonoBehaviour
 
     private void LateUpdate()
     {
-        Value += Time.deltaTime / 2f;
+        if (Value < 10)
+            Value += Time.deltaTime / 2f;
+        if (Value > 10)
+            Value = 10;
     }
 
     private void OnValueChanged()

@@ -55,11 +55,14 @@ public class GameManager : MonoBehaviour
         PlayerCores[playerCore.OwnerClientId] = playerCore;
 
         if (playerCore.IsOwner)
+        {
             LocalPlayerCore = playerCore;
-        else
-            OpponentPlayerCore = playerCore;
-
-        if (PlayerCores.Count == 2)
             GameUI.Initialize();
+        }
+        else
+        {
+            OpponentPlayerCore = playerCore;
+        }
+
     }
 }

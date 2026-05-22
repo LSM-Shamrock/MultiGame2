@@ -17,6 +17,8 @@ public class GameUI : MonoBehaviour
 
         GameManager.Instance.LocalPlayerCore.MP.OnValueChanged += OnMpChanged;
         GameManager.Instance.LocalPlayerCore.HandCardIds.OnListChanged += OnHandChanged;
+
+        Debug.Log("Game UI Initialized");
     }
 
     private void OnMpChanged(float oldValue, float newValue)
@@ -26,8 +28,15 @@ public class GameUI : MonoBehaviour
 
     private void OnHandChanged(NetworkListEvent<int> changeEvent)
     {
-        CardData cardData = StaticDB.Instance.CardDataTable[changeEvent.Value];
-        _handCards[changeEvent.Index].SetCardData(cardData);
+        switch (changeEvent.Type)
+        {
+            case NetworkListEvent<int>.EventType.Add:
+                CardData cardData = StaticDB.Instance.CardDataTable[changeEvent.Value];
+
+                Debug.Log($"패 할당됨. 인덱스: {changeEvent.Index}");
+                _handCards[changeEvent.Index].SetCardData(cardData);
+                break;
+        }
 
         Debug.Log("OnHandChanged");
     }

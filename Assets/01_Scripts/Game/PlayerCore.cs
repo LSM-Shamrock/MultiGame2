@@ -16,7 +16,7 @@ public class PlayerCore : NetworkBehaviour
     {
         GameManager.Instance.OnPlayerCoreSpawned(this);
         
-        if (IsServer)
+        if (IsHost)
         {
             var deckCardIds = LobbyManager.Instance.PlayerSessionDatas[OwnerClientId].DeckCardIds;
             foreach (var cardId in deckCardIds) 
@@ -41,11 +41,13 @@ public class PlayerCore : NetworkBehaviour
 
         for (int i = 0; i < deck.Length; i++)
         {
-            if (i < 8)
+            if (i < 4)
                 HandCardIds.Add(deck[i]);
             else
                 _nextCardIds.Enqueue(deck[i]);
         }
+
+        Debug.Log("패, 다음 카드들 셋업 완료");
     }
 
     private IEnumerator MpUpdateRoutine()
