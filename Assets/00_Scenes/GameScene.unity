@@ -489,7 +489,7 @@ GameObject:
   - component: {fileID: 164870373}
   - component: {fileID: 164870374}
   m_Layer: 5
-  m_Name: Fill
+  m_Name: FillImages
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3406,7 +3406,7 @@ RectTransform:
   m_Children:
   - {fileID: 1679548075}
   - {fileID: 973438847}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1819831185}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3427,6 +3427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _localPlayerNameText: {fileID: 1512036607}
   _otherPlayerNameText: {fileID: 969583355}
+  _mpBar: {fileID: 1914606294}
 --- !u!1 &1679548074
 GameObject:
   m_ObjectHideFlags: 0
@@ -3738,6 +3739,7 @@ Transform:
   - {fileID: 555590987}
   - {fileID: 7396202327068508590}
   - {fileID: 1522919136}
+  - {fileID: 1672672608}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1819831186
@@ -3756,6 +3758,7 @@ MonoBehaviour:
   RotateRoot: {fileID: 555590987}
   CoreSpawnPos1: {fileID: 7396202327068508590}
   CoreSpawnPos2: {fileID: 1522919136}
+  GameUI: {fileID: 1672672609}
   PlayerCorePrefab: {fileID: 6239668291141435857, guid: 34eb16b2b635143488bf6a7d120776b7, type: 3}
 --- !u!114 &1819831187
 MonoBehaviour:
@@ -4080,6 +4083,7 @@ GameObject:
   - component: {fileID: 1914606291}
   - component: {fileID: 1914606293}
   - component: {fileID: 1914606292}
+  - component: {fileID: 1914606294}
   m_Layer: 5
   m_Name: MpBar
   m_TagString: Untagged
@@ -4147,6 +4151,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1914606290}
   m_CullTransparentMesh: 1
+--- !u!114 &1914606294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914606290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e864aefa589fa584ebb19ac8823ff055, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MpText: {fileID: 1823098727}
+  FillImages:
+  - {fileID: 2138568702}
+  - {fileID: 1116622294}
+  - {fileID: 822190915}
+  - {fileID: 1531290358}
+  - {fileID: 422878753}
+  - {fileID: 530422819}
+  - {fileID: 88996971}
+  - {fileID: 1855296723}
+  - {fileID: 1201157861}
+  - {fileID: 2103239389}
 --- !u!1 &1939788803
 GameObject:
   m_ObjectHideFlags: 0
@@ -4938,5 +4966,4 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 284680035}
-  - {fileID: 1672672608}
   - {fileID: 1819831185}
