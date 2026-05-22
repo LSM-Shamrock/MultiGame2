@@ -13,27 +13,35 @@ MonoBehaviour:
   m_Name: StaticDB
   m_EditorClassIdentifier: 
   _cards:
-  - CodeName: Slime
+  - CardId: 1
+    CodeName: Slime
     DisplayName: "\uC2AC\uB77C\uC784"
     CostMP: 2
-  - CodeName: Bat
+  - CardId: 2
+    CodeName: Bat
     DisplayName: "\uBC15\uC950"
     CostMP: 2
-  - CodeName: Golem
+  - CardId: 3
+    CodeName: Golem
     DisplayName: "\uACE8\uB818"
     CostMP: 6
-  - CodeName: Skeleton
+  - CardId: 4
+    CodeName: Skeleton
     DisplayName: "\uD574\uACE8"
     CostMP: 3
-  - CodeName: Goblin
+  - CardId: 5
+    CodeName: Goblin
     DisplayName: "\uACE0\uBE14\uB9B0"
     CostMP: 3
-  - CodeName: Dragon
+  - CardId: 6
+    CodeName: Dragon
     DisplayName: "\uB4DC\uB798\uACE4"
     CostMP: 4
-  - CodeName: ElectricDragon
+  - CardId: 7
+    CodeName: ElectricDragon
     DisplayName: "\uC77C\uB809\uD2B8\uB9AD\uB4DC\uB798\uACE4"
     CostMP: 6
-  - CodeName: WaveSpirit
+  - CardId: 8
+    CodeName: WaveSpirit
     DisplayName: "\uD30C\uB3C4\uC815\uB839"
     CostMP: 6

@@ -8,15 +8,26 @@ public class MpBarUI : MonoBehaviour
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
     [SerializeField, ChildrenGroupField] private Image[] FillImages;
 
-    public void Initialize()
+    private float _value;
+    public float Value
     {
-        Debug.Log("MpBarUI 초기화됨");
-        GameManager.Instance.LocalPlayerCore.PlayerMP.OnValueChanged += OnMpChanged;
+        get => _value;
+        set
+        {
+            _value = value;
+            OnValueChanged();
+        }
     }
 
-    private void OnMpChanged(float prev, float curr)
+
+    private void LateUpdate()
     {
-        MpText.text = $"{(int)curr}";
+        Value += Time.deltaTime / 2f;
+    }
+
+    private void OnValueChanged()
+    {
+        MpText.text = $"{(int)Value}";
 
         for (int i = 0; i < FillImages.Length; i++)
         {
@@ -24,14 +35,14 @@ public class MpBarUI : MonoBehaviour
             Color color = image.color;
             float fill = image.fillAmount;
 
-            if (curr >= i + 1)
+            if (Value >= i + 1)
             {
                 fill = 1f;
                 color.a = 1f;
             }
-            else if (curr > i)
+            else if (Value > i)
             {
-                fill = curr % 1f;
+                fill = Value % 1f;
                 color.a = 0.1f;
             }
             else

@@ -71,4 +71,10 @@ public class ObservableArray<T>
         _array = new T[length];
         _changeProcessor = changeProcessor;
     }
+
+    public ObservableArray(T[] values, Func<int, T, T> changeProcessor = null)
+    {
+        _array = values;
+        _changeProcessor = changeProcessor;
+    }
 }

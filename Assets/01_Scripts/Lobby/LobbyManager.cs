@@ -22,13 +22,15 @@ public class PlayerSessionData
     public readonly string LobbyPlayerId;
     public readonly ulong ClientId;
     public readonly string PlayerName;
+    public readonly int[] DeckCardIds;
 
     [JsonConstructor]
-    public PlayerSessionData(string lobbyPlayerId, ulong clientId, string playerName)
+    public PlayerSessionData(string lobbyPlayerId, ulong clientId, string playerName, int[] deckCardIds)
     {
         LobbyPlayerId = lobbyPlayerId;
         ClientId = clientId;
         PlayerName = playerName;
+        DeckCardIds = deckCardIds;
     }
 }
 
@@ -54,24 +56,28 @@ public class LobbyManager : MonoBehaviour
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
     private const float HEARTBEAT_INTERVAL = 15f;
 
-    public ObservableArray<CardData> CurrentDeck
+    private ObservableArray<int> _currentDeck;
+    public ObservableArray<int> CurrentDeckCardIds
     {
         get
         {
             if (_currentDeck == null)
             {
-                _currentDeck = new ObservableArray<CardData>(8);
+                _currentDeck = new ObservableArray<int>(8);
 
                 for (int i = 0; i < 8; i++) 
-                    _currentDeck[i] = StaticDB.Instance.CardDataList[i];
+                    _currentDeck[i] = StaticDB.Instance.CardDataList[i].CardId;
             }
             return _currentDeck;
         }
     }
-    private ObservableArray<CardData> _currentDeck;
 
-    public PlayerSessionData LocalPlayerSessionData { get; private set; }
-    public PlayerSessionData OpponentPlayerSessionData { get; private set; }
+
+    public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
+    public ulong LocalClientId { get; private set; }
+    public ulong OpponentClientId { get; private set; }
+    public PlayerSessionData LocalPlayerSessionData => PlayerSessionDatas[LocalClientId];
+    public PlayerSessionData OpponentPlayerSessionData => PlayerSessionDatas[OpponentClientId];
 
     private void Awake()
     {
@@ -161,7 +167,7 @@ public class LobbyManager : MonoBehaviour
 
         if (_lobby != null)
         {
-            await _lobbyEvents.UnsubscribeAsync();
+            await _lobbyEvents?.UnsubscribeAsync();
 
             if (_lobby.HostId == AuthenticationService.Instance.PlayerId)
                 await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
@@ -176,8 +182,7 @@ public class LobbyManager : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
 
         IsMatchingInProgress.Value = false;
-        LocalPlayerSessionData = null;
-        OpponentPlayerSessionData = null;
+        PlayerSessionDatas.Clear();
     }
 
     private async Task HeartbeatAsync()
@@ -197,7 +202,12 @@ public class LobbyManager : MonoBehaviour
     }
     private async Task UploadLobbyPlayerDataAsync()
     {
-        PlayerSessionData data = new PlayerSessionData(_lobby.Id, NetworkManager.Singleton.LocalClientId, PlayerName);
+        PlayerSessionData data = new PlayerSessionData(
+            _lobby.Id, 
+            NetworkManager.Singleton.LocalClientId, 
+            PlayerName, 
+            CurrentDeckCardIds.Values.ToArray());
+
         string json = JsonConvert.SerializeObject(data);
 
         Debug.Log("자신의 데이터 업로드");
@@ -223,14 +233,16 @@ public class LobbyManager : MonoBehaviour
                     case "PlayerSessionData":
                         PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
 
+                        PlayerSessionDatas[obj.ClientId] = obj;
+
                         if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
                         {
-                            OpponentPlayerSessionData = obj;
+                            LocalClientId = obj.ClientId;
                             Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
                         }
                         else
                         {
-                            LocalPlayerSessionData = obj;
+                            OpponentClientId = obj.ClientId;
                             Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
                         }
                         await StartGameAsync();
@@ -314,7 +326,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsHost) return;
         if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return;
-        if (LocalPlayerSessionData == null ||OpponentPlayerSessionData == null) return;
+        if (PlayerSessionDatas.Count < 2) return;
 
         // 더 이상 참가자 받지 않도록 로비 잠금
         if (_lobby != null)

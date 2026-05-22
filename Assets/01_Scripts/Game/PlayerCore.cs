@@ -1,30 +1,69 @@
-﻿using Unity.Netcode;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerCore : NetworkBehaviour
 {
-    public NetworkVariable<float> PlayerMP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner, writePerm: NetworkVariableWritePermission.Server);
+    public NetworkVariable<float> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkList<int> DeckCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkList<int> HandCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
+
+    private Queue<int> _nextCardIds = new();
 
     public override void OnNetworkSpawn()
     {
-        GameManager.Instance.PlayerCores[OwnerClientId] = this;
-
-        if (IsOwner)
+        GameManager.Instance.OnPlayerCoreSpawned(this);
+        
+        if (IsServer)
         {
-            GameManager.Instance.OnLocalPlayerCoreSpawned();
-            Debug.Log("로컬 플레이어 코어 생성됨");
+            var deckCardIds = LobbyManager.Instance.PlayerSessionDatas[OwnerClientId].DeckCardIds;
+            foreach (var cardId in deckCardIds) 
+                DeckCardIds.Add(cardId);
+
+            SetupHandAndNextCards(deckCardIds);
+
+            StartCoroutine(MpUpdateRoutine());
         }
     }
 
-    private void Update()
+    private void SetupHandAndNextCards(int[] deck)
     {
-        if (IsServer)
+        for (int i = 0; i < deck.Length; i++)
         {
-            if (PlayerMP.Value < 10)
-                PlayerMP.Value += Time.deltaTime / 2f;
-        
-            if (PlayerMP.Value > 10)
-                PlayerMP.Value = 10;
+            int rand = Random.Range(i, deck.Length);
+
+            var temp = deck[i];
+            deck[i] = deck[rand];
+            deck[rand] = temp;
+        }
+
+        for (int i = 0; i < deck.Length; i++)
+        {
+            if (i < 8)
+                HandCardIds.Add(deck[i]);
+            else
+                _nextCardIds.Enqueue(deck[i]);
+        }
+    }
+
+    private IEnumerator MpUpdateRoutine()
+    {
+        if (!IsServer)
+            yield break;
+
+        WaitForSeconds wait = new WaitForSeconds(2f);
+
+        while (true)
+        {
+            yield return wait;
+
+            if (MP.Value < 10)
+                MP.Value += 1f;
+
+            if (MP.Value > 10)
+                MP.Value = 10;
         }
     }
 }

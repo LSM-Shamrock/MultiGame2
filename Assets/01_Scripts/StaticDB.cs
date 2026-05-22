@@ -11,9 +11,20 @@ public class StaticDB : ScriptableObject
 
     [SerializeField] 
     private List<CardData> _cards;
+    private Dictionary<int, CardData> _cardDictionary;
 
+    public IReadOnlyDictionary<int, CardData> CardDataTable
+    {
+        get
+        {
+            if (_cardDictionary == null)
+            {
+                _cardDictionary = _cards.ToDictionary(e => e.CardId);
+                _cardDictionary.Add(-1, null);
+            }
+            return _cardDictionary;
+        }
+    }
+    public IReadOnlyList<CardData> CardDataList => _cards;    
 
-    private Dictionary<string, CardData> _cardDict;
-    public IReadOnlyList<CardData> CardDataList => _cards;
-    public IReadOnlyDictionary<string, CardData> CardDataTable => Instance._cardDict ?? (_cardDict = _cards.ToDictionary(e => e.CodeName));
 }

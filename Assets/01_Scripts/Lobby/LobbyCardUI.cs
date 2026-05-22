@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
+public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private Image FadeImage;
@@ -23,11 +24,11 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
 
         OnChangeDeck();
 
-        LobbyManager.Instance.CurrentDeck.OnAnyValueChanged += OnChangeDeck;
+        LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
     }
     private void OnDestroy()
     {
-        LobbyManager.Instance.CurrentDeck.OnAnyValueChanged -= OnChangeDeck;
+        LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
     }
 
     private void SetCardData(CardData cardData)
@@ -54,18 +55,23 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
     
     private void OnChangeDeck()
     {
-        var deck = LobbyManager.Instance.CurrentDeck.Values;
-        var collection = StaticDB.Instance.CardDataList;
 
         if (_isDeck)
         {
-            CardData data = deck[_index];
+            var deckCardIds = LobbyManager.Instance.CurrentDeckCardIds.Values;
+            int cardId = deckCardIds[_index];
 
-            SetCardData(data);
+            CardData cardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(cardId);
+
+            SetCardData(cardData);
             SetInteractable(true);
         }
         else
         {
+            var deckCardIds = LobbyManager.Instance.CurrentDeckCardIds.Values;
+            var collection = StaticDB.Instance.CardDataList;
+
+
             if (_index >= collection.Count)
             {
                 gameObject.SetActive(false);
@@ -73,8 +79,8 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
             }
             gameObject.SetActive(true);
 
-            var data = collection[_index];
-            var isInDeck = deck.Contains(data);
+            CardData data = collection[_index];
+            bool isInDeck = deckCardIds.Contains(data.CardId);
 
             SetCardData(data);
             SetInteractable(!isInDeck);
@@ -88,15 +94,15 @@ public class LobbyCardItem : MonoBehaviour, IPointerClickHandler
 
         if (_isDeck)
         {
-            LobbyManager.Instance.CurrentDeck[_index] = null;
+            LobbyManager.Instance.CurrentDeckCardIds[_index] = -1;
         }
         else
         {
-            for (int i = 0; i < LobbyManager.Instance.CurrentDeck.Length; i++)
+            for (int i = 0; i < LobbyManager.Instance.CurrentDeckCardIds.Length; i++)
             {
-                if (LobbyManager.Instance.CurrentDeck[i] == null)
+                if (LobbyManager.Instance.CurrentDeckCardIds[i] == -1)
                 {
-                    LobbyManager.Instance.CurrentDeck[i] = _cardData;
+                    LobbyManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
                     break;
                 }
             }

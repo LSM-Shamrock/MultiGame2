@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,18 +18,17 @@ public class GameManager : MonoBehaviour
     public IReadOnlyList<ulong> ClientIds => NetworkManager.Singleton.ConnectedClientsIds;
 
     public Dictionary<ulong, PlayerCore> PlayerCores = new();
-
     public ulong LocalClientId => LobbyManager.Instance.LocalPlayerSessionData.ClientId;
     public ulong OpponentClientId => LobbyManager.Instance.OpponentPlayerSessionData.ClientId;
-    public PlayerCore LocalPlayerCore => PlayerCores[LocalClientId];
-    public PlayerCore OpponentPlayerCore => PlayerCores[OpponentClientId];
+    public PlayerCore LocalPlayerCore { get; private set; }
+    public PlayerCore OpponentPlayerCore { get; private set; }
 
     private void Start()
     {
         _instance = this;
 
         Debug.Log($"로컬 클라 Id : {LocalClientId}, 상대 클라 Id : {OpponentClientId}");
-        
+
 
         if (NetworkManager.Singleton.IsHost)
         {
@@ -52,8 +50,16 @@ public class GameManager : MonoBehaviour
         obj.SpawnAsPlayerObject(clientId);
     }
 
-    public void OnLocalPlayerCoreSpawned()
+    public void OnPlayerCoreSpawned(PlayerCore playerCore)
     {
-        GameUI.Initialize();
+        PlayerCores[playerCore.OwnerClientId] = playerCore;
+
+        if (playerCore.IsOwner)
+            LocalPlayerCore = playerCore;
+        else
+            OpponentPlayerCore = playerCore;
+
+        if (PlayerCores.Count == 2)
+            GameUI.Initialize();
     }
 }
