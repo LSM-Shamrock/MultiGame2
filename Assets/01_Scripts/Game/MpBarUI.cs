@@ -10,6 +10,7 @@ public class MpBarUI : MonoBehaviour
 
     public void Initialize()
     {
+        Debug.Log("MpBarUI 초기화됨");
         GameManager.Instance.LocalPlayerCore.PlayerMP.OnValueChanged += OnMpChanged;
     }
 

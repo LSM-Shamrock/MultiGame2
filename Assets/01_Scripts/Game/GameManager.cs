@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 [AutoInjectionTarget]
-public class GameManager : NetworkBehaviour
+public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
     public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
@@ -16,24 +16,23 @@ public class GameManager : NetworkBehaviour
     [SerializeField, ChildField] private GameUI GameUI;
     [SerializeField, AssetField("PlayerCore")] private GameObject PlayerCorePrefab;
 
-    public IReadOnlyList<ulong> ClientIds { get; private set; }
+    public IReadOnlyList<ulong> ClientIds => NetworkManager.Singleton.ConnectedClientsIds;
+
     public Dictionary<ulong, PlayerCore> PlayerCores = new();
 
-    public ulong LocalClientId { get; private set; }
-    public ulong OpponentClientId { get; private set; }
+    public ulong LocalClientId => LobbyManager.Instance.LocalPlayerSessionData.ClientId;
+    public ulong OpponentClientId => LobbyManager.Instance.OpponentPlayerSessionData.ClientId;
     public PlayerCore LocalPlayerCore => PlayerCores[LocalClientId];
     public PlayerCore OpponentPlayerCore => PlayerCores[OpponentClientId];
 
-
-    private void Awake()
+    private void Start()
     {
         _instance = this;
 
-        ClientIds = NetworkManager.Singleton.ConnectedClientsIds;
-        LocalClientId = LobbyManager.Instance.LocalPlayerSessionData.ClientId;
-        OpponentClientId = LobbyManager.Instance.OpponentPlayerSessionData.ClientId;
+        Debug.Log($"로컬 클라 Id : {LocalClientId}, 상대 클라 Id : {OpponentClientId}");
+        
 
-        if (IsHost)
+        if (NetworkManager.Singleton.IsHost)
         {
             SpawnCore(CoreSpawnPos1, ClientIds[0]);
             SpawnCore(CoreSpawnPos2, ClientIds[1]);
@@ -51,5 +50,10 @@ public class GameManager : NetworkBehaviour
         NetworkObject obj = go.GetComponent<NetworkObject>();
         PlayerCore core = go.GetComponent<PlayerCore>();
         obj.SpawnAsPlayerObject(clientId);
+    }
+
+    public void OnLocalPlayerCoreSpawned()
+    {
+        GameUI.Initialize();
     }
 }

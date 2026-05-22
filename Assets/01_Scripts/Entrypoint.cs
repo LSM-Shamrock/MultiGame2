@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public static class Entrypoint 
 {
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
         if (SceneManager.GetActiveScene().buildIndex != 0)

@@ -3,12 +3,17 @@ using UnityEngine;
 
 public class PlayerCore : NetworkBehaviour
 {
-    public NetworkVariable<float> PlayerMP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<float> PlayerMP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner, writePerm: NetworkVariableWritePermission.Server);
 
     public override void OnNetworkSpawn()
     {
         GameManager.Instance.PlayerCores[OwnerClientId] = this;
-        Debug.Log("플레이어 코어 등록됨");
+
+        if (IsOwner)
+        {
+            GameManager.Instance.OnLocalPlayerCoreSpawned();
+            Debug.Log("로컬 플레이어 코어 생성됨");
+        }
     }
 
     private void Update()

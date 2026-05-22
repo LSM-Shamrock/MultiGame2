@@ -161,6 +161,8 @@ public class LobbyManager : MonoBehaviour
 
         if (_lobby != null)
         {
+            await _lobbyEvents.UnsubscribeAsync();
+
             if (_lobby.HostId == AuthenticationService.Instance.PlayerId)
                 await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
             else
@@ -216,18 +218,21 @@ public class LobbyManager : MonoBehaviour
             {
                 string dataString = dataValue.Value.Value;
                 
-                Debug.Log($"로비 플레이어 데이터 할당됨. \n데이터 키: {dataKey} 데이터: {dataString}");
-
                 switch (dataKey)
                 {
                     case "PlayerSessionData":
                         PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
 
                         if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
+                        {
                             OpponentPlayerSessionData = obj;
+                            Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
+                        }
                         else
+                        {
                             LocalPlayerSessionData = obj;
-
+                            Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
+                        }
                         await StartGameAsync();
                         break;
                 }
@@ -315,6 +320,8 @@ public class LobbyManager : MonoBehaviour
         if (_lobby != null)
         {
             await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions { IsLocked = true });
+            await _lobbyEvents.UnsubscribeAsync();
+            _lobby = null;
         }
 
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
