@@ -22,7 +22,7 @@ public class PlayerCore : NetworkBehaviour
         SetupDatas();
     }
 
-    public void SetupDatas()
+    private void SetupDatas()
     {
         if (IsServer)
         {
