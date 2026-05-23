@@ -2106,7 +2106,7 @@ GameObject:
   - component: {fileID: 969583356}
   - component: {fileID: 969583355}
   m_Layer: 5
-  m_Name: OtherPlayerNameText
+  m_Name: OpponentPlayerNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3561,8 +3561,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localPlayerNameText: {fileID: 1512036607}
-  _otherPlayerNameText: {fileID: 969583355}
+  _opponentPlayerNameText: {fileID: 969583355}
   _mpBar: {fileID: 1914606294}
+  _nextCard: {fileID: 2014692272}
   _handCards:
   - {fileID: 646038387}
   - {fileID: 1680496967}
@@ -4717,6 +4718,7 @@ GameObject:
   - component: {fileID: 2014692269}
   - component: {fileID: 2014692271}
   - component: {fileID: 2014692270}
+  - component: {fileID: 2014692272}
   m_Layer: 5
   m_Name: NextCard
   m_TagString: Untagged
@@ -4784,6 +4786,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2014692268}
   m_CullTransparentMesh: 1
+--- !u!114 &2014692272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2014692268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 496c36ab51369334fa3f40c21b8a84b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CardImage: {fileID: 104728348}
+  MpText: {fileID: 1769482310}
 --- !u!1 &2103239387
 GameObject:
   m_ObjectHideFlags: 0

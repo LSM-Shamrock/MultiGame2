@@ -7,9 +7,11 @@ using UnityEngine;
 public class GameUI : MonoBehaviour
 {
     [SerializeField, ChildField] private TextMeshProUGUI _localPlayerNameText;
-    [SerializeField, ChildField] private TextMeshProUGUI _otherPlayerNameText;
+    [SerializeField, ChildField] private TextMeshProUGUI _opponentPlayerNameText;
     [SerializeField, ChildField] private MpBarUI _mpBar;
+    [SerializeField, ChildField] private NextCardUI _nextCard;
     [SerializeField, ChildrenGroupField] private HandCardUI[] _handCards;
+    
 
     private void Start()
     {
@@ -35,43 +37,42 @@ public class GameUI : MonoBehaviour
         if (player == null)
             return;
 
+        for (int i = 0; i < player.HandCardIds.Count; i++) 
+            _handCards[i].SetCardId(player.HandCardIds[i]);
+
+        _nextCard.SetCardId(player.NextCardId.Value);
+
         player.PlayerName.OnValueChanged += OnPlayerNameChanged;
         player.MP.OnValueChanged += OnMpChanged;
-        player.HandCardIds.OnListChanged += OnHandChanged;
-
-        for (int i = 0; i < player.HandCardIds.Count; i++)
-        {
-            int cardId = player.HandCardIds[i];
-            CardData cardData = StaticDB.Instance.CardDataTable[cardId];
-            _handCards[i].SetCardData(cardData);
-        }
+        player.HandCardIds.OnListChanged += OnHandCardIdChanged;
+        player.NextCardId.OnValueChanged += OnNextCardIdChanged;
     }
     
+    private void OnOpponentNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
+    {
+        _opponentPlayerNameText.text = cur.ToString();
+    }
     private void OnPlayerNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
     {
         _localPlayerNameText.text = cur.ToString();
     }
-    private void OnOpponentNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
-    {
-        _otherPlayerNameText.text = cur.ToString();
-    }
-
     private void OnMpChanged(float oldValue, float newValue)
     {
         _mpBar.Value = newValue;
     }
-    private void OnHandChanged(NetworkListEvent<int> changeEvent)
+    private void OnHandCardIdChanged(NetworkListEvent<int> changeEvent)
     {
         switch (changeEvent.Type)
         {
             case NetworkListEvent<int>.EventType.Add:
-                CardData cardData = StaticDB.Instance.CardDataTable[changeEvent.Value];
-
-                Debug.Log($"패 할당됨. 인덱스: {changeEvent.Index}");
-                _handCards[changeEvent.Index].SetCardData(cardData);
+                _handCards[changeEvent.Index].SetCardId(changeEvent.Value);
                 break;
         }
 
         Debug.Log("OnHandChanged");
+    }
+    private void OnNextCardIdChanged(int oldValue, int newValue)
+    {
+        _nextCard.SetCardId(newValue);
     }
 }

@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using TMPro;
-using Unity.Netcode;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class HandCardUI : MonoBehaviour
+public class NextCardUI : MonoBehaviour
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private TextMeshProUGUI MpText;

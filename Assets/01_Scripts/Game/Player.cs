@@ -12,6 +12,7 @@ public class Player : NetworkBehaviour
     public NetworkVariable<float> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkList<int> DeckCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
     public NetworkList<int> HandCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<int> NextCardId { get; private set; } = new NetworkVariable<int>(readPerm: NetworkVariableReadPermission.Owner);
 
     private string _playerName;
     private int[] _deckCardIds;
@@ -67,7 +68,10 @@ public class Player : NetworkBehaviour
                 _nextCardIds.Enqueue(shuffled[i]);
         }
 
+        NextCardId.Value = _nextCardIds.Peek();
+
         Debug.Log("패, 다음 카드들 셋업 완료");
+        Debug.Log("다음 카드 Id : " + NextCardId.Value);
     }
 
     private IEnumerator MpUpdateRoutine()
