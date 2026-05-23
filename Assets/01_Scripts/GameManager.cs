@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
 
+    [SerializeField, AssetField("Player")] 
+    private GameObject _playerPrefab;
+
     private const int MAXPLAYERS = 2;
     private const string SCENE_NAME_TO_CHANGE = "GameScene";
 
@@ -71,11 +74,11 @@ public class GameManager : MonoBehaviour
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
     private const float HEARTBEAT_INTERVAL = 15f;
 
-    public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
     public ulong LocalClientId { get; private set; }
     public ulong OpponentClientId { get; private set; }
-    public PlayerSessionData LocalPlayerSessionData => PlayerSessionDatas[LocalClientId];
-    public PlayerSessionData OpponentPlayerSessionData => PlayerSessionDatas[OpponentClientId];
+    public Dictionary<ulong, Player> Players { get; private set; } = new();
+    public Player LocalPlayer => Players[LocalClientId];
+    public Player OpponentPlayer => Players[OpponentClientId];
 
     private void Awake()
     {
@@ -199,7 +202,6 @@ public class GameManager : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
 
         IsMatchingInProgress.Value = false;
-        PlayerSessionDatas.Clear();
     }
 
     private async Task HeartbeatAsync()
@@ -237,7 +239,7 @@ public class GameManager : MonoBehaviour
             }
         });
     }
-    private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    private void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
     {
         foreach (var (playerIndex, playerData) in playerDatas)
         {
@@ -250,8 +252,6 @@ public class GameManager : MonoBehaviour
                     case "PlayerSessionData":
                         PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
 
-                        PlayerSessionDatas[obj.ClientId] = obj;
-
                         if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
                         {
                             LocalClientId = obj.ClientId;
@@ -262,7 +262,9 @@ public class GameManager : MonoBehaviour
                             OpponentClientId = obj.ClientId;
                             Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
                         }
-                        await StartGameAsync();
+
+                        if (NetworkManager.Singleton.IsHost)
+                            SpawnPlayer(obj.ClientId, obj.PlayerName, obj.DeckCardIds);
                         break;
                 }
             }
@@ -289,12 +291,27 @@ public class GameManager : MonoBehaviour
             await UploadLobbyPlayerDataAsync();
     }
 
-
-    private async Task StartGameAsync()
+    private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds)
     {
-        if (!NetworkManager.Singleton.IsHost) return;
-        if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return;
-        if (PlayerSessionDatas.Count < 2) return;
+        GameObject go = Instantiate(_playerPrefab);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        Player player = go.GetComponent<Player>();
+        player.Init(playerName, deckCardIds);
+        player.OnNetworkSpawned += OnPlayerNetworkSpawned;
+        obj.SpawnAsPlayerObject(clientId);
+    }
+    private async void OnPlayerNetworkSpawned(Player player)
+    {
+        Players[player.OwnerClientId] = player;
+
+        if (Players.Count == MAXPLAYERS)
+            await TryStartGameAsync();
+    }
+    private async Task<bool> TryStartGameAsync()
+    {
+        if (!NetworkManager.Singleton.IsHost) return false;
+        if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return false;
+        if (Players.Count < 2) return false;
 
         // 더 이상 참가자 받지 않도록 로비 잠금
         if (_lobby != null)
@@ -305,5 +322,7 @@ public class GameManager : MonoBehaviour
         }
 
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+        
+        return true;
     }
 }
