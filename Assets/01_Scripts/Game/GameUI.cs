@@ -1,4 +1,5 @@
 ﻿using TMPro;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,12 +11,55 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildField] private MpBarUI _mpBar;
     [SerializeField, ChildrenGroupField] private HandCardUI[] _handCards;
 
+    private void Start()
+    {
+        if (GameManager.Instance != null)
+        {
+            OnLocalPlayerSpawned(GameManager.Instance.LocalPlayer.Value);
+            GameManager.Instance.LocalPlayer.OnValueChanged += OnLocalPlayerSpawned;
+
+            OnOpponentPlayerSpawned(GameManager.Instance.OpponentPlayer.Value);
+            GameManager.Instance.OpponentPlayer.OnValueChanged += OnOpponentPlayerSpawned;
+        }
+    }
+
+    private void OnOpponentPlayerSpawned(Player player)
+    {
+        if (player == null)
+            return;
+
+        player.PlayerName.OnValueChanged += OnOpponentNameChanged;
+    }
+    private void OnLocalPlayerSpawned(Player player)
+    {
+        if (player == null)
+            return;
+
+        player.PlayerName.OnValueChanged += OnPlayerNameChanged;
+        player.MP.OnValueChanged += OnMpChanged;
+        player.HandCardIds.OnListChanged += OnHandChanged;
+
+        for (int i = 0; i < player.HandCardIds.Count; i++)
+        {
+            int cardId = player.HandCardIds[i];
+            CardData cardData = StaticDB.Instance.CardDataTable[cardId];
+            _handCards[i].SetCardData(cardData);
+        }
+    }
+    
+    private void OnPlayerNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
+    {
+        _localPlayerNameText.text = cur.ToString();
+    }
+    private void OnOpponentNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
+    {
+        _otherPlayerNameText.text = cur.ToString();
+    }
 
     private void OnMpChanged(float oldValue, float newValue)
     {
         _mpBar.Value = newValue;
     }
-
     private void OnHandChanged(NetworkListEvent<int> changeEvent)
     {
         switch (changeEvent.Type)
@@ -29,15 +73,5 @@ public class GameUI : MonoBehaviour
         }
 
         Debug.Log("OnHandChanged");
-    }
-
-    private void RefreshHandCards(int[] handCardIds)
-    {
-        for (int i = 0; i < handCardIds.Length; i++)
-        {
-            int cardId = handCardIds[i];
-            CardData cardData = StaticDB.Instance.CardDataTable[cardId];
-            _handCards[i].SetCardData(cardData);
-        }
     }
 }

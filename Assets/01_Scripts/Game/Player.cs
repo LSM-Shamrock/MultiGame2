@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    public event Action<Player> OnNetworkSpawned;
     public NetworkVariable<FixedString32Bytes> PlayerName { get; private set; } = new NetworkVariable<FixedString32Bytes>();
     public NetworkVariable<float> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkList<int> DeckCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
@@ -26,6 +25,11 @@ public class Player : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        if (IsOwner)
+            GameManager.Instance.LocalPlayer.Value = this;
+        else
+            GameManager.Instance.OpponentPlayer.Value = this;
+
         if (IsServer)
         {
             PlayerName.Value = _playerName ?? "";
@@ -39,7 +43,6 @@ public class Player : NetworkBehaviour
 
             Debug.Log("플레이어 데이터 초기 할당됨");
         }
-        OnNetworkSpawned?.Invoke(this);
     }
 
     private void SetupHandAndNextCards(int[] deck)

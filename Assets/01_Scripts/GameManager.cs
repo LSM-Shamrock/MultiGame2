@@ -76,9 +76,9 @@ public class GameManager : MonoBehaviour
 
     public ulong LocalClientId { get; private set; }
     public ulong OpponentClientId { get; private set; }
-    public Dictionary<ulong, Player> Players { get; private set; } = new();
-    public Player LocalPlayer => Players[LocalClientId];
-    public Player OpponentPlayer => Players[OpponentClientId];
+    public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
+    public ObservableValue<Player> LocalPlayer { get; private set; } = new();
+    public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
 
     private void Awake()
     {
@@ -239,7 +239,7 @@ public class GameManager : MonoBehaviour
             }
         });
     }
-    private void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
     {
         foreach (var (playerIndex, playerData) in playerDatas)
         {
@@ -250,21 +250,24 @@ public class GameManager : MonoBehaviour
                 switch (dataKey)
                 {
                     case "PlayerSessionData":
-                        PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
-
-                        if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
-                        {
-                            LocalClientId = obj.ClientId;
-                            Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
-                        }
-                        else
-                        {
-                            OpponentClientId = obj.ClientId;
-                            Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
-                        }
-
                         if (NetworkManager.Singleton.IsHost)
-                            SpawnPlayer(obj.ClientId, obj.PlayerName, obj.DeckCardIds);
+                        {
+                            PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
+                            
+                            PlayerSessionDatas[obj.ClientId] = obj;
+                            if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
+                            {
+                                LocalClientId = obj.ClientId;
+                                Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
+                            }
+                            else
+                            {
+                                OpponentClientId = obj.ClientId;
+                                Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
+                            }
+
+                            await TryStartGameAsync();
+                        }
                         break;
                 }
             }
@@ -297,21 +300,13 @@ public class GameManager : MonoBehaviour
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Player player = go.GetComponent<Player>();
         player.Init(playerName, deckCardIds);
-        player.OnNetworkSpawned += OnPlayerNetworkSpawned;
         obj.SpawnAsPlayerObject(clientId);
-    }
-    private async void OnPlayerNetworkSpawned(Player player)
-    {
-        Players[player.OwnerClientId] = player;
-
-        if (Players.Count == MAXPLAYERS)
-            await TryStartGameAsync();
     }
     private async Task<bool> TryStartGameAsync()
     {
         if (!NetworkManager.Singleton.IsHost) return false;
         if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return false;
-        if (Players.Count < 2) return false;
+        if (PlayerSessionDatas.Count < 2) return false;
 
         // 더 이상 참가자 받지 않도록 로비 잠금
         if (_lobby != null)
@@ -321,8 +316,11 @@ public class GameManager : MonoBehaviour
             _lobby = null;
         }
 
-        NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+        foreach (var (k, v) in PlayerSessionDatas)
+            SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds);
         
+        NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+
         return true;
     }
 }
