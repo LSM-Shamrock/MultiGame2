@@ -10,16 +10,6 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildField] private MpBarUI _mpBar;
     [SerializeField, ChildrenGroupField] private HandCardUI[] _handCards;
 
-    public void Initialize()
-    {
-        _localPlayerNameText.text = LobbyManager.Instance.PlayerName;
-        _otherPlayerNameText.text = LobbyManager.Instance.OpponentPlayerSessionData.PlayerName;
-
-        PlayerCore playerCore = GameManager.Instance.LocalPlayerCore;
-        playerCore.MP.OnValueChanged += OnMpChanged;
-        playerCore.HandCardIds.OnListChanged += OnHandChanged;
-        Debug.Log("Game UI Initialized");
-    }
 
     private void OnMpChanged(float oldValue, float newValue)
     {

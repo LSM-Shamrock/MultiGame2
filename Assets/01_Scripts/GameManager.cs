@@ -35,10 +35,10 @@ public class PlayerSessionData
 }
 
 [AutoInjectionTarget]
-public class LobbyManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    private static LobbyManager _instance;
-    public static LobbyManager Instance => _instance ?? (_instance = FindAnyObjectByType<LobbyManager>());
+    private static GameManager _instance;
+    public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
 
     private const int MAXPLAYERS = 2;
     private const string SCENE_NAME_TO_CHANGE = "GameScene";

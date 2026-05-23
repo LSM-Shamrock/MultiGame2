@@ -24,11 +24,11 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 
         OnChangeDeck();
 
-        LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
+        GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
     }
     private void OnDestroy()
     {
-        LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
+        GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
     }
 
     private void SetCardData(CardData cardData)
@@ -58,7 +58,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 
         if (_isDeck)
         {
-            var deckCardIds = LobbyManager.Instance.CurrentDeckCardIds.Values;
+            var deckCardIds = GameManager.Instance.CurrentDeckCardIds.Values;
             int cardId = deckCardIds[_index];
 
             CardData cardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(cardId);
@@ -68,7 +68,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            var deckCardIds = LobbyManager.Instance.CurrentDeckCardIds.Values;
+            var deckCardIds = GameManager.Instance.CurrentDeckCardIds.Values;
             var collection = StaticDB.Instance.CardDataList;
 
 
@@ -94,15 +94,15 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 
         if (_isDeck)
         {
-            LobbyManager.Instance.CurrentDeckCardIds[_index] = -1;
+            GameManager.Instance.CurrentDeckCardIds[_index] = -1;
         }
         else
         {
-            for (int i = 0; i < LobbyManager.Instance.CurrentDeckCardIds.Length; i++)
+            for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
             {
-                if (LobbyManager.Instance.CurrentDeckCardIds[i] == -1)
+                if (GameManager.Instance.CurrentDeckCardIds[i] == -1)
                 {
-                    LobbyManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
+                    GameManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
                     break;
                 }
             }

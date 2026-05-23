@@ -20,7 +20,7 @@ public class LobbyUI : MonoBehaviour
         PlayerNameInput.onValueChanged.AddListener(OnValueChanged_PlayerNameInput);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
 
-        LobbyManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
+        GameManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
     }
     private void OnDestroy()
     {
@@ -30,7 +30,7 @@ public class LobbyUI : MonoBehaviour
         PlayerNameInput.onValueChanged.RemoveAllListeners();
         MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
-        LobbyManager.Instance.IsMatchingInProgress.OnValueChanged -= OnChanged_MatchingInProgress;
+        GameManager.Instance.IsMatchingInProgress.OnValueChanged -= OnChanged_MatchingInProgress;
     }
 
     private void Update()
@@ -42,9 +42,9 @@ public class LobbyUI : MonoBehaviour
     {
         MatchmakingUI.JoinCodeText.text = "방 생성 중";
 
-        await LobbyManager.Instance.CreateLobbyAsync();
+        await GameManager.Instance.CreateLobbyAsync();
 
-        MatchmakingUI.JoinCodeText.text = LobbyManager.Instance.LobbyId;
+        MatchmakingUI.JoinCodeText.text = GameManager.Instance.LobbyId;
     }
     private async void OnClick_JoinButton()
     {
@@ -52,7 +52,7 @@ public class LobbyUI : MonoBehaviour
 
         string inputJoinCode = JoinCodeInput.text;
 
-        if (await LobbyManager.Instance.JoinLobbyAsync(inputJoinCode))
+        if (await GameManager.Instance.JoinLobbyAsync(inputJoinCode))
         {
             MatchmakingUI.JoinCodeText.text = inputJoinCode;
         }
@@ -61,15 +61,15 @@ public class LobbyUI : MonoBehaviour
     {
         MatchmakingUI.JoinCodeText.text = "자동 매칭";
 
-        await LobbyManager.Instance.AutoMatchingAsync();
+        await GameManager.Instance.AutoMatchingAsync();
     }
     private async void OnClick_CancleButton()
     {
-        await LobbyManager.Instance.CancelMatcingAsync();
+        await GameManager.Instance.CancelMatcingAsync();
     }
     private void OnValueChanged_PlayerNameInput(string value)
     {
-        LobbyManager.Instance.PlayerName = value;
+        GameManager.Instance.PlayerName = value;
     }
 
     private void OnChanged_MatchingInProgress(bool value)

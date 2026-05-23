@@ -14,11 +14,6 @@ public class PlayerCore : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        GameManager.Instance.OnPlayerCoreSpawned(this);
-
-        DeckCardIds.OnListChanged += OnDeckCardIdsChanged;
-        HandCardIds.OnListChanged += OnHandCardIdsChanged;
-
         SetupDatas();
     }
 
@@ -26,7 +21,7 @@ public class PlayerCore : NetworkBehaviour
     {
         if (IsServer)
         {
-            var deckCardIds = LobbyManager.Instance.PlayerSessionDatas[OwnerClientId].DeckCardIds;
+            var deckCardIds = GameManager.Instance.PlayerSessionDatas[OwnerClientId].DeckCardIds;
             foreach (var cardId in deckCardIds) 
                 DeckCardIds.Add(cardId);
 
@@ -82,16 +77,5 @@ public class PlayerCore : NetworkBehaviour
                 yield return null;
             }
         }
-    }
-
-
-
-    private void OnDeckCardIdsChanged(NetworkListEvent<int> changedEvent)
-    {
-        Debug.Log($"덱 할당됨: {changedEvent.Value}");
-    }
-    private void OnHandCardIdsChanged(NetworkListEvent<int> changedEvent)
-    {
-        Debug.Log($"패 할당됨: {changedEvent.Value}");
     }
 }
