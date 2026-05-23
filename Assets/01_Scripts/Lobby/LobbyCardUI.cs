@@ -24,11 +24,13 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 
         OnChangeDeck();
 
-        GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
+        if (GameManager.Instance != null)
+            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
     }
     private void OnDestroy()
     {
-        GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
+        if (GameManager.Instance != null) 
+            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
     }
 
     private void SetCardData(CardData cardData)

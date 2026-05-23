@@ -45,17 +45,6 @@ public class GameManager : MonoBehaviour
 
     public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
     
-    public string PlayerName { get; set; }
-    public string LobbyId => _lobby.Id;
-    private Lobby _lobby;
-    private LobbyEventCallbacks _lobbyEventCallbacks = new();
-    private ILobbyEvents _lobbyEvents;
-    private float _heartbeatTimer;
-    private bool _isHeartbeating;
-    private const string LOBBY_NAME = "Lobby";
-    private const string LOBBY_KEY_JOINCODE = "JoinCode";
-    private const float HEARTBEAT_INTERVAL = 15f;
-
     private ObservableArray<int> _currentDeck;
     public ObservableArray<int> CurrentDeckCardIds
     {
@@ -71,7 +60,16 @@ public class GameManager : MonoBehaviour
             return _currentDeck;
         }
     }
-
+    public string PlayerName { get; set; }
+    public string LobbyId => _lobby.Id;
+    private Lobby _lobby;
+    private LobbyEventCallbacks _lobbyEventCallbacks = new();
+    private ILobbyEvents _lobbyEvents;
+    private float _heartbeatTimer;
+    private bool _isHeartbeating;
+    private const string LOBBY_NAME = "Lobby";
+    private const string LOBBY_KEY_JOINCODE = "JoinCode";
+    private const float HEARTBEAT_INTERVAL = 15f;
 
     public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
     public ulong LocalClientId { get; private set; }
@@ -91,29 +89,36 @@ public class GameManager : MonoBehaviour
 
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
     }
-
-
     private async void Update()
     {
         await HeartbeatAsync();
     }
 
+    #region Lobby
     public async Task CreateLobbyAsync(bool isPrivate = true)
     {
         IsMatchingInProgress.Value = true;
 
-        string joinCode = await CreateRoomAsync();
+        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
+        NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
+            allocation.RelayServer.IpV4,
+            (ushort)allocation.RelayServer.Port,
+            allocation.AllocationIdBytes,
+            allocation.Key,
+            allocation.ConnectionData);
+        string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
-        CreateLobbyOptions options = new CreateLobbyOptions()
+        _lobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, new CreateLobbyOptions()
         {
             IsPrivate = isPrivate,
             Data = new Dictionary<string, DataObject>
             {
                 { LOBBY_KEY_JOINCODE, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
             }
-        };
-
-        _lobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, options);
+        });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
     }
     public async Task<bool> JoinLobbyAsync(string lobbyId)
@@ -125,7 +130,19 @@ public class GameManager : MonoBehaviour
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
             _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
-            return await JoinRoomAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
+            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
+                allocation.RelayServer.IpV4,
+                (ushort)allocation.RelayServer.Port,
+                allocation.AllocationIdBytes,
+                allocation.Key,
+                allocation.ConnectionData,
+                allocation.HostConnectionData);
+            NetworkManager.Singleton.StartClient();
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+            return true;
         }
         catch (LobbyServiceException ex)
         {
@@ -251,58 +268,8 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    private async Task<string> CreateRoomAsync()
-    {
-        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
-
-        string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
-        UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        transport.SetHostRelayData(
-            allocation.RelayServer.IpV4,
-            (ushort)allocation.RelayServer.Port,
-            allocation.AllocationIdBytes,
-            allocation.Key,
-            allocation.ConnectionData);
-
-        NetworkManager.Singleton.StartHost();
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-
-        return joinCode;
-    }
-    private async Task<bool> JoinRoomAsync(string joinCode)
-    {
-        if (string.IsNullOrEmpty(joinCode)) 
-            return false; 
-
-        try
-        {
-            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-
-            UnityTransport transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            transport.SetClientRelayData(
-                allocation.RelayServer.IpV4,
-                (ushort)allocation.RelayServer.Port,
-                allocation.AllocationIdBytes,
-                allocation.Key,
-                allocation.ConnectionData,
-                allocation.HostConnectionData);
-
-            NetworkManager.Singleton.StartClient();
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-
-            return true;
-        }
-        catch (RelayServiceException ex)
-        {
-            Debug.Log(ex);
-
-            return false;
-        }
-    }
     private void OnClientDisconnected(ulong clientId)
     {
         if (NetworkManager.Singleton.IsHost)
@@ -321,6 +288,7 @@ public class GameManager : MonoBehaviour
         if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
             await UploadLobbyPlayerDataAsync();
     }
+
 
     private async Task StartGameAsync()
     {
