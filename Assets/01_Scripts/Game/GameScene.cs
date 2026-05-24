@@ -9,7 +9,6 @@ public class GameScene : MonoBehaviour
 
     [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
-    [SerializeField, ChildField] private Transform RotateRoot;
     [SerializeField, ChildField] private Transform CoreSpawnPos1;
     [SerializeField, ChildField] private Transform CoreSpawnPos2;
     

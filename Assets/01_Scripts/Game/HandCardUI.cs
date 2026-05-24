@@ -17,10 +17,14 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
 
     public void SetCardId(int cardId)
     {
-        CardImage.gameObject.SetActive(cardId != -1);
-
         if (!StaticDB.Instance.CardDataTable.ContainsKey(cardId))
+        {
+            _cardData = null;
+            CardImage.gameObject.SetActive(false);
             return;
+        }
+
+        CardImage.gameObject.SetActive(true);
 
         _cardData = StaticDB.Instance.CardDataTable[cardId];
         string path = $"CardSprites/{_cardData.CodeName}";
@@ -51,9 +55,9 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
     {
         CardImage.transform.localPosition = new Vector3(0, isSelected ? 30f : 0f);
     }
-    public void SetHide(bool isHide)
+    public void SetShow(bool isShow)
     {
-        CardImage.gameObject.SetActive(!isHide);
+        CardImage.gameObject.SetActive(isShow);
     }
 
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
