@@ -8,11 +8,11 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    public NetworkVariable<FixedString32Bytes> PlayerName { get; private set; } = new NetworkVariable<FixedString32Bytes>();
+    public NetworkVariable<FixedString32Bytes> PlayerName { get; private set; } = new();
     public NetworkVariable<int> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
-    public NetworkList<int> DeckCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
-    public NetworkList<int> HandCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
-    public NetworkVariable<int> NextCardId { get; private set; } = new NetworkVariable<int>(readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkList<int> DeckCardIds { get; private set; } = new(readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkList<int> HandCardIds { get; private set; } = new(readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<int> NextCardId { get; private set; } = new(readPerm: NetworkVariableReadPermission.Owner);
 
     private string _playerName;
     private int[] _deckCardIds;

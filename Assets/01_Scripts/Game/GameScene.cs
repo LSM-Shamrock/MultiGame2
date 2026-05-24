@@ -20,7 +20,6 @@ public class GameScene : MonoBehaviour
     {
         _instance = this;
     }
-
     private void Start()
     {
         if (NetworkManager.Singleton.IsHost && GameManager.Instance)
@@ -41,7 +40,6 @@ public class GameScene : MonoBehaviour
         player.Init(playerName, deckCardIds);
         obj.SpawnAsPlayerObject(clientId);
     }
-
     private void SpawnCore(ulong clientId, Transform pos)
     {
         GameObject go = Instantiate(_corePrefab, pos.position, pos.rotation);
