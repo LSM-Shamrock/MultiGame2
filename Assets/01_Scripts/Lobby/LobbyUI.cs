@@ -20,7 +20,8 @@ public class LobbyUI : MonoBehaviour
         PlayerNameInput.onValueChanged.AddListener(OnValueChanged_PlayerNameInput);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
 
-        GameManager.Instance.IsMatchingInProgress.OnValueChanged += OnChanged_MatchingInProgress;
+        if (GameManager.Instance)
+            GameManager.Instance.State.OnValueChanged += OnChanged_GameManagerState;
     }
     private void OnDestroy()
     {
@@ -30,7 +31,8 @@ public class LobbyUI : MonoBehaviour
         PlayerNameInput.onValueChanged.RemoveAllListeners();
         MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
-        GameManager.Instance.IsMatchingInProgress.OnValueChanged -= OnChanged_MatchingInProgress;
+        if (GameManager.Instance)
+            GameManager.Instance.State.OnValueChanged -= OnChanged_GameManagerState;
     }
 
     private void Update()
@@ -38,42 +40,47 @@ public class LobbyUI : MonoBehaviour
         JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text);
     }
 
+    private void OnValueChanged_PlayerNameInput(string value)
+    {
+        GameManager.Instance.PlayerName = value;
+    }
     private async void OnClick_CreateButton()
     {
-        MatchmakingUI.JoinCodeText.text = "방 생성 중";
-
         await GameManager.Instance.CreateLobbyAsync();
-
-        MatchmakingUI.JoinCodeText.text = GameManager.Instance.LobbyId;
+        MatchmakingUI.JoinCodeField.text = GameManager.Instance.LobbyId;
     }
     private async void OnClick_JoinButton()
     {
-        MatchmakingUI.JoinCodeText.text = "방 접속 중";
-
-        string inputJoinCode = JoinCodeInput.text;
-
-        if (await GameManager.Instance.JoinLobbyAsync(inputJoinCode))
-        {
-            MatchmakingUI.JoinCodeText.text = inputJoinCode;
-        }
+        MatchmakingUI.JoinCodeField.text  = "";
+        await GameManager.Instance.JoinLobbyAsync(JoinCodeInput.text);
     }
     private async void OnClick_AutoMatching()
     {
-        MatchmakingUI.JoinCodeText.text = "자동 매칭";
-
+        MatchmakingUI.JoinCodeField.text = "";
         await GameManager.Instance.AutoMatchingAsync();
     }
     private async void OnClick_CancleButton()
     {
         await GameManager.Instance.CancelMatcingAsync();
     }
-    private void OnValueChanged_PlayerNameInput(string value)
-    {
-        GameManager.Instance.PlayerName = value;
-    }
 
-    private void OnChanged_MatchingInProgress(bool value)
+    private void OnChanged_GameManagerState(GameManagerState value)
     {
-        MatchmakingUI.gameObject.SetActive(value);
+        if (value == GameManagerState.Lobby) MatchmakingUI.gameObject.SetActive(false);
+        if (value == GameManagerState.FindingMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.CreateingMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.JoiningMatching) MatchmakingUI.gameObject.SetActive(true);
+
+        MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
+        MatchmakingUI.StateText.text = value switch
+        {
+            GameManagerState.FindingMatching => "매칭 찾는 중",
+            GameManagerState.CreateingMatching => "매칭 생성 중",
+            GameManagerState.JoiningMatching => "매칭 입장 중",
+            GameManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
+            GameManagerState.CancellingMatching => "매칭 취소 중",
+            GameManagerState.StartingGame => "게임 시작 중",
+            _ => "",
+        };
     }
 }

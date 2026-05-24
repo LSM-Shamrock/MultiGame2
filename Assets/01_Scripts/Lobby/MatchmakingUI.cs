@@ -6,5 +6,6 @@ using UnityEngine.UI;
 public class MatchmakingUI : MonoBehaviour
 {
     [ChildField] public Button CancleButton;
-    [ChildField] public TextMeshProUGUI JoinCodeText;
+    [ChildField] public TMP_InputField JoinCodeField;
+    [ChildField] public TextMeshProUGUI StateText;
 }

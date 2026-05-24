@@ -34,6 +34,18 @@ public class PlayerSessionData
     }
 }
 
+public enum GameManagerState
+{
+    Lobby,
+    FindingMatching,
+    CreateingMatching,
+    JoiningMatching,
+    WaitingForPalyers,
+    CancellingMatching,
+    StartingGame,
+    GameStarted,
+}
+
 [AutoInjectionTarget]
 public class GameManager : MonoBehaviour
 {
@@ -46,8 +58,9 @@ public class GameManager : MonoBehaviour
     private const int MAXPLAYERS = 2;
     private const string SCENE_GAME = "GameScene";
 
-    public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
-    
+    public IObservOnlyValue<GameManagerState> State => _state;
+    private ObservableValue<GameManagerState> _state = new(GameManagerState.Lobby); 
+
     public string PlayerName { get; set; }
     public ObservableArray<int> CurrentDeckCardIds
     {
@@ -101,7 +114,7 @@ public class GameManager : MonoBehaviour
     #region Lobby
     public async Task CreateLobbyAsync(bool isPrivate = true)
     {
-        IsMatchingInProgress.Value = true;
+        _state.Value = GameManagerState.CreateingMatching;
 
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
@@ -124,10 +137,12 @@ public class GameManager : MonoBehaviour
             }
         });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
+
+        _state.Value = GameManagerState.WaitingForPalyers;
     }
     public async Task<bool> JoinLobbyAsync(string lobbyId)
     {
-        IsMatchingInProgress.Value = true;
+        _state.Value = GameManagerState.JoiningMatching;
 
         try
         {
@@ -152,14 +167,14 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log(ex);
 
-            IsMatchingInProgress.Value = false;
+            _state.Value = GameManagerState.Lobby;
 
             return false;
         }
     }
     public async Task AutoMatchingAsync()
     {
-        IsMatchingInProgress.Value = true;
+        _state.Value = GameManagerState.FindingMatching;
 
         QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
         {
@@ -183,6 +198,8 @@ public class GameManager : MonoBehaviour
     }
     public async Task CancelMatcingAsync()
     {
+        _state.Value = GameManagerState.CancellingMatching;
+
         if (NetworkManager.Singleton == null) 
             return;
 
@@ -202,7 +219,7 @@ public class GameManager : MonoBehaviour
         NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
         NetworkManager.Singleton.Shutdown();
 
-        IsMatchingInProgress.Value = false;
+        _state.Value = GameManagerState.Lobby;
     }
 
     private async Task HeartbeatAsync()
@@ -286,13 +303,16 @@ public class GameManager : MonoBehaviour
 
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
-            IsMatchingInProgress.Value = false;
+            _state.Value = GameManagerState.Lobby;
         }
     }
     private async void OnClientConnected(ulong clientId)
     {
         if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
+        {
+            _state.Value = GameManagerState.StartingGame;
             await UploadLobbyPlayerDataAsync();
+        }
     }
 
     private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds)
