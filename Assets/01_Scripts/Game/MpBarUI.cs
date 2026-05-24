@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,27 +8,8 @@ public class MpBarUI : MonoBehaviour
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
     [SerializeField, ChildrenGroupField] private Image[] FillImages;
 
-    private float _value;
-    public float Value
-    {
-        get => _value;
-        set
-        {
-            _value = value;
-            OnValueChanged();
-        }
-    }
 
-
-    private void LateUpdate()
-    {
-        if (Value < 10)
-            Value += Time.deltaTime / 2f;
-        if (Value > 10)
-            Value = 10;
-    }
-
-    private void OnValueChanged()
+    public void SetMP(float Value)
     {
         MpText.text = $"{(int)Value}";
 

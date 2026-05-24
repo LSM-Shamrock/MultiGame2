@@ -9,7 +9,7 @@ using UnityEngine;
 public class Player : NetworkBehaviour
 {
     public NetworkVariable<FixedString32Bytes> PlayerName { get; private set; } = new NetworkVariable<FixedString32Bytes>();
-    public NetworkVariable<float> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
+    public NetworkVariable<int> MP { get; private set; } = new(4, readPerm: NetworkVariableReadPermission.Owner);
     public NetworkList<int> DeckCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
     public NetworkList<int> HandCardIds { get; private set; } = new NetworkList<int>(readPerm: NetworkVariableReadPermission.Owner);
     public NetworkVariable<int> NextCardId { get; private set; } = new NetworkVariable<int>(readPerm: NetworkVariableReadPermission.Owner);
@@ -86,7 +86,7 @@ public class Player : NetworkBehaviour
             if (MP.Value < 10)
             {
                 yield return wait;
-                MP.Value += 1f;
+                MP.Value++;
             }
             else
             {

@@ -11,7 +11,20 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildField] private MpBarUI _mpBar;
     [SerializeField, ChildField] private NextCardUI _nextCard;
     [SerializeField, ChildrenGroupField] private HandCardUI[] _handCards;
-    
+
+    private float _mp;
+    public float MP
+    {
+        get => _mp;
+        set
+        {
+            _mp = value;
+
+            _mpBar.SetMP(_mp);
+            foreach (var card in _handCards)
+                card.SetPlayerMP(_mp);
+        }
+    }
 
     private void Start()
     {
@@ -23,6 +36,13 @@ public class GameUI : MonoBehaviour
             OnOpponentPlayerSpawned(GameScene.Instance.OpponentPlayer.Value);
             GameScene.Instance.OpponentPlayer.OnValueChanged += OnOpponentPlayerSpawned;
         }
+    }
+    private void LateUpdate()
+    {
+        if (MP < 10)
+            MP += Time.deltaTime / 2f;
+        if (MP > 10)
+            MP = 10;
     }
 
     private void OnOpponentPlayerSpawned(Player player)
@@ -58,9 +78,9 @@ public class GameUI : MonoBehaviour
     {
         _localPlayerNameText.text = cur.ToString();
     }
-    private void OnMpChanged(float oldValue, float newValue)
+    private void OnMpChanged(int oldValue, int newValue)
     {
-        _mpBar.Value = newValue;
+        MP = newValue;
     }
     private void OnHandCardIdChanged(NetworkListEvent<int> changeEvent)
     {
@@ -70,8 +90,6 @@ public class GameUI : MonoBehaviour
                 _handCards[changeEvent.Index].SetCardId(changeEvent.Value);
                 break;
         }
-
-        Debug.Log("OnHandChanged");
     }
     private void OnNextCardIdChanged(int oldValue, int newValue)
     {

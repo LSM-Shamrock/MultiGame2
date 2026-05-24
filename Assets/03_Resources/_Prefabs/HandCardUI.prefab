@@ -30,8 +30,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5050589084239401960}
   - {fileID: 6404127621730435808}
+  - {fileID: 5050589084239401960}
   m_Father: {fileID: 2955865514341705711}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CardImage: {fileID: 8108806720304463969}
+  FadeImage: {fileID: 3191919400693267235}
   MpText: {fileID: 8820825245720854102}
 --- !u!1 &3238351338735771162
 GameObject:
@@ -375,7 +376,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 0
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
