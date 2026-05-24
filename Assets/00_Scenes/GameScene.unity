@@ -3272,7 +3272,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1522919136}
-  - component: {fileID: 1522919137}
   m_Layer: 0
   m_Name: CoreSpawnPos2
   m_TagString: Untagged
@@ -3295,18 +3294,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1940161631}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &1522919137
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1522919135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 984a9b84ec152ca4a8b011a5ae829b68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1531290356
 GameObject:
   m_ObjectHideFlags: 0
@@ -4581,6 +4568,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 3771861134317787343, guid: cd5fc06d0f4a3754faf8651b2cea3771, type: 3}
   _corePrefab: {fileID: 6239668291141435857, guid: 34eb16b2b635143488bf6a7d120776b7, type: 3}
+  RotateRoot: {fileID: 555590987}
+  CoreSpawnPos1: {fileID: 7396202327068508590}
+  CoreSpawnPos2: {fileID: 1522919136}
 --- !u!1 &1974170708
 GameObject:
   m_ObjectHideFlags: 0
@@ -4987,7 +4977,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7396202327068508590}
-  - component: {fileID: 7396202327068508591}
   m_Layer: 0
   m_Name: CoreSpawnPos1
   m_TagString: Untagged
@@ -5010,18 +4999,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1940161631}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7396202327068508591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6279772942374076685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 984a9b84ec152ca4a8b011a5ae829b68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
