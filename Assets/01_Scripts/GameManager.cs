@@ -43,7 +43,6 @@ public enum GameManagerState
     WaitingForPalyers,
     CancellingMatching,
     StartingGame,
-    GameStarted,
 }
 
 [AutoInjectionTarget]
@@ -51,9 +50,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
     private static GameManager _instance;
-
-    [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
-    [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
     private const int MAXPLAYERS = 2;
     private const string SCENE_GAME = "GameScene";
@@ -91,8 +87,6 @@ public class GameManager : MonoBehaviour
     public ulong LocalClientId { get; private set; }
     public ulong OpponentClientId { get; private set; }
     public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
-    public ObservableValue<Player> LocalPlayer { get; private set; } = new();
-    public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
 
     private void Awake()
     {
@@ -315,14 +309,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds)
-    {
-        GameObject go = Instantiate(_playerPrefab);
-        NetworkObject obj = go.GetComponent<NetworkObject>();
-        Player player = go.GetComponent<Player>();
-        player.Init(playerName, deckCardIds);
-        obj.SpawnAsPlayerObject(clientId);
-    }
     private async Task<bool> TryStartGameAsync()
     {
         if (!NetworkManager.Singleton.IsHost) return false;
@@ -337,9 +323,6 @@ public class GameManager : MonoBehaviour
             _lobby = null;
         }
 
-        foreach (var (k, v) in PlayerSessionDatas)
-            SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds);
-        
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_GAME, LoadSceneMode.Single);
 
         return true;

@@ -16,7 +16,7 @@ public class HandCardUI : MonoBehaviour
     {
         CardImage.gameObject.SetActive(cardId != -1);
 
-        if (cardId == -1)
+        if (!StaticDB.Instance.CardDataTable.ContainsKey(cardId))
             return;
 
         CardData cardData = StaticDB.Instance.CardDataTable[cardId];

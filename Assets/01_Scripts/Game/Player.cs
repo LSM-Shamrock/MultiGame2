@@ -27,9 +27,9 @@ public class Player : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
-            GameManager.Instance.LocalPlayer.Value = this;
+            GameScene.Instance.LocalPlayer.Value = this;
         else
-            GameManager.Instance.OpponentPlayer.Value = this;
+            GameScene.Instance.OpponentPlayer.Value = this;
 
         if (IsServer)
         {

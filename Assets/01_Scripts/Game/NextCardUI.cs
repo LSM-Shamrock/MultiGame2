@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,10 +13,11 @@ public class NextCardUI : MonoBehaviour
     {
         CardImage.gameObject.SetActive(cardId != -1);
 
-        if (cardId == -1)
+        if (!StaticDB.Instance.CardDataTable.ContainsKey(cardId))
             return;
 
         CardData cardData = StaticDB.Instance.CardDataTable[cardId];
+
         string path = $"CardSprites/{cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 

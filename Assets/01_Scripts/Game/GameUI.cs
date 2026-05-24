@@ -15,13 +15,13 @@ public class GameUI : MonoBehaviour
 
     private void Start()
     {
-        if (GameManager.Instance != null)
+        if (GameScene.Instance)
         {
-            OnLocalPlayerSpawned(GameManager.Instance.LocalPlayer.Value);
-            GameManager.Instance.LocalPlayer.OnValueChanged += OnLocalPlayerSpawned;
+            OnLocalPlayerSpawned(GameScene.Instance.LocalPlayer.Value);
+            GameScene.Instance.LocalPlayer.OnValueChanged += OnLocalPlayerSpawned;
 
-            OnOpponentPlayerSpawned(GameManager.Instance.OpponentPlayer.Value);
-            GameManager.Instance.OpponentPlayer.OnValueChanged += OnOpponentPlayerSpawned;
+            OnOpponentPlayerSpawned(GameScene.Instance.OpponentPlayer.Value);
+            GameScene.Instance.OpponentPlayer.OnValueChanged += OnOpponentPlayerSpawned;
         }
     }
 
@@ -37,7 +37,9 @@ public class GameUI : MonoBehaviour
         if (player == null)
             return;
 
-        for (int i = 0; i < player.HandCardIds.Count; i++) 
+        Debug.Log("로컬 플레이어 생성 감지됨");
+
+        for (int i = 0; i < player.HandCardIds.Count; i++)
             _handCards[i].SetCardId(player.HandCardIds[i]);
 
         _nextCard.SetCardId(player.NextCardId.Value);
