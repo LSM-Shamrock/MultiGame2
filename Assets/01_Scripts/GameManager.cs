@@ -37,18 +37,18 @@ public class PlayerSessionData
 [AutoInjectionTarget]
 public class GameManager : MonoBehaviour
 {
-    private static GameManager _instance;
     public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
+    private static GameManager _instance;
 
-    [SerializeField, AssetField("Player")] 
-    private GameObject _playerPrefab;
+    [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
+    [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
     private const int MAXPLAYERS = 2;
-    private const string SCENE_NAME_TO_CHANGE = "GameScene";
+    private const string SCENE_GAME = "GameScene";
 
     public ObservableValue<bool> IsMatchingInProgress { get; private set; } = new();
     
-    private ObservableArray<int> _currentDeck;
+    public string PlayerName { get; set; }
     public ObservableArray<int> CurrentDeckCardIds
     {
         get
@@ -63,7 +63,8 @@ public class GameManager : MonoBehaviour
             return _currentDeck;
         }
     }
-    public string PlayerName { get; set; }
+    private ObservableArray<int> _currentDeck;
+
     public string LobbyId => _lobby.Id;
     private Lobby _lobby;
     private LobbyEventCallbacks _lobbyEventCallbacks = new();
@@ -72,7 +73,7 @@ public class GameManager : MonoBehaviour
     private bool _isHeartbeating;
     private const string LOBBY_NAME = "Lobby";
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
-    private const float HEARTBEAT_INTERVAL = 15f;
+    private const float LOBBY_HEARTBEAT_INTERVAL = 15f;
 
     public ulong LocalClientId { get; private set; }
     public ulong OpponentClientId { get; private set; }
@@ -211,7 +212,7 @@ public class GameManager : MonoBehaviour
         if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
 
         _heartbeatTimer += Time.deltaTime;
-        if (_heartbeatTimer >= HEARTBEAT_INTERVAL)
+        if (_heartbeatTimer >= LOBBY_HEARTBEAT_INTERVAL)
         {
             _heartbeatTimer = 0f;
             _isHeartbeating = true;
@@ -319,7 +320,7 @@ public class GameManager : MonoBehaviour
         foreach (var (k, v) in PlayerSessionDatas)
             SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds);
         
-        NetworkManager.Singleton.SceneManager.LoadScene(SCENE_NAME_TO_CHANGE, LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(SCENE_GAME, LoadSceneMode.Single);
 
         return true;
     }
