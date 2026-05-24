@@ -2,97 +2,144 @@
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [AutoInjectionTarget]
 public class GameUI : MonoBehaviour
 {
-    [SerializeField, ChildField] private TextMeshProUGUI _localPlayerNameText;
-    [SerializeField, ChildField] private TextMeshProUGUI _opponentPlayerNameText;
-    [SerializeField, ChildField] private MpBarUI _mpBar;
-    [SerializeField, ChildField] private NextCardUI _nextCard;
-    [SerializeField, ChildrenGroupField] private HandCardUI[] _handCards;
+    [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
+    [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
+    [SerializeField, ChildField] private MpBarUI MpBar;
+    [SerializeField, ChildField] private NextCardUI NextCard;
+    [SerializeField, ChildrenGroupField] private HandCardUI[] HandCards;
+    [SerializeField, ChildField] private PointerEventHandler DragArea;
 
-    private float _mp;
-    public float MP
+    private float MP
     {
         get => _mp;
         set
         {
             _mp = value;
 
-            _mpBar.SetMP(_mp);
-            foreach (var card in _handCards)
+            MpBar.SetMP(_mp);
+            foreach (var card in HandCards)
                 card.SetPlayerMP(_mp);
         }
     }
+    private float _mp;
+
+    private int _selectedIndex = -1;
 
     private void Start()
     {
+        for (int i = 0; i < HandCards.Length; i++)
+            HandCards[i].OnPointerDown += OnPointerDown_HandCard;
+
+        DragArea.OnPointerEnter += OnPointerEnter_DragArea;
+        DragArea.OnPointerExit += OnPointerExit_DragArea;
+
         if (GameScene.Instance)
         {
-            OnLocalPlayerSpawned(GameScene.Instance.LocalPlayer.Value);
-            GameScene.Instance.LocalPlayer.OnValueChanged += OnLocalPlayerSpawned;
+            OnChanged_LocalPlayer(GameScene.Instance.LocalPlayer.Value);
+            GameScene.Instance.LocalPlayer.OnValueChanged += OnChanged_LocalPlayer;
 
-            OnOpponentPlayerSpawned(GameScene.Instance.OpponentPlayer.Value);
-            GameScene.Instance.OpponentPlayer.OnValueChanged += OnOpponentPlayerSpawned;
+            OnChanged_OpponentPlayer(GameScene.Instance.OpponentPlayer.Value);
+            GameScene.Instance.OpponentPlayer.OnValueChanged += OnChanged_OpponentPlayer;
         }
     }
+
     private void LateUpdate()
     {
         if (MP < 10)
             MP += Time.deltaTime / 2f;
         if (MP > 10)
             MP = 10;
+
+        if (Input.GetMouseButtonUp(0))
+            OnMouseButtonUp();
     }
 
-    private void OnOpponentPlayerSpawned(Player player)
+    private void OnChanged_OpponentPlayer(Player player)
     {
         if (player == null)
             return;
 
-        player.PlayerName.OnValueChanged += OnOpponentNameChanged;
+        player.PlayerName.OnValueChanged += OnChanged_OpponentPlayerName;
     }
-    private void OnLocalPlayerSpawned(Player player)
+    private void OnChanged_OpponentPlayerName(FixedString32Bytes prev, FixedString32Bytes cur)
     {
-        if (player == null)
-            return;
-
-        Debug.Log("로컬 플레이어 생성 감지됨");
-
-        for (int i = 0; i < player.HandCardIds.Count; i++)
-            _handCards[i].SetCardId(player.HandCardIds[i]);
-
-        _nextCard.SetCardId(player.NextCardId.Value);
-
-        player.PlayerName.OnValueChanged += OnPlayerNameChanged;
-        player.MP.OnValueChanged += OnMpChanged;
-        player.HandCardIds.OnListChanged += OnHandCardIdChanged;
-        player.NextCardId.OnValueChanged += OnNextCardIdChanged;
+        OpponentPlayerNameText.text = cur.ToString();
     }
     
-    private void OnOpponentNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
+    private void OnChanged_LocalPlayer(Player player)
     {
-        _opponentPlayerNameText.text = cur.ToString();
+        if (player == null)
+            return;
+
+        for (int i = 0; i < player.HandCardIds.Count; i++)
+            HandCards[i].SetCardId(player.HandCardIds[i]);
+
+        NextCard.SetCardId(player.NextCardId.Value);
+
+        player.PlayerName.OnValueChanged += OnChanged_LocalPlayerName;
+        player.MP.OnValueChanged += OnChanged_LocalPlayerMP;
+        player.HandCardIds.OnListChanged += OnChanged_LocalPlayerHandCardId;
+        player.NextCardId.OnValueChanged += OnChanged_LocalPlayerNextCardId;
     }
-    private void OnPlayerNameChanged(FixedString32Bytes prev, FixedString32Bytes cur)
+    private void OnChanged_LocalPlayerName(FixedString32Bytes prev, FixedString32Bytes cur)
     {
-        _localPlayerNameText.text = cur.ToString();
+        LocalPlayerNameText.text = cur.ToString();
     }
-    private void OnMpChanged(int oldValue, int newValue)
+    private void OnChanged_LocalPlayerMP(int oldValue, int newValue)
     {
         MP = newValue;
     }
-    private void OnHandCardIdChanged(NetworkListEvent<int> changeEvent)
+    private void OnChanged_LocalPlayerHandCardId(NetworkListEvent<int> changeEvent)
     {
         switch (changeEvent.Type)
         {
             case NetworkListEvent<int>.EventType.Add:
-                _handCards[changeEvent.Index].SetCardId(changeEvent.Value);
+                HandCards[changeEvent.Index].SetCardId(changeEvent.Value);
                 break;
         }
     }
-    private void OnNextCardIdChanged(int oldValue, int newValue)
+    private void OnChanged_LocalPlayerNextCardId(int oldValue, int newValue)
     {
-        _nextCard.SetCardId(newValue);
+        NextCard.SetCardId(newValue);
+    }
+    
+    private void OnPointerDown_HandCard(int index)
+    {
+        _selectedIndex = index;
+
+        for (int i = 0; i < HandCards.Length; i++)
+            HandCards[i].SetSelected(i == _selectedIndex);
+    }
+    private void OnPointerEnter_DragArea(PointerEventData eventData)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            if (_selectedIndex != -1)
+            {
+                HandCards[_selectedIndex].SetHide(true);
+            }
+        }
+    }
+    private void OnPointerExit_DragArea(PointerEventData eventData)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            if (_selectedIndex != -1)
+            {
+                HandCards[_selectedIndex].SetHide(false);
+            }
+        }
+    }
+    private void OnMouseButtonUp()
+    {
+        if (_selectedIndex != -1)
+        {
+            HandCards[_selectedIndex].SetHide(false);
+        }
     }
 }

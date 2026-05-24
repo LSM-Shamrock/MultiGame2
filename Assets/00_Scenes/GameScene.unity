@@ -1544,6 +1544,7 @@ GameObject:
   - component: {fileID: 656369488}
   - component: {fileID: 656369490}
   - component: {fileID: 656369489}
+  - component: {fileID: 656369491}
   m_Layer: 5
   m_Name: DragArea
   m_TagString: Untagged
@@ -1608,6 +1609,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 656369487}
   m_CullTransparentMesh: 1
+--- !u!114 &656369491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656369487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b7d47b70716bb54e930701ef28a4ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &681897066
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3560,15 +3573,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df624ee4092e463498f67b751c749a0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _localPlayerNameText: {fileID: 1512036607}
-  _opponentPlayerNameText: {fileID: 969583355}
-  _mpBar: {fileID: 1914606294}
-  _nextCard: {fileID: 2014692272}
-  _handCards:
+  LocalPlayerNameText: {fileID: 1512036607}
+  OpponentPlayerNameText: {fileID: 969583355}
+  MpBar: {fileID: 1914606294}
+  NextCard: {fileID: 2014692272}
+  HandCards:
   - {fileID: 646038387}
   - {fileID: 1680496967}
   - {fileID: 681897068}
   - {fileID: 316094218}
+  DragArea: {fileID: 656369491}
 --- !u!1 &1679548074
 GameObject:
   m_ObjectHideFlags: 0

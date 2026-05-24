@@ -1,19 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class HandCardUI : MonoBehaviour
+public class HandCardUI : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private Image FadeImage;
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
 
     private CardData _cardData;
+
+    public event Action<int> OnPointerDown;
 
     public void SetCardId(int cardId)
     {
@@ -29,7 +29,6 @@ public class HandCardUI : MonoBehaviour
         CardImage.sprite = sprite;
         MpText.text = $"{_cardData.CostMP}";
     }
-
     public void SetPlayerMP(float playerMP)
     {
         if (_cardData == null)
@@ -47,5 +46,18 @@ public class HandCardUI : MonoBehaviour
             CardImage.color = Color.gray;
             MpText.color = Color.red;
         }
+    }
+    public void SetSelected(bool isSelected)
+    {
+        CardImage.transform.localPosition = new Vector3(0, isSelected ? 30f : 0f);
+    }
+    public void SetHide(bool isHide)
+    {
+        CardImage.gameObject.SetActive(!isHide);
+    }
+
+    void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+    {
+        OnPointerDown?.Invoke(transform.GetSiblingIndex());
     }
 }
