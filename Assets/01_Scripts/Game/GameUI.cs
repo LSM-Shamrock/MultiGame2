@@ -67,6 +67,12 @@ public class GameUI : MonoBehaviour
                 _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGridIndex(_camera.ScreenToWorldPoint(Input.mousePosition)));
                 _selectedIndex = -1;
             }
+            else
+            {
+                HandCards[_selectedIndex].SetShow(true);
+                CardSummonArea.gameObject.SetActive(false);
+                CardSummonPos.gameObject.SetActive(false);
+            }
         }
         else
         {
