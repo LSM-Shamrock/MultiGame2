@@ -4,10 +4,12 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class Unit : FieldObject
 {
-    public NetworkVariable<int> CardId = new();
+    public NetworkVariable<int> CardId { get; set; } = new();
 
-    [SerializeField, ChildField] 
-    private SpriteRenderer UnitSprite;
+    private const float GROUND_Y = -2.5f;
+
+    [SerializeField, ComponentField] private SpriteRenderer SpriteRenderer;
+    [SerializeField, ChildField] private Transform Shadow;
 
     private int _cardId;
     private CardData _cardData;
@@ -16,7 +18,6 @@ public class Unit : FieldObject
     {
         _cardId = cardId;
     }
-
     public override void OnNetworkSpawn()
     {
         if (IsHost)
@@ -32,7 +33,11 @@ public class Unit : FieldObject
         string path = $"UnitSprites/{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
-        UnitSprite.sprite = sprite;
-        UnitSprite.transform.localPosition = new Vector3(0, _cardData.SummonY);
+        SpriteRenderer.sprite = sprite;
+    }
+
+    private void LateUpdate()
+    {
+        Shadow.position = new Vector3(Shadow.position.x, GROUND_Y);
     }
 }

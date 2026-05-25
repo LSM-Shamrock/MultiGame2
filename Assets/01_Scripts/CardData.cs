@@ -21,7 +21,7 @@ public class CardData
     public string CodeName;
     public string DisplayName;
     public int CostMP;
-    public float SummonY;
+    public float SummonHeight;
     public int Health;
     public LayerType LayerType;
     public TargetingType TargetingType;

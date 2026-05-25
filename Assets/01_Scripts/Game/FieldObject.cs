@@ -3,5 +3,5 @@ using UnityEngine;
 
 public abstract class FieldObject : NetworkBehaviour
 {
-    public LayerType Layer;
+
 }

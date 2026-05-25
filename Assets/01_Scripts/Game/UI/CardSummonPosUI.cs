@@ -24,7 +24,7 @@ public class CardSummonPosUI : MonoBehaviour
         Sprite sprite = Resources.Load<Sprite>(path);
 
         UnitSprite.sprite = sprite;
-        UnitSprite.transform.localPosition = new Vector3(0, _cardData.SummonY);
+        UnitSprite.transform.localPosition = new Vector3(0, _cardData.SummonHeight);
         NameText.text = _cardData.DisplayName;
     }
 

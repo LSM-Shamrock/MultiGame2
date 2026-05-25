@@ -33,7 +33,6 @@ public class Player : NetworkBehaviour
     {
         _playerName = playerName;
         _deckCardIds = deckCardIds;
-        SummonCore();
     }
     public override void OnNetworkSpawn()
     {
@@ -54,11 +53,9 @@ public class Player : NetworkBehaviour
             foreach (var cardId in _deckCardIds)
                 DeckCardIds.Add(cardId);
 
+            SummonCore();
             SetupHandAndNextCards(_deckCardIds);
-
             StartCoroutine(MpUpdateRoutine());
-
-            Debug.Log("플레이어 데이터 초기 할당됨");
         }
     }
     private void SetupHandAndNextCards(int[] deck)
@@ -137,6 +134,7 @@ public class Player : NetworkBehaviour
             NextCardId.Value = _nextCardIds.Peek();
 
             Vector3 position = SummonGrid[gridIndex].position;
+            position.y += cardData.SummonHeight;
             SummonCard(cardData, position);
         }
     }
