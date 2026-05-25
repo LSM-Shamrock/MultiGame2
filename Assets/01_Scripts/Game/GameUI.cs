@@ -89,6 +89,8 @@ public class GameUI : MonoBehaviour
         if (player == null)
             return;
 
+        OpponentPlayerNameText.text = player.PlayerName.Value.ToString();
+
         player.PlayerName.OnValueChanged += OnOpponentNameChanged;
     }
     private void OnPlayerSpawned(Player player)
@@ -98,6 +100,7 @@ public class GameUI : MonoBehaviour
 
         _player = player; 
 
+        LocalPlayerNameText.text = player.PlayerName.Value.ToString();
         RefreshHandCardIds(player.HandCardIds.AsNativeArray());
         RefreshNextCardId(player.NextCardId.Value);
 
