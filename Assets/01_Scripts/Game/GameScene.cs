@@ -24,16 +24,16 @@ public class GameScene : MonoBehaviour
         if (NetworkManager.Singleton.IsHost && GameManager.Instance)
         {
             foreach (var (k, v) in GameManager.Instance.PlayerSessionDatas)
-                SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds);
+                SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds, v.ClientId != NetworkManager.Singleton.LocalClientId);
 
             SpawnCore(GameManager.Instance.LocalClientId, CoreSpawnPos1);
             SpawnCore(GameManager.Instance.OpponentClientId, CoreSpawnPos2);
         }
     }
 
-    private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds)
+    private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
     {
-        GameObject go = Instantiate(_playerPrefab);
+        GameObject go = Instantiate(_playerPrefab, Vector2.zero, isRotate ? Quaternion.Euler(0, 180, 0) : Quaternion.identity);
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Player player = go.GetComponent<Player>();
         player.Init(playerName, deckCardIds);

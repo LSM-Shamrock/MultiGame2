@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+[AutoInjectionTarget]
 public class Player : NetworkBehaviour
 {
     public NetworkVariable<FixedString32Bytes> PlayerName { get; private set; } = new();
@@ -18,6 +19,9 @@ public class Player : NetworkBehaviour
     private int[] _deckCardIds;
     private Queue<int> _nextCardIds = new();
 
+    [SerializeField, ChildrenGroupField]
+    private Transform[] SummonGrid;
+
     public void Init(string playerName, int[] deckCardIds)
     {
         _playerName = playerName;
@@ -27,9 +31,14 @@ public class Player : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
+        {
             GameScene.Instance.LocalPlayer.Value = this;
+            Camera.main.transform.rotation = transform.rotation;
+        }
         else
+        {
             GameScene.Instance.OpponentPlayer.Value = this;
+        }
 
         if (IsServer)
         {

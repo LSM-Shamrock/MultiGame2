@@ -68,6 +68,9 @@ public class GameUI : MonoBehaviour
         player.MP.OnValueChanged += OnMpChanged;
         player.HandCardIds.OnListChanged += OnHandCardIdChanged;
         player.NextCardId.OnValueChanged += OnNextCardIdChanged;
+
+        CardSummonArea.transform.rotation = player.transform.rotation;
+        CardSummonPos.transform.rotation = player.transform.rotation;
     }
 
     private void RefreshMP(float value)
