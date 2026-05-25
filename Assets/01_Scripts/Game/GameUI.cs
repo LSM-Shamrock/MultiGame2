@@ -17,16 +17,21 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildrenGroupField] private HandCardUI[] HandCards;
     [SerializeField, ChildField] private PointerEventHandler DragArea;
 
+    private Camera _camera;
+    private Player _player;
     private float _displayMP;
     private int[] _handCardIds = new int[4];
     private int _selectedIndex = -1;
 
     private void Start()
     {
+        _camera = Camera.main;
+
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].OnPointerDown += OnCardSelect;
 
         DragArea.AddEvent(PointerEventType.PointerEnter, OnDragArea);
+        DragArea.AddEvent(PointerEventType.PointerMove, OnDragArea);
         DragArea.AddEvent(PointerEventType.PointerExit, OnDragCancle);
 
         if (GameScene.Instance)
@@ -60,6 +65,8 @@ public class GameUI : MonoBehaviour
     {
         if (player == null)
             return;
+
+        _player = player; 
 
         RefreshHandCardIds(player.HandCardIds.AsNativeArray());
         RefreshNextCardId(player.NextCardId.Value);
@@ -99,6 +106,9 @@ public class GameUI : MonoBehaviour
 
     private void OnCardSelect(int index)
     {
+        if (_player == null)
+            return;
+
         _selectedIndex = index;
 
         for (int i = 0; i < HandCards.Length; i++)
@@ -106,7 +116,7 @@ public class GameUI : MonoBehaviour
 
         CardSummonPos.SetSelectedHandCardId(_handCardIds[_selectedIndex]);
     }
-    private void OnDragArea()
+    private void OnDragArea(PointerEventData pointerEventData)
     {
         if (Input.GetMouseButton(0))
         {
@@ -115,6 +125,7 @@ public class GameUI : MonoBehaviour
                 HandCards[_selectedIndex].SetShow(false);
                 CardSummonArea.gameObject.SetActive(true);
                 CardSummonPos.gameObject.SetActive(true);
+                CardSummonPos.transform.position = _player.WorldToGridPoint(_camera.ScreenToWorldPoint(pointerEventData.position));
             }
         }
     }
@@ -127,7 +138,6 @@ public class GameUI : MonoBehaviour
             CardSummonPos.gameObject.SetActive(false);
         }
     }
-
 
     #region Network Varriable Changed Callbacks
     private void OnOpponentNameChanged(FixedString32Bytes prev, FixedString32Bytes cur) => OpponentPlayerNameText.text = cur.ToString();
@@ -146,5 +156,4 @@ public class GameUI : MonoBehaviour
         }
     }
     #endregion
-
 }

@@ -106,4 +106,24 @@ public class Player : NetworkBehaviour
             }
         }
     }
+    
+    public Vector2 WorldToGridPoint(Vector2 worldPos)
+    {
+        float nearest = float.PositiveInfinity;
+        Vector2 nearestPos = Vector2.zero;
+
+        foreach (Transform t in SummonGrid)
+        {
+            Vector2 p = (Vector2)t.position;
+            float dist = Math.Abs(p.x - worldPos.x);
+
+            if (dist < nearest)
+            {
+                nearest = dist;
+                nearestPos = p;
+            }
+        }
+
+        return nearestPos;
+    }
 }
