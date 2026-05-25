@@ -174,6 +174,8 @@ public class Player : NetworkBehaviour
             Vector3 position = SummonGrid[gridIndex].position;
             GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
             NetworkObject obj = go.GetComponent<NetworkObject>();
+            Unit unit = go.GetComponent<Unit>();
+            unit.Init(handCardId);
             obj.SpawnWithOwnership(OwnerClientId);
         }
     }
