@@ -152,17 +152,23 @@ public class Player : NetworkBehaviour
     public void SummonCardServerRpc(int handIndex, int gridIndex)
     {
         Debug.Log("카드 소환 요청 RPC호출됨");
-        //if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
-        //if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
+        if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
+        if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
 
-        //int handCardId = HandCardIds[handIndex];
-        //CardData cardData = StaticDB.Instance.CardDataTable[handCardId];
+        int handCardId = HandCardIds[handIndex];
+        CardData cardData = StaticDB.Instance.CardDataTable[handCardId];
 
-        //Vector3 position = SummonGrid[gridIndex].position;
+        if (MP.Value < cardData.CostMP)
+        {
+            Debug.Log("MP가 부족하여 유닛 소환 안함");
+            return;
+        } 
 
-        //GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
-        //NetworkObject obj = go.GetComponent<NetworkObject>();
-        //obj.SpawnWithOwnership(OwnerClientId);
+        Vector3 position = SummonGrid[gridIndex].position;
+
+        GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        obj.SpawnWithOwnership(OwnerClientId);
     }
 
 }

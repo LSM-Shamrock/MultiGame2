@@ -24,6 +24,7 @@ public class GameUI : MonoBehaviour
     private int[] _handCardIds = new int[4];
     private bool _isPointerDragArea;
     private int _selectedIndex = -1;
+    private int _selectedCardId = -1;
     private CardData _selectedCardData = null;
 
     private void Start()
@@ -66,6 +67,7 @@ public class GameUI : MonoBehaviour
                 HandCards[_selectedIndex].SetShow(true);
                 _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGridIndex(_camera.ScreenToWorldPoint(Input.mousePosition)));
                 _selectedIndex = -1;
+                _selectedCardId = -1;
                 _selectedCardData = null;
             }
             else
@@ -138,7 +140,8 @@ public class GameUI : MonoBehaviour
             return;
 
         _selectedIndex = index;
-        _selectedCardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(_selectedIndex); 
+        _selectedCardId = _handCardIds[_selectedIndex];
+        _selectedCardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(_selectedCardId); 
 
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].SetSelected(i == _selectedIndex);
