@@ -167,6 +167,10 @@ public class Player : NetworkBehaviour
         {
             MP.Value -= cardData.CostMP;
 
+            _nextCardIds.Enqueue(handCardId);
+            HandCardIds[handIndex] = _nextCardIds.Dequeue();
+            NextCardId.Value = _nextCardIds.Peek();
+
             Vector3 position = SummonGrid[gridIndex].position;
             GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
             NetworkObject obj = go.GetComponent<NetworkObject>();
