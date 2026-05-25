@@ -21,14 +21,20 @@ public class Player : NetworkBehaviour
     private Queue<int> _nextCardIds = new();
 
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
+    [SerializeField, AssetField("Core")] private GameObject _corePrefab;
+    [SerializeField, ChildField] private Transform CorePos;
     [SerializeField, ChildrenGroupField] private Transform[] SummonGrid;
+
+    public Core Core { get; private set; }
+    public HashSet<FieldObject> GroundObjects { get; } = new();
+    public HashSet<FieldObject> AllObjects { get; } = new();
 
     public void Init(string playerName, int[] deckCardIds)
     {
         _playerName = playerName;
         _deckCardIds = deckCardIds;
+        SummonCore();
     }
-
     public override void OnNetworkSpawn()
     {
         if (IsOwner)
@@ -55,7 +61,6 @@ public class Player : NetworkBehaviour
             Debug.Log("플레이어 데이터 초기 할당됨");
         }
     }
-
     private void SetupHandAndNextCards(int[] deck)
     {
         int[] shuffled = new int[deck.Length];
@@ -83,7 +88,6 @@ public class Player : NetworkBehaviour
         Debug.Log("패, 다음 카드들 셋업 완료");
         Debug.Log("다음 카드 Id : " + NextCardId.Value);
     }
-
     private IEnumerator MpUpdateRoutine()
     {
         if (!IsServer)
@@ -108,6 +112,34 @@ public class Player : NetworkBehaviour
         }
     }
 
+    [ServerRpc]
+    public void SummonCardServerRpc(int handIndex, int gridIndex)
+    {
+        Debug.Log("카드 소환 요청 RPC호출됨");
+
+        if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
+        if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
+
+        int handCardId = HandCardIds[handIndex];
+        CardData cardData = StaticDB.Instance.CardDataTable[handCardId];
+
+        if (MP.Value < cardData.CostMP)
+        {
+            Debug.Log("MP가 부족하여 유닛 소환 안함");
+            return;
+        }
+        else
+        {
+            MP.Value -= cardData.CostMP;
+
+            _nextCardIds.Enqueue(handCardId);
+            HandCardIds[handIndex] = _nextCardIds.Dequeue();
+            NextCardId.Value = _nextCardIds.Peek();
+
+            Vector3 position = SummonGrid[gridIndex].position;
+            SummonCard(cardData, position);
+        }
+    }
     public Vector2 WorldToGridPoint(Vector2 worldPos)
     {
         float nearest = float.PositiveInfinity;
@@ -148,36 +180,23 @@ public class Player : NetworkBehaviour
         return result;
     }
 
-    [ServerRpc]
-    public void SummonCardServerRpc(int handIndex, int gridIndex)
+    private void SummonCore()
     {
-        Debug.Log("카드 소환 요청 RPC호출됨");
-        if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
-        if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
-
-        int handCardId = HandCardIds[handIndex];
-        CardData cardData = StaticDB.Instance.CardDataTable[handCardId];
-
-        if (MP.Value < cardData.CostMP)
-        {
-            Debug.Log("MP가 부족하여 유닛 소환 안함");
-            return;
-        }
-        else
-        {
-            MP.Value -= cardData.CostMP;
-
-            _nextCardIds.Enqueue(handCardId);
-            HandCardIds[handIndex] = _nextCardIds.Dequeue();
-            NextCardId.Value = _nextCardIds.Peek();
-
-            Vector3 position = SummonGrid[gridIndex].position;
-            GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
-            NetworkObject obj = go.GetComponent<NetworkObject>();
-            Unit unit = go.GetComponent<Unit>();
-            unit.Init(handCardId);
-            obj.SpawnWithOwnership(OwnerClientId);
-        }
+        GameObject go = Instantiate(_corePrefab, CorePos.position, CorePos.rotation);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        obj.SpawnWithOwnership(OwnerClientId);
+        Core = go.GetComponent<Core>();
     }
+    private void SummonCard(CardData cardData, Vector3 position)
+    {
+        GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        Unit unit = go.GetComponent<Unit>();
+        unit.Init(cardData.CardId);
+        obj.SpawnWithOwnership(OwnerClientId);
 
+        AllObjects.Add(unit);
+        if (cardData.LayerType == LayerType.Ground) 
+            GroundObjects.Add(unit);
+    }
 }

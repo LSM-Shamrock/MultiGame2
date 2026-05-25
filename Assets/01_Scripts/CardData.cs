@@ -1,11 +1,18 @@
 ﻿using System;
 
-[Flags]
-public enum UnitLayer
+public enum LayerType
 {
-    Ground = 1 << 0,
-    Air = 1 << 1,  
+    Ground,
+    Air,  
 }
+
+public enum TargetingType
+{
+    Core,
+    Ground,
+    GroundOrAir,
+}
+
 
 [Serializable]
 public class CardData
@@ -14,7 +21,8 @@ public class CardData
     public string CodeName;
     public string DisplayName;
     public int CostMP;
-    public UnitLayer Layer;
     public float SummonY;
     public int Health;
+    public LayerType LayerType;
+    public TargetingType TargetingType;
 }

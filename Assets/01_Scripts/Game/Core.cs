@@ -1,7 +1,7 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
 
-public class Core : NetworkBehaviour
+public class Core : FieldObject
 {
 
 }

@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class Unit : NetworkBehaviour
+public class Unit : FieldObject
 {
     public NetworkVariable<int> CardId = new();
 
