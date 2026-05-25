@@ -19,8 +19,6 @@ public class CardSummonPosUI : MonoBehaviour
             return;
         }
 
-        gameObject.SetActive(true);
-
         _cardData = StaticDB.Instance.CardDataTable[cardId];
         string path = $"UnitSprites/{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
