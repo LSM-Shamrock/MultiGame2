@@ -4,9 +4,6 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class Core : FieldObject
 {
-    [SerializeField, ComponentField] 
-    private SpriteRenderer SpriteRenderer;
-
     public override void OnNetworkSpawn()
     {
         if (IsOwner)

@@ -6,15 +6,16 @@ public class Unit : FieldObject
 {
     public NetworkVariable<int> CardId { get; set; } = new();
 
-    [SerializeField, ComponentField] 
-    private SpriteRenderer SpriteRenderer;
-
     private int _cardId;
     private CardData _cardData;
+    private Player _owner;
+    private Player _opponent;
 
-    public void Init(int cardId)
+    public void Init(int cardId, Player owner, Player opponent)
     {
         _cardId = cardId;
+        _owner = owner;
+        _opponent = opponent;
     }
     public override void OnNetworkSpawn()
     {
@@ -28,7 +29,7 @@ public class Unit : FieldObject
         }
 
         _cardData = StaticDB.Instance.CardDataTable[_cardId];
-        string path = $"UnitSprites/{_cardData.CodeName}";
+        string path = $"UnitSprite/Unit_{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         SpriteRenderer.sprite = sprite;

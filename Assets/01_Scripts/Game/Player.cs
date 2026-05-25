@@ -190,7 +190,7 @@ public class Player : NetworkBehaviour
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Unit unit = go.GetComponent<Unit>();
-        unit.Init(cardData.CardId);
+        unit.Init(cardData.CardId, this, GameScene.Instance.OpponentPlayer.Value);
         obj.SpawnWithOwnership(OwnerClientId);
 
         AllObjects.Add(unit);

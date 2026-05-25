@@ -27,7 +27,7 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
         CardImage.gameObject.SetActive(true);
 
         _cardData = StaticDB.Instance.CardDataTable[cardId];
-        string path = $"CardSprites/{_cardData.CodeName}";
+        string path = $"CardSprite/Card_{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         CardImage.sprite = sprite;

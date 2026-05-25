@@ -20,7 +20,7 @@ public class CardSummonPosUI : MonoBehaviour
         }
 
         _cardData = StaticDB.Instance.CardDataTable[cardId];
-        string path = $"UnitSprites/{_cardData.CodeName}";
+        string path = $"UnitSprite/Unit_{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         UnitSprite.sprite = sprite;

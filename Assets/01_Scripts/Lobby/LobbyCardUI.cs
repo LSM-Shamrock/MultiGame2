@@ -42,7 +42,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         if (cardData == null)
             return;
 
-        var path = $"CardSprites/{cardData.CodeName}";
+        var path = $"CardSprite/Card_{cardData.CodeName}";
         var sprite = Resources.Load<Sprite>(path);
         CardImage.sprite = sprite;
 
