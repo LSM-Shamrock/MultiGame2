@@ -6,10 +6,8 @@ public class Unit : FieldObject
 {
     public NetworkVariable<int> CardId { get; set; } = new();
 
-    private const float GROUND_Y = -2.5f;
-
-    [SerializeField, ComponentField] private SpriteRenderer SpriteRenderer;
-    [SerializeField, ChildField] private Transform Shadow;
+    [SerializeField, ComponentField] 
+    private SpriteRenderer SpriteRenderer;
 
     private int _cardId;
     private CardData _cardData;
@@ -34,10 +32,5 @@ public class Unit : FieldObject
         Sprite sprite = Resources.Load<Sprite>(path);
 
         SpriteRenderer.sprite = sprite;
-    }
-
-    private void LateUpdate()
-    {
-        Shadow.position = new Vector3(Shadow.position.x, GROUND_Y);
     }
 }
