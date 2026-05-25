@@ -162,13 +162,16 @@ public class Player : NetworkBehaviour
         {
             Debug.Log("MP가 부족하여 유닛 소환 안함");
             return;
-        } 
+        }
+        else
+        {
+            MP.Value -= cardData.CostMP;
 
-        Vector3 position = SummonGrid[gridIndex].position;
-
-        GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
-        NetworkObject obj = go.GetComponent<NetworkObject>();
-        obj.SpawnWithOwnership(OwnerClientId);
+            Vector3 position = SummonGrid[gridIndex].position;
+            GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
+            NetworkObject obj = go.GetComponent<NetworkObject>();
+            obj.SpawnWithOwnership(OwnerClientId);
+        }
     }
 
 }
