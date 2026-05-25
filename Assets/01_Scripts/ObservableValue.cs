@@ -41,7 +41,7 @@ public class ObservableValue<T> : IObservOnlyValue<T>
 
 public interface IObservOnlyArray<T>
 {
-    public event Action OnAnyValueChanged;
+    public event Action<IReadOnlyList<T>> OnAnyValueChanged;
     public event Action<int, T> OnValueChanged;
     public IReadOnlyList<T> Values { get; }
     public T this[int index] { get; }
@@ -51,7 +51,7 @@ public class ObservableArray<T> : IObservOnlyArray<T>
     private T[] _array;
     private Func<int, T, T> _changeProcessor;
 
-    public event Action OnAnyValueChanged;
+    public event Action<IReadOnlyList<T>> OnAnyValueChanged;
     public event Action<int, T> OnValueChanged;
     public int Length => _array.Length;
     public IReadOnlyList<T> Values => _array;
@@ -71,7 +71,7 @@ public class ObservableArray<T> : IObservOnlyArray<T>
             if (!EqualityComparer<T>.Default.Equals(prevValue, changedValue))
             {
                 OnValueChanged?.Invoke(index, changedValue);
-                OnAnyValueChanged?.Invoke();
+                OnAnyValueChanged?.Invoke(Values);
             }
         }
     }

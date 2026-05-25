@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,11 +18,14 @@ public class LobbyUI : MonoBehaviour
         CreateButton.onClick.AddListener(OnClick_CreateButton);
         JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
-        PlayerNameInput.onValueChanged.AddListener(OnValueChanged_PlayerNameInput);
+        PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInput);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
 
         if (GameManager.Instance)
-            GameManager.Instance.State.OnValueChanged += OnChanged_GameManagerState;
+        {
+            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
+            GameManager.Instance.State.OnValueChanged += OnGameManagerStateChanged;
+        }
     }
     private void OnDestroy()
     {
@@ -32,18 +36,56 @@ public class LobbyUI : MonoBehaviour
         MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
         if (GameManager.Instance)
-            GameManager.Instance.State.OnValueChanged -= OnChanged_GameManagerState;
+        {
+            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
+            GameManager.Instance.State.OnValueChanged -= OnGameManagerStateChanged;
+        }
     }
-
     private void Update()
     {
         JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text);
     }
 
-    private void OnValueChanged_PlayerNameInput(string value)
+    private void OnPlayerNameInput(string value)
     {
         GameManager.Instance.PlayerName = value;
     }
+    private void OnDeckCardIdsChanged(IReadOnlyList<int> deckCardIds)
+    {
+        bool valid = true;
+        foreach (int cardId in deckCardIds)
+        {
+            if (cardId == -1)
+            {
+                valid = false;
+                break;
+            }
+        }
+        PlayButton.interactable = valid;
+        CreateButton.interactable = valid;
+        JoinButton.interactable = valid;
+    }
+    private void OnGameManagerStateChanged(GameManagerState value)
+    {
+        if (value == GameManagerState.Lobby) MatchmakingUI.gameObject.SetActive(false);
+        if (value == GameManagerState.FindingMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.CreateingMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.JoiningMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.StartingGame) MatchmakingUI.JoinCodeField.text = "";
+
+        MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
+        MatchmakingUI.StateText.text = value switch
+        {
+            GameManagerState.FindingMatching => "매칭 찾는 중",
+            GameManagerState.CreateingMatching => "매칭 생성 중",
+            GameManagerState.JoiningMatching => "매칭 입장 중",
+            GameManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
+            GameManagerState.CancellingMatching => "매칭 취소 중",
+            GameManagerState.StartingGame => "게임 시작 중",
+            _ => "",
+        };
+    }
+
     private async void OnClick_CreateButton()
     {
         MatchmakingUI.JoinCodeField.text = "코드 생성 중";
@@ -63,26 +105,5 @@ public class LobbyUI : MonoBehaviour
     private async void OnClick_CancleButton()
     {
         await GameManager.Instance.CancelMatcingAsync();
-    }
-
-    private void OnChanged_GameManagerState(GameManagerState value)
-    {
-        if (value == GameManagerState.Lobby) MatchmakingUI.gameObject.SetActive(false);
-        if (value == GameManagerState.FindingMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.CreateingMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.JoiningMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.StartingGame) MatchmakingUI.JoinCodeField.text = "";
-
-        MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
-        MatchmakingUI.StateText.text = value switch
-        {
-            GameManagerState.FindingMatching => "매칭 찾는 중",
-            GameManagerState.CreateingMatching => "매칭 생성 중",
-            GameManagerState.JoiningMatching => "매칭 입장 중",
-            GameManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
-            GameManagerState.CancellingMatching => "매칭 취소 중",
-            GameManagerState.StartingGame => "게임 시작 중",
-            _ => "",
-        };
     }
 }

@@ -20,7 +20,6 @@ public class StaticDB : ScriptableObject
             if (_cardDictionary == null)
             {
                 _cardDictionary = _cards.ToDictionary(e => e.CardId);
-                _cardDictionary.Add(-1, null);
             }
             return _cardDictionary;
         }

@@ -22,10 +22,11 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         _index = transform.GetSiblingIndex();
         _isDeck = transform.parent.name == "Deck";
 
-        OnChangeDeck();
-
         if (GameManager.Instance != null)
+        {
+            OnChangeDeck(GameManager.Instance.CurrentDeckCardIds.Values);
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
+        }
     }
     private void OnDestroy()
     {
@@ -55,12 +56,10 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         FadeImage.gameObject.SetActive(!isInteractable);
     }
     
-    private void OnChangeDeck()
+    private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
     {
-
         if (_isDeck)
         {
-            var deckCardIds = GameManager.Instance.CurrentDeckCardIds.Values;
             int cardId = deckCardIds[_index];
 
             CardData cardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(cardId);
@@ -70,9 +69,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            var deckCardIds = GameManager.Instance.CurrentDeckCardIds.Values;
             var collection = StaticDB.Instance.CardDataList;
-
 
             if (_index >= collection.Count)
             {
