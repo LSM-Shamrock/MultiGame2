@@ -46,6 +46,7 @@ public class LobbyUI : MonoBehaviour
     }
     private async void OnClick_CreateButton()
     {
+        MatchmakingUI.JoinCodeField.text = "코드 생성 중";
         await GameManager.Instance.CreateLobbyAsync();
         MatchmakingUI.JoinCodeField.text = GameManager.Instance.LobbyId;
     }
@@ -70,6 +71,7 @@ public class LobbyUI : MonoBehaviour
         if (value == GameManagerState.FindingMatching) MatchmakingUI.gameObject.SetActive(true);
         if (value == GameManagerState.CreateingMatching) MatchmakingUI.gameObject.SetActive(true);
         if (value == GameManagerState.JoiningMatching) MatchmakingUI.gameObject.SetActive(true);
+        if (value == GameManagerState.StartingGame) MatchmakingUI.JoinCodeField.text = "";
 
         MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
         MatchmakingUI.StateText.text = value switch
