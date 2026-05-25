@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
@@ -21,8 +22,9 @@ public class GameUI : MonoBehaviour
     private Player _player;
     private float _displayMP;
     private int[] _handCardIds = new int[4];
-    private int _selectedIndex = -1;
     private bool _isPointerDragArea;
+    private int _selectedIndex = -1;
+    private CardData _selectedCardData = null;
 
     private void Start()
     {
@@ -50,7 +52,7 @@ public class GameUI : MonoBehaviour
         if (_displayMP > 10)
             RefreshMP(_displayMP = 10);
 
-        if (_selectedIndex != -1)
+        if (_selectedCardData != null)
         {
             if (_isPointerDragArea && Input.GetMouseButton(0))
             {
@@ -59,13 +61,12 @@ public class GameUI : MonoBehaviour
                 CardSummonPos.gameObject.SetActive(true);
                 CardSummonPos.transform.position = _player.WorldToGridPoint(_camera.ScreenToWorldPoint(Input.mousePosition));
             }
-            else if (_isPointerDragArea && Input.GetMouseButtonUp(0))
+            else if (_isPointerDragArea && Input.GetMouseButtonUp(0) && _displayMP >= _selectedCardData.CostMP)
             {
                 HandCards[_selectedIndex].SetShow(true);
-                CardSummonArea.gameObject.SetActive(false);
-                CardSummonPos.gameObject.SetActive(false);
                 _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGridIndex(_camera.ScreenToWorldPoint(Input.mousePosition)));
                 _selectedIndex = -1;
+                _selectedCardData = null;
             }
             else
             {
@@ -137,6 +138,7 @@ public class GameUI : MonoBehaviour
             return;
 
         _selectedIndex = index;
+        _selectedCardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(_selectedIndex); 
 
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].SetSelected(i == _selectedIndex);
