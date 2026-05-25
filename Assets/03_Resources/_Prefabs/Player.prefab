@@ -134,6 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  _unitPrefab: {fileID: 2525431417944658854, guid: 770f33fea1c92604db71a796bc96aeb4, type: 3}
   SummonGrid:
   - {fileID: 8301253649423998789}
   - {fileID: 1485541780417818241}

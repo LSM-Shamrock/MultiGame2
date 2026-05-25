@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 [AutoInjectionTarget]
@@ -19,8 +20,8 @@ public class Player : NetworkBehaviour
     private int[] _deckCardIds;
     private Queue<int> _nextCardIds = new();
 
-    [SerializeField, ChildrenGroupField]
-    private Transform[] SummonGrid;
+    [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
+    [SerializeField, ChildrenGroupField] private Transform[] SummonGrid;
 
     public void Init(string playerName, int[] deckCardIds)
     {
@@ -106,11 +107,11 @@ public class Player : NetworkBehaviour
             }
         }
     }
-    
+
     public Vector2 WorldToGridPoint(Vector2 worldPos)
     {
         float nearest = float.PositiveInfinity;
-        Vector2 nearestPos = Vector2.zero;
+        Vector2 result = Vector2.zero;
 
         foreach (Transform t in SummonGrid)
         {
@@ -120,10 +121,48 @@ public class Player : NetworkBehaviour
             if (dist < nearest)
             {
                 nearest = dist;
-                nearestPos = p;
+                result = p;
             }
         }
 
-        return nearestPos;
+        return result;
     }
+    public int WorldToGridIndex(Vector2 worldPos)
+    {
+        float nearest = float.PositiveInfinity;
+        int result = 0;
+        
+
+        for (int i = 0; i < SummonGrid.Length; i++)
+        {
+            Vector2 p = (Vector2)SummonGrid[i].position;
+            float dist = Math.Abs(p.x - worldPos.x);
+
+            if (dist < nearest)
+            {
+                nearest = dist;
+                result = i;
+            }
+        }
+
+        return result;
+    }
+
+    [ServerRpc]
+    public void SummonCardServerRpc(int handIndex, int gridIndex)
+    {
+        Debug.Log("카드 소환 요청 RPC호출됨");
+        //if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
+        //if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
+
+        //int handCardId = HandCardIds[handIndex];
+        //CardData cardData = StaticDB.Instance.CardDataTable[handCardId];
+
+        //Vector3 position = SummonGrid[gridIndex].position;
+
+        //GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
+        //NetworkObject obj = go.GetComponent<NetworkObject>();
+        //obj.SpawnWithOwnership(OwnerClientId);
+    }
+
 }

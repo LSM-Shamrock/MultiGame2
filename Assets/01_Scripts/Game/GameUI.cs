@@ -22,6 +22,7 @@ public class GameUI : MonoBehaviour
     private float _displayMP;
     private int[] _handCardIds = new int[4];
     private int _selectedIndex = -1;
+    private bool _isPointerDragArea;
 
     private void Start()
     {
@@ -30,9 +31,8 @@ public class GameUI : MonoBehaviour
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].OnPointerDown += OnCardSelect;
 
-        DragArea.AddEvent(PointerEventType.PointerEnter, OnDragArea);
-        DragArea.AddEvent(PointerEventType.PointerMove, OnDragArea);
-        DragArea.AddEvent(PointerEventType.PointerExit, OnDragCancle);
+        DragArea.AddEvent(PointerEventType.PointerEnter, () => _isPointerDragArea = true);
+        DragArea.AddEvent(PointerEventType.PointerExit, () => _isPointerDragArea = false);
 
         if (GameScene.Instance)
         {
@@ -50,8 +50,29 @@ public class GameUI : MonoBehaviour
         if (_displayMP > 10)
             RefreshMP(_displayMP = 10);
 
-        if (Input.GetMouseButtonUp(0))
-            OnDragCancle();
+        if (_selectedIndex != -1)
+        {
+            if (_isPointerDragArea && Input.GetMouseButton(0))
+            {
+                HandCards[_selectedIndex].SetShow(false);
+                CardSummonArea.gameObject.SetActive(true);
+                CardSummonPos.gameObject.SetActive(true);
+                CardSummonPos.transform.position = _player.WorldToGridPoint(_camera.ScreenToWorldPoint(Input.mousePosition));
+            }
+            else if (_isPointerDragArea && Input.GetMouseButtonUp(0))
+            {
+                HandCards[_selectedIndex].SetShow(true);
+                CardSummonArea.gameObject.SetActive(false);
+                CardSummonPos.gameObject.SetActive(false);
+                _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGridIndex(_camera.ScreenToWorldPoint(Input.mousePosition)));
+                _selectedIndex = -1;
+            }
+        }
+        else
+        {
+            CardSummonArea.gameObject.SetActive(false);
+            CardSummonPos.gameObject.SetActive(false);
+        }
     }
 
     private void OnOpponentSpawned(Player player)
@@ -115,28 +136,6 @@ public class GameUI : MonoBehaviour
             HandCards[i].SetSelected(i == _selectedIndex);
 
         CardSummonPos.SetSelectedHandCardId(_handCardIds[_selectedIndex]);
-    }
-    private void OnDragArea(PointerEventData pointerEventData)
-    {
-        if (Input.GetMouseButton(0))
-        {
-            if (_selectedIndex != -1)
-            {
-                HandCards[_selectedIndex].SetShow(false);
-                CardSummonArea.gameObject.SetActive(true);
-                CardSummonPos.gameObject.SetActive(true);
-                CardSummonPos.transform.position = _player.WorldToGridPoint(_camera.ScreenToWorldPoint(pointerEventData.position));
-            }
-        }
-    }
-    private void OnDragCancle()
-    {
-        if (_selectedIndex != -1)
-        {
-            HandCards[_selectedIndex].SetShow(true);
-            CardSummonArea.gameObject.SetActive(false);
-            CardSummonPos.gameObject.SetActive(false);
-        }
     }
 
     #region Network Varriable Changed Callbacks
