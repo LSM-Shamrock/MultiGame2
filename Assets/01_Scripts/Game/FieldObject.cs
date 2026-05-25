@@ -3,6 +3,5 @@ using UnityEngine;
 
 public abstract class FieldObject : NetworkBehaviour
 {
-    [ComponentField] public BoxCollider2D Collider;
-    [ComponentField] public SpriteRenderer SpriteRenderer;
+    public abstract Collider2D Collider { get; }
 }

@@ -13,6 +13,11 @@ public enum TargetingType
     GroundOrAir,
 }
 
+public enum ColliderType
+{
+    Normal,
+    Small,
+}
 
 [Serializable]
 public class CardData
@@ -25,4 +30,5 @@ public class CardData
     public int Health;
     public LayerType LayerType;
     public TargetingType TargetingType;
+    public ColliderType ColliderType;
 }

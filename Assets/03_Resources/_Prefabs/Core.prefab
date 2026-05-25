@@ -174,5 +174,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  Collider: {fileID: 2577927040356291211}
-  SpriteRenderer: {fileID: 4242839312394436491}
+  _spriteRenderer: {fileID: 4242839312394436491}
+  _collider: {fileID: 2577927040356291211}
