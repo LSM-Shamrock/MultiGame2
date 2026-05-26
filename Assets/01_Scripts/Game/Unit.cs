@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,9 +14,10 @@ public class Unit : FieldObject
 
     public NetworkVariable<int> CardId { get; set; } = new();
 
-    [SerializeField, ComponentField] private SpriteRenderer _spriteRenderer;
-    [SerializeField, ChildField] private Collider2D _colliderNormal;
-    [SerializeField, ChildField] private Collider2D _colliderSmall;
+    [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _spriteRenderer;
+    [SerializeField, ChildField("UnitSprite")] private Animator _animator;
+    [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
+    [SerializeField, ChildField("ColliderSmall")] private Collider2D _colliderSmall;
 
     private int _cardId;
     private CardData _cardData;
@@ -58,7 +61,6 @@ public class Unit : FieldObject
 
         _spriteRenderer.sprite = sprite;
     }
-
 
     public void FindNearestTarget(out FieldObject find, out float distance)
     {
@@ -111,6 +113,13 @@ public class Unit : FieldObject
         }
     }
 
+    private void PlayAnimForDuration(string clipAndStateName, float duration)
+    {
+        var clip = _animator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
+
+        _animator.speed = clip.length / duration;
+        _animator.Play(clipAndStateName, 0, 0f);
+    }
 
     private IEnumerator Routine()
     {
@@ -120,12 +129,22 @@ public class Unit : FieldObject
 
             FindNearestHorizontalTarget(out _target, out float distance);
 
-
             float xDir = _target.transform.position.x - transform.position.x;
             xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
 
+            transform.right = Vector3.right * xDir;
+
             if (distance > 0.1)
+            {
                 transform.position += Vector3.right * xDir * Time.deltaTime * 1f;
+            }
+            else
+            {
+                float duration = 1f;
+
+                PlayAnimForDuration("Unit_Anim_BodyAttack", 1f);
+                yield return new WaitForSeconds(duration);
+            }
         }
     }
 }
