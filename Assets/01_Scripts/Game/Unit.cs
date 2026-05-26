@@ -21,6 +21,7 @@ public class Unit : FieldObject
     private Player _owner;
     private Player _opponent;
     private Collider2D _collider;
+    private FieldObject _target;
 
     public void Init(int cardId, Player owner, Player opponent)
     {
@@ -115,15 +116,16 @@ public class Unit : FieldObject
     {
         while (true)
         {
-            yield return new WaitForFixedUpdate();
+            yield return null;
 
-            FindNearestHorizontalTarget(out var target, out float distance);
+            FindNearestHorizontalTarget(out _target, out float distance);
 
 
-            float xDir = target.transform.position.x - transform.position.x;
+            float xDir = _target.transform.position.x - transform.position.x;
             xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
 
-            transform.position += Vector3.right * xDir * Time.fixedDeltaTime * 1f;
+            if (distance > 0.1)
+                transform.position += Vector3.right * xDir * Time.deltaTime * 1f;
         }
     }
 }
