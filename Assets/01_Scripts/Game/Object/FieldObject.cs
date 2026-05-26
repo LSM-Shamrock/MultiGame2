@@ -7,7 +7,7 @@ public abstract class FieldObject : NetworkBehaviour
     public Vector2 ColliderCenter => Collider.bounds.center;
 
     public NetworkVariable<int> MaxHealth { get; } = new();
-    public NetworkVariable<int> Health { get; } = new();
+    public NetworkVariable<int> CurrentHealth { get; } = new();
 
     public float GetDistance(FieldObject target)
     {

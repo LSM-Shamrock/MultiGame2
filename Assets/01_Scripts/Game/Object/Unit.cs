@@ -47,9 +47,11 @@ public class Unit : FieldObject
     }
     public override void OnNetworkSpawn()
     {
-        if (IsHost)
+        if (IsServer)
         {
             CardId.Value = _cardId;
+            MaxHealth.Value = _cardData.Health;
+            CurrentHealth.Value = _cardData.Health;
         }
         else
         {
