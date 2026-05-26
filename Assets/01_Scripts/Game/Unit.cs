@@ -54,6 +54,40 @@ public class Unit : FieldObject
 
     private void FixedUpdate()
     {
+        UpdateTarget();
+    }
+    
+    public float FindNearestTarget(out FieldObject find)
+    {
+        if (_cardData.TargetingType == TargetingType.Core)
+        {
+            find = _opponent.Core;
+            return ColliderDistanceTo(find);
+        }
+
+        find = null;
+        float distance = float.PositiveInfinity;
+        
+        HashSet<FieldObject> objects = _cardData.TargetingType switch
+        {
+            TargetingType.Ground => _opponent.GroundObjects,
+            TargetingType.GroundOrAir => _opponent.AllObjects,
+            _ => null
+        };
+
+        foreach (FieldObject obj in objects)
+        {
+            var dist = ColliderDistanceTo(obj);
+            if (dist < distance)
+            {
+                distance = dist;
+                find = obj;
+            }
+        }
+        return distance;
+    }
+    public void UpdateTarget()
+    {
         /*
         만약 (공격 대상 != 널 && 공격대상 in 공격범위) 
 	        공격
@@ -97,38 +131,5 @@ public class Unit : FieldObject
         //        Unit.ChaseTarget = core;
         //    }
         //}
-    }
-
-
-
-
-    public float FindNearest(out FieldObject find)
-    {
-        if (_cardData.TargetingType == TargetingType.Core)
-        {
-            find = _opponent.Core;
-            return ColliderDistanceTo(find);
-        }
-
-        find = null;
-        float distance = float.PositiveInfinity;
-        
-        HashSet<FieldObject> objects = _cardData.TargetingType switch
-        {
-            TargetingType.Ground => _opponent.GroundObjects,
-            TargetingType.GroundOrAir => _opponent.AllObjects,
-            _ => null
-        };
-
-        foreach (FieldObject obj in objects)
-        {
-            var dist = ColliderDistanceTo(obj);
-            if (dist < distance)
-            {
-                distance = dist;
-                find = obj;
-            }
-        }
-        return distance;
     }
 }
