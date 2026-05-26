@@ -105,6 +105,7 @@ public class GameUI : MonoBehaviour
         LocalPlayerNameText.text = player.PlayerName.Value.ToString();
         RefreshHandCardIds(player.HandCardIds.AsNativeArray());
         RefreshNextCardId(player.NextCardId.Value);
+        RefreshMP(player.MP.Value);
 
         player.PlayerName.OnValueChanged += OnPlayerNameChanged;
         player.MP.OnValueChanged += OnMpChanged;

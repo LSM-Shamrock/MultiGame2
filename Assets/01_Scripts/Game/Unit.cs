@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+
 
 [AutoInjectionTarget]
 public class Unit : FieldObject
@@ -33,6 +36,9 @@ public class Unit : FieldObject
             _ => _colliderNormal,
         };
         _collider.enabled = true;
+
+        Debug.Log("!");
+        StartCoroutine(Routine());
     }
     public override void OnNetworkSpawn()
     {
@@ -52,84 +58,72 @@ public class Unit : FieldObject
         _spriteRenderer.sprite = sprite;
     }
 
-    private void FixedUpdate()
-    {
-        UpdateTarget();
-    }
-    
-    public float FindNearestTarget(out FieldObject find)
-    {
-        if (_cardData.TargetingType == TargetingType.Core)
-        {
-            find = _opponent.Core;
-            return ColliderDistanceTo(find);
-        }
 
-        find = null;
-        float distance = float.PositiveInfinity;
-        
-        HashSet<FieldObject> objects = _cardData.TargetingType switch
+    public void FindNearestTarget(out FieldObject find, out float distance)
+    {
+        find = _opponent.Core;
+        distance = GetDistance(find);
+
+        if (_cardData.TargetingType == TargetingType.Core)
+            return;
+
+        HashSet<Unit> units = _cardData.TargetingType switch
         {
-            TargetingType.Ground => _opponent.GroundObjects,
-            TargetingType.GroundOrAir => _opponent.AllObjects,
+            TargetingType.Ground => _opponent.GroundUnits,
+            TargetingType.GroundOrAir => _opponent.AllUnits,
             _ => null
         };
 
-        foreach (FieldObject obj in objects)
+        foreach (Unit unit in units)
         {
-            var dist = ColliderDistanceTo(obj);
+            var dist = GetDistance(unit);
             if (dist < distance)
             {
                 distance = dist;
-                find = obj;
+                find = unit;
             }
         }
-        return distance;
     }
-    public void UpdateTarget()
+    public void FindNearestHorizontalTarget(out FieldObject find, out float distance)
     {
-        /*
-        만약 (공격 대상 != 널 && 공격대상 in 공격범위) 
-	        공격
-        아니면 만약 (공격범위에 적 존재)
-	        가까운 적 공격대상 설정
-	        공격
-        아니면 만약 (추적범위에 적 존재)
-	        가까운적에게 이동
-        아니면 
-	        코어로 이동 
-        */
+        find = _opponent.Core;
+        distance = GetHorizontalDistance(find);
 
-        //var attackRange = Unit.AttackRange;
-        //var chaseRange = Unit.ChaseRange;
+        if (_cardData.TargetingType == TargetingType.Core)
+            return;
 
-        //if (Unit.AttackTarget != null && DistanceTo(Unit.AttackTarget) <= attackRange)
-        //    return;
+        HashSet<Unit> units = _cardData.TargetingType switch
+        {
+            TargetingType.Ground => _opponent.GroundUnits,
+            TargetingType.GroundOrAir => _opponent.AllUnits,
+            _ => null
+        };
 
-        //var distance = FindTargetObject(out var unit);
-        //if (distance <= attackRange)
-        //{
-        //    // 새 타겟 공격
-        //    Unit.AttackTarget = unit;
-        //}
-        //else if (distance <= chaseRange)
-        //{
-        //    // 가까운적에게 이동
-        //    Unit.ChaseTarget = unit;
-        //}
-        //else
-        //{
-        //    var coreDistance = FindTargetCore(out var core);
-        //    if (coreDistance <= attackRange)
-        //    {
-        //        // 코어 공격
-        //        Unit.AttackTarget = core;
-        //    }
-        //    else
-        //    {
-        //        // 코어로 이동
-        //        Unit.ChaseTarget = core;
-        //    }
-        //}
+        foreach (Unit unit in units)
+        {
+            var dist = GetHorizontalDistance(unit);
+            if (dist < distance)
+            {
+                distance = dist;
+                find = unit;
+            }
+        }
+    }
+
+
+    private IEnumerator Routine()
+    {
+        while (true)
+        {
+            yield return new WaitForFixedUpdate();
+
+            FindNearestHorizontalTarget(out var target, out float distance);
+
+
+            float xDir = target.transform.position.x - transform.position.x;
+            xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
+
+            transform.position += Vector3.right * xDir * Time.fixedDeltaTime * 1f;
+        }
     }
 }

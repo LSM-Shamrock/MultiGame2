@@ -7,16 +7,33 @@ public abstract class FieldObject : NetworkBehaviour
     public Vector2 ColliderCenter => Collider.bounds.center;
 
 
-    public float ColliderDistanceTo(FieldObject b)
+    public float GetDistance(FieldObject target)
     {
         var colA = Collider;
-        var colB = b.Collider;
+        var colB = target.Collider;
 
         if (colA == null || colB == null)
             return float.PositiveInfinity;
 
-        var result = Physics2D.Distance(colA, colB).distance;
+        float result = Physics2D.Distance(colA, colB).distance;
 
         return result;
+    }
+    public float GetHorizontalDistance(FieldObject target)
+    {
+        var colA = Collider;
+        var colB = target.Collider;
+
+        if (colA == null || colB == null)
+            return float.PositiveInfinity;
+
+        var a = colA.bounds;
+        var b = colB.bounds;
+
+        float distanceX = Mathf.Abs(a.center.x - b.center.x) - (a.extents.x + b.extents.x);
+
+        distanceX = Mathf.Max(distanceX, 0f);
+
+        return distanceX;
     }
 }

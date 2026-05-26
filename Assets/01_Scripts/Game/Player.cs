@@ -19,6 +19,7 @@ public class Player : NetworkBehaviour
     private string _playerName;
     private int[] _deckCardIds;
     private Queue<int> _nextCardIds = new();
+    private Player _opponent;
 
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
@@ -26,8 +27,8 @@ public class Player : NetworkBehaviour
     [SerializeField, ChildrenGroupField] private Transform[] SummonGrid;
 
     public Core Core { get; private set; }
-    public HashSet<FieldObject> GroundObjects { get; } = new();
-    public HashSet<FieldObject> AllObjects { get; } = new();
+    public HashSet<Unit> GroundUnits { get; } = new();
+    public HashSet<Unit> AllUnits { get; } = new();
 
     public void Init(string playerName, int[] deckCardIds)
     {
@@ -190,11 +191,14 @@ public class Player : NetworkBehaviour
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Unit unit = go.GetComponent<Unit>();
-        unit.Init(cardData.CardId, this, GameScene.Instance.OpponentPlayer.Value);
+
+        Player opponent = IsOwner ? GameScene.Instance.OpponentPlayer.Value : GameScene.Instance.LocalPlayer.Value;
+
+        unit.Init(cardData.CardId, this, opponent);
         obj.SpawnWithOwnership(OwnerClientId);
 
-        AllObjects.Add(unit);
+        AllUnits.Add(unit);
         if (cardData.LayerType == LayerType.Ground) 
-            GroundObjects.Add(unit);
+            GroundUnits.Add(unit);
     }
 }

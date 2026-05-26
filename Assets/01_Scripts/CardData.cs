@@ -31,6 +31,4 @@ public class CardData
     public LayerType LayerType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
-    public float ChaseRange;
-    public float AttackRange;
 }
