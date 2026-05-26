@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+﻿using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
@@ -49,5 +50,85 @@ public class Unit : FieldObject
         Sprite sprite = Resources.Load<Sprite>(path);
 
         _spriteRenderer.sprite = sprite;
+    }
+
+    private void FixedUpdate()
+    {
+        /*
+        만약 (공격 대상 != 널 && 공격대상 in 공격범위) 
+	        공격
+        아니면 만약 (공격범위에 적 존재)
+	        가까운 적 공격대상 설정
+	        공격
+        아니면 만약 (추적범위에 적 존재)
+	        가까운적에게 이동
+        아니면 
+	        코어로 이동 
+        */
+
+        //var attackRange = Unit.AttackRange;
+        //var chaseRange = Unit.ChaseRange;
+
+        //if (Unit.AttackTarget != null && DistanceTo(Unit.AttackTarget) <= attackRange)
+        //    return;
+
+        //var distance = FindTargetObject(out var unit);
+        //if (distance <= attackRange)
+        //{
+        //    // 새 타겟 공격
+        //    Unit.AttackTarget = unit;
+        //}
+        //else if (distance <= chaseRange)
+        //{
+        //    // 가까운적에게 이동
+        //    Unit.ChaseTarget = unit;
+        //}
+        //else
+        //{
+        //    var coreDistance = FindTargetCore(out var core);
+        //    if (coreDistance <= attackRange)
+        //    {
+        //        // 코어 공격
+        //        Unit.AttackTarget = core;
+        //    }
+        //    else
+        //    {
+        //        // 코어로 이동
+        //        Unit.ChaseTarget = core;
+        //    }
+        //}
+    }
+
+
+
+
+    public float FindNearest(out FieldObject find)
+    {
+        if (_cardData.TargetingType == TargetingType.Core)
+        {
+            find = _opponent.Core;
+            return ColliderDistanceTo(find);
+        }
+
+        find = null;
+        float distance = float.PositiveInfinity;
+        
+        HashSet<FieldObject> objects = _cardData.TargetingType switch
+        {
+            TargetingType.Ground => _opponent.GroundObjects,
+            TargetingType.GroundOrAir => _opponent.AllObjects,
+            _ => null
+        };
+
+        foreach (FieldObject obj in objects)
+        {
+            var dist = ColliderDistanceTo(obj);
+            if (dist < distance)
+            {
+                distance = dist;
+                find = obj;
+            }
+        }
+        return distance;
     }
 }
