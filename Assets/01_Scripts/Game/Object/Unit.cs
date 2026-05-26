@@ -14,8 +14,9 @@ public class Unit : FieldObject
 
     public NetworkVariable<int> CardId { get; set; } = new();
 
-    [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _spriteRenderer;
-    [SerializeField, ChildField("UnitSprite")] private Animator _animator;
+    [SerializeField, ChildField("UnitSpriteRoot")] private Transform _unitSpriteRoot;
+    [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSprite;
+    [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
     [SerializeField, ChildField("ColliderSmall")] private Collider2D _colliderSmall;
 
@@ -59,10 +60,10 @@ public class Unit : FieldObject
         string path = $"UnitSprite/Unit_{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
-        _spriteRenderer.sprite = sprite;
+        _unitSprite.sprite = sprite;
     }
 
-    public void FindNearestTarget(out FieldObject find, out float distance)
+    private void FindNearestTarget(out FieldObject find, out float distance)
     {
         find = _opponent.Core;
         distance = GetDistance(find);
@@ -87,7 +88,7 @@ public class Unit : FieldObject
             }
         }
     }
-    public void FindNearestHorizontalTarget(out FieldObject find, out float distance)
+    private void FindNearestHorizontalTarget(out FieldObject find, out float distance)
     {
         find = _opponent.Core;
         distance = GetHorizontalDistance(find);
@@ -115,12 +116,11 @@ public class Unit : FieldObject
 
     private void PlayAnimForDuration(string clipAndStateName, float duration)
     {
-        var clip = _animator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
+        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
 
-        _animator.speed = clip.length / duration;
-        _animator.Play(clipAndStateName, 0, 0f);
+        _unitAnimator.speed = clip.length / duration;
+        _unitAnimator.Play(clipAndStateName, 0, 0f);
     }
-
     private IEnumerator Routine()
     {
         while (true)
