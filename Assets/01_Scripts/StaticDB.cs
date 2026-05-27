@@ -43,12 +43,13 @@ public class UnitData
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
+    public int AttackHitId;
 }
 
 [Serializable]
-public class HitData
+public class AttackHitData
 {
-    public int HitId;
+    public int AttackHitId;
     public string CodeName;
     public int Damage;
     public float Knockback;
@@ -60,19 +61,19 @@ public class StaticDB : ScriptableObject
     private static StaticDB s_instance;
     public static StaticDB Instance => s_instance ?? (s_instance = Resources.Load<StaticDB>(nameof(StaticDB)));
 
-    [SerializeField] private List<CardData> _cardDatas;
-    [SerializeField] private List<UnitData> _unitDatas;
-    [SerializeField] private List<HitData> _hitDatas;
+    [SerializeField] private List<CardData> _Card;
+    [SerializeField] private List<UnitData> _Unit;
+    [SerializeField] private List<AttackHitData> _AttackHit;
 
-    private Dictionary<int, CardData> _cardDictionary;
-    private Dictionary<int, UnitData> _unitDictionary;
-    private Dictionary<int, HitData> _hitDictionary;
+    private Dictionary<int, CardData> _CardDictionary;
+    private Dictionary<int, UnitData> _UnitDictionary;
+    private Dictionary<int, AttackHitData> _HitDictionary;
 
-    public IReadOnlyList<CardData> CardDataList => _cardDatas;    
-    public IReadOnlyList<UnitData> UnitDataList => _unitDatas;
-    public IReadOnlyList<HitData> HitDataList => _hitDatas;
+    public IReadOnlyList<CardData> CardDataList => _Card;    
+    public IReadOnlyList<UnitData> UnitDataList => _Unit;
+    public IReadOnlyList<AttackHitData> HitDataList => _AttackHit;
 
-    public IReadOnlyDictionary<int, CardData> CardDataTable => _cardDictionary ?? (_cardDictionary = _cardDatas.ToDictionary(e => e.CardId));
-    public IReadOnlyDictionary<int, UnitData> UnitDataTable => _unitDictionary ?? (_unitDictionary = _unitDatas.ToDictionary(e => e.UnitId));
-    public IReadOnlyDictionary<int, HitData> HitDataTable => _hitDictionary ?? (_hitDictionary = _hitDatas.ToDictionary(e => e.HitId));
+    public IReadOnlyDictionary<int, CardData> CardDataTable => _CardDictionary ?? (_CardDictionary = _Card.ToDictionary(e => e.CardId));
+    public IReadOnlyDictionary<int, UnitData> UnitDataTable => _UnitDictionary ?? (_UnitDictionary = _Unit.ToDictionary(e => e.UnitId));
+    public IReadOnlyDictionary<int, AttackHitData> HitDataTable => _HitDictionary ?? (_HitDictionary = _AttackHit.ToDictionary(e => e.AttackHitId));
 }
