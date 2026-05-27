@@ -75,8 +75,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -516346191
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: b895c87eebad021439892df4c8057d5e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -129,7 +129,11 @@ MonoBehaviour:
   m_Animator: {fileID: 4887616612757464482}
   TransitionStateInfoList: []
   AnimatorParameterEntries:
-    ParameterEntries: []
+    ParameterEntries:
+    - name: AnimationSpeed
+      NameHash: -861403450
+      Synchronize: 1
+      ParameterType: 1
   AnimatorParametersExpanded: 0
 --- !u!1 &1301063177407365397
 GameObject:
@@ -599,7 +603,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _unit: {fileID: -2928703991887112052}
+  _object: {fileID: -2928703991887112052}
   _healthBarFill: {fileID: 2329633854360610978}
 --- !u!1 &5501901558676319172
 GameObject:

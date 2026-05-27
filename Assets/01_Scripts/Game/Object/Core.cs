@@ -11,6 +11,12 @@ public class Core : FieldObject
 
     public override void OnNetworkSpawn()
     {
+        if (IsServer)
+        {
+            MaxHealth.Value = 10000;
+            CurrentHealth.Value = 10000;
+        }
+
         if (IsOwner)
         {
             _spriteRenderer.sprite = Resources.Load<Sprite>("CoreSprite/Core_Blue");

@@ -3,25 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class UnitUI : NetworkBehaviour
+public class FieldObjectUI : NetworkBehaviour
 {
-    [SerializeField, ParentField] private Unit _unit;
+    [SerializeField, ParentField] private FieldObject _object;
     [SerializeField, ChildField] private Image _healthBarFill;
 
+    private Camera _camera;
     private int _maxHealth;
     private int _currentHealth;
-
-    private void Start()
-    {
-        if (_unit.IsSpawned)
-        {
-            _maxHealth = _unit.MaxHealth.Value;
-            _currentHealth = _unit.CurrentHealth.Value;
-            RefreshHealthBar();
-        }
-        _unit.MaxHealth.OnValueChanged += OnMaxHealthChanged;
-        _unit.CurrentHealth.OnValueChanged += OnCurrentHealthChanged;
-    }
 
     public override void OnNetworkSpawn()
     {
@@ -33,11 +22,24 @@ public class UnitUI : NetworkBehaviour
         {
             _healthBarFill.color = new Color(1f, 0f, 0f);
         }
+
+        _camera = Camera.main;
+        
+        _maxHealth = _object.MaxHealth.Value;
+        _currentHealth = _object.CurrentHealth.Value;
+        RefreshHealthBar();
+
+        _object.MaxHealth.OnValueChanged += OnMaxHealthChanged;
+        _object.CurrentHealth.OnValueChanged += OnCurrentHealthChanged;
     }
-    
+    private void LateUpdate()
+    {
+        transform.rotation = _camera.transform.rotation;
+    }
 
     private void OnCurrentHealthChanged(int prevValue, int newValue)
     {
+        Debug.Log($"{_object.gameObject.name} {newValue}");
         _currentHealth = newValue;
         RefreshHealthBar();
     }
@@ -46,7 +48,6 @@ public class UnitUI : NetworkBehaviour
         _maxHealth = newValue;
         RefreshHealthBar();
     }
-
     private void RefreshHealthBar()
     {
         if (_maxHealth == 0)
