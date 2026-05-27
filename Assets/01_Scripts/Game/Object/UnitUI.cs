@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class UnitUI : MonoBehaviour
+public class UnitUI : NetworkBehaviour
 {
     [SerializeField, ParentField] private Unit _unit;
     [SerializeField, ChildField] private Image _healthBarFill;
@@ -21,6 +22,19 @@ public class UnitUI : MonoBehaviour
         _unit.MaxHealth.OnValueChanged += OnMaxHealthChanged;
         _unit.CurrentHealth.OnValueChanged += OnCurrentHealthChanged;
     }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            _healthBarFill.color = new Color(0f, 0.6f, 1f);
+        }
+        else
+        {
+            _healthBarFill.color = new Color(1f, 0f, 0f);
+        }
+    }
+    
 
     private void OnCurrentHealthChanged(int prevValue, int newValue)
     {
