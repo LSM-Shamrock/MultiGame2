@@ -137,7 +137,7 @@ public class Player : NetworkBehaviour
             UnitData unitData = StaticDB.Instance.UnitDataTable[cardData.UnitId];
             Vector3 position = SummonGrid[gridIndex].position;
             position.y += unitData.SummonHeight;
-            SummonCard(unitData, position);
+            SummonUnit(unitData, position);
         }
     }
     public Vector2 WorldToGridPoint(Vector2 worldPos)
@@ -183,23 +183,17 @@ public class Player : NetworkBehaviour
     private void SummonCore()
     {
         GameObject go = Instantiate(_corePrefab, CorePos.position, CorePos.rotation);
-        NetworkObject obj = go.GetComponent<NetworkObject>();
-        obj.SpawnWithOwnership(OwnerClientId);
         Core = go.GetComponent<Core>();
+        Core.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
-    private void SummonCard(UnitData unitData, Vector3 position)
+    private void SummonUnit(UnitData unitData, Vector3 position)
     {
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
-        NetworkObject obj = go.GetComponent<NetworkObject>();
         Unit unit = go.GetComponent<Unit>();
 
         Player opponent = IsOwner ? GameScene.Instance.OpponentPlayer.Value : GameScene.Instance.LocalPlayer.Value;
 
         unit.Init(unitData.UnitId, this, opponent);
-        obj.SpawnWithOwnership(OwnerClientId);
-
-        AllUnits.Add(unit);
-        if (unitData.AltitudeType == AltitudeType.Ground) 
-            GroundUnits.Add(unit);
+        unit.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 }

@@ -6,6 +6,7 @@ public abstract class FieldObject : NetworkBehaviour
     public abstract Collider2D Collider { get; }
     public Vector2 ColliderCenter => Collider.bounds.center;
 
+    public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
     public NetworkVariable<int> CurrentHealth { get; } = new();
 
@@ -39,8 +40,27 @@ public abstract class FieldObject : NetworkBehaviour
         return distanceX;
     }
 
-    public void TakeHit(int damage)
+    public void TakeHit(AttackHitData data)
+    {
+        if (IsDead.Value)
+            return;
+
+        OnDamage(data.Damage);
+        OnKnockback(data.Knockback);
+    }
+    protected virtual void OnDamage(int damage)
     {
         CurrentHealth.Value -= damage;
+
+        if (CurrentHealth.Value <= 0)
+            OnDead();
+    }
+    protected virtual void OnKnockback(float knockback)
+    {
+
+    }
+    protected virtual void OnDead()
+    {
+        IsDead.Value = true;
     }
 }

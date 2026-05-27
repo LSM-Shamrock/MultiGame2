@@ -73,13 +73,13 @@ public class StaticDB : ScriptableObject
 
     private Dictionary<int, CardData> _CardDictionary;
     private Dictionary<int, UnitData> _UnitDictionary;
-    private Dictionary<int, AttackHitData> _HitDictionary;
+    private Dictionary<int, AttackHitData> _AttackHitDictionary;
 
     public IReadOnlyList<CardData> CardDataList => _Card;    
     public IReadOnlyList<UnitData> UnitDataList => _Unit;
-    public IReadOnlyList<AttackHitData> HitDataList => _AttackHit;
+    public IReadOnlyList<AttackHitData> AttackHitDataList => _AttackHit;
 
     public IReadOnlyDictionary<int, CardData> CardDataTable => _CardDictionary ?? (_CardDictionary = _Card.ToDictionary(e => e.CardId));
     public IReadOnlyDictionary<int, UnitData> UnitDataTable => _UnitDictionary ?? (_UnitDictionary = _Unit.ToDictionary(e => e.UnitId));
-    public IReadOnlyDictionary<int, AttackHitData> HitDataTable => _HitDictionary ?? (_HitDictionary = _AttackHit.ToDictionary(e => e.AttackHitId));
+    public IReadOnlyDictionary<int, AttackHitData> AttackHitDataTable => _AttackHitDictionary ?? (_AttackHitDictionary = _AttackHit.ToDictionary(e => e.AttackHitId));
 }
