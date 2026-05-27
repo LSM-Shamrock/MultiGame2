@@ -81,10 +81,10 @@ public class Unit : FieldObject
         }
     }
 
-    private void FindNearestTarget(out FieldObject find, out float distance)
+    private void FindTarget(out FieldObject find, out float horizontalDistance)
     {
         find = _opponent.Core;
-        distance = GetDistance(find);
+        horizontalDistance = GetColliderHorizontalDistance(find);
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
@@ -98,78 +98,87 @@ public class Unit : FieldObject
 
         foreach (Unit unit in units)
         {
-            var dist = GetDistance(unit);
-            if (dist < distance)
+            var dist = GetColliderHorizontalDistance(unit);
+            if (dist < horizontalDistance)
             {
-                distance = dist;
+                horizontalDistance = dist;
                 find = unit;
             }
         }
     }
-    private void FindNearestHorizontalTarget(out FieldObject find, out float distance)
-    {
-        find = _opponent.Core;
-        distance = GetHorizontalDistance(find);
-
-        if (_unitData.TargetingType == TargetingType.Core)
-            return;
-
-        HashSet<Unit> units = _unitData.TargetingType switch
-        {
-            TargetingType.Ground => _opponent.GroundUnits,
-            TargetingType.GroundOrAir => _opponent.AllUnits,
-            _ => null
-        };
-
-        foreach (Unit unit in units)
-        {
-            var dist = GetHorizontalDistance(unit);
-            if (dist < distance)
-            {
-                distance = dist;
-                find = unit;
-            }
-        }
-    }
-
     private IEnumerator Routine()
     {
         while (true)
         {
             yield return null;
 
-            FindNearestHorizontalTarget(out _target, out float distance);
+            FindTarget(out _target, out float horizontalDistance);
 
             float xDir = _target.transform.position.x - transform.position.x;
             xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
 
             transform.right = Vector3.right * xDir;
 
-            if (distance > 0.1)
+            float attackDistance = _unitData.AttackRangeType switch
             {
-                transform.position += Vector3.right * xDir * Time.deltaTime * 1f;
+                AttackRangeType.Horizontal => horizontalDistance,
+                AttackRangeType.Directional => GetColliderDistance(_target),
+                _ => horizontalDistance
+            };
 
-                _unitAnimator.Play("Unit_Anim_None");
+            if (attackDistance > _unitData.AttackRange)
+            {
+                switch (_unitData.MoveType)
+                {
+                    case MoveType.Horizontal: Move_Horizontal(); break;
+                    case MoveType.Directional: Move_Directional(); break;
+                };
             }
             else
             {
-                float animationDuration = 1f;
-                float hitNormalizedTime = 0.4f;
-                string clipAndStateName = "Unit_Anim_BodyAttack";
-                var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
-                _unitAnimator.SetFloat("AnimationSpeed", clip.length / animationDuration);
-                _unitAnimator.Play(clipAndStateName, 0, 0f);
-
-
-                yield return new WaitForSeconds(animationDuration * hitNormalizedTime);
-
-                if (_target)
-                    _target.TakeHit(_attackHitData);
-
-                yield return new WaitForSeconds(animationDuration * (1 - hitNormalizedTime));
+                switch (_unitData.AttackType)
+                {
+                    case AttackType.Motion: yield return Attack_Motion(); break;
+                    case AttackType.Projectile: yield return Attack_Projectile(); break;
+                }
             }
         }
     }
+    private void Move_Horizontal()
+    {
+        transform.position += transform.right * Time.deltaTime * 1f;
+        _unitAnimator.Play("Unit_Anim_None");
+    }
+    private void Move_Directional()
+    {
+        transform.position += (_target.ColliderCenter - ColliderCenter).normalized * Time.deltaTime * 1f;
+        _unitAnimator.Play("Unit_Anim_None");
+    }
+    private IEnumerator Attack_Motion()
+    {
+        float motionTime = 1f;
+        float hitNormalizedTime = 0.4f;
+        string clipAndStateName = "Unit_Anim_BodyAttack";
+        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
+
+        _animationPoint.right = _target.transform.position - transform.position;
+        _unitSprite.transform.rotation = transform.rotation;
+        _unitAnimator.SetFloat("AnimationSpeed", clip.length / motionTime);
+        _unitAnimator.Play(clipAndStateName, 0, 0f);
+
+        yield return new WaitForSeconds(motionTime * hitNormalizedTime);
+
+        if (_target)
+            _target.TakeHit(_attackHitData);
+
+        yield return new WaitForSeconds(motionTime * (1 - hitNormalizedTime));
+    }
+    private IEnumerator Attack_Projectile()
+    {
+        yield break;
+    }
+
+
 
     protected override void OnDead()
     {

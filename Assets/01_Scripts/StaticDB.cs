@@ -8,23 +8,32 @@ public enum AltitudeType
     Ground,
     Air,
 }
-
 public enum TargetingType
 {
     Core,
     Ground,
     GroundOrAir,
 }
-
 public enum ColliderType
 {
     Normal,
     Small,
 }
-
+public enum MoveType
+{
+    Horizontal,
+    Directional,
+}
+public enum AttackRangeType
+{
+    Horizontal,
+    Directional,
+}
 public enum AttackType
 {
-    BodyAttack,
+    Motion,
+    Projectile,
+    Wave,
 }
 
 [Serializable]
@@ -48,6 +57,9 @@ public class UnitData
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
+    public MoveType MoveType;
+    public AttackRangeType AttackRangeType;
+    public float AttackRange;
     public AttackType AttackType;
     public int AttackHitId;
 }

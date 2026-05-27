@@ -4,13 +4,13 @@ using UnityEngine;
 public abstract class FieldObject : NetworkBehaviour
 {
     public abstract Collider2D Collider { get; }
-    public Vector2 ColliderCenter => Collider.bounds.center;
+    public Vector3 ColliderCenter => Collider.bounds.center;
 
     public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
     public NetworkVariable<int> CurrentHealth { get; } = new();
 
-    public float GetDistance(FieldObject target)
+    public float GetColliderDistance(FieldObject target)
     {
         var colA = Collider;
         var colB = target.Collider;
@@ -22,7 +22,7 @@ public abstract class FieldObject : NetworkBehaviour
 
         return result;
     }
-    public float GetHorizontalDistance(FieldObject target)
+    public float GetColliderHorizontalDistance(FieldObject target)
     {
         var colA = Collider;
         var colB = target.Collider;
