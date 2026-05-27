@@ -12,7 +12,7 @@ public class Unit : FieldObject
 {
     public override Collider2D Collider => _collider;
 
-    public NetworkVariable<int> CardId { get; set; } = new();
+    public NetworkVariable<int> UnitId { get; set; } = new();
 
     [SerializeField, ChildField("UnitSpriteRoot")] private Transform _unitSpriteRoot;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSprite;
@@ -20,21 +20,21 @@ public class Unit : FieldObject
     [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
     [SerializeField, ChildField("ColliderSmall")] private Collider2D _colliderSmall;
 
-    private int _cardId;
-    private CardData _cardData;
+    private int _unitId;
+    private UnitData _unitData;
     private Player _owner;
     private Player _opponent;
     private Collider2D _collider;
     private FieldObject _target;
 
-    public void Init(int cardId, Player owner, Player opponent)
+    public void Init(int unitId, Player owner, Player opponent)
     {
         _owner = owner;
         _opponent = opponent;
 
-        _cardId = cardId;
-        _cardData = StaticDB.Instance.CardDataTable[_cardId];
-        _collider = _cardData.ColliderType switch
+        _unitId = unitId;
+        _unitData = StaticDB.Instance.UnitDataTable[_unitId];
+        _collider = _unitData.ColliderType switch
         {
             ColliderType.Normal => _colliderNormal,
             ColliderType.Small => _colliderSmall,
@@ -49,17 +49,17 @@ public class Unit : FieldObject
     {
         if (IsServer)
         {
-            CardId.Value = _cardId;
-            MaxHealth.Value = _cardData.Health;
-            CurrentHealth.Value = _cardData.Health;
+            UnitId.Value = _unitId;
+            MaxHealth.Value = _unitData.Health;
+            CurrentHealth.Value = _unitData.Health;
         }
         else
         {
-            _cardId = CardId.Value;
-            _cardData = StaticDB.Instance.CardDataTable[_cardId];
+            _unitId = UnitId.Value;
+            _unitData = StaticDB.Instance.UnitDataTable[_unitId];
         }
 
-        string path = $"UnitSprite/Unit_{_cardData.CodeName}";
+        string path = $"UnitSprite/Unit_{_unitData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         _unitSprite.sprite = sprite;
@@ -70,10 +70,10 @@ public class Unit : FieldObject
         find = _opponent.Core;
         distance = GetDistance(find);
 
-        if (_cardData.TargetingType == TargetingType.Core)
+        if (_unitData.TargetingType == TargetingType.Core)
             return;
 
-        HashSet<Unit> units = _cardData.TargetingType switch
+        HashSet<Unit> units = _unitData.TargetingType switch
         {
             TargetingType.Ground => _opponent.GroundUnits,
             TargetingType.GroundOrAir => _opponent.AllUnits,
@@ -95,10 +95,10 @@ public class Unit : FieldObject
         find = _opponent.Core;
         distance = GetHorizontalDistance(find);
 
-        if (_cardData.TargetingType == TargetingType.Core)
+        if (_unitData.TargetingType == TargetingType.Core)
             return;
 
-        HashSet<Unit> units = _cardData.TargetingType switch
+        HashSet<Unit> units = _unitData.TargetingType switch
         {
             TargetingType.Ground => _opponent.GroundUnits,
             TargetingType.GroundOrAir => _opponent.AllUnits,

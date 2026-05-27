@@ -9,6 +9,7 @@ public class CardSummonPosUI : MonoBehaviour
     [ChildField] public TextMeshProUGUI NameText;
 
     private CardData _cardData;
+    private UnitData _unitData;
 
     public void SetSelectedHandCardId(int cardId)
     {
@@ -20,11 +21,13 @@ public class CardSummonPosUI : MonoBehaviour
         }
 
         _cardData = StaticDB.Instance.CardDataTable[cardId];
+        _unitData = StaticDB.Instance.UnitDataTable[_cardData.UnitId];
+
         string path = $"UnitSprite/Unit_{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         UnitSprite.sprite = sprite;
-        UnitSprite.transform.localPosition = new Vector3(0, _cardData.SummonHeight);
+        UnitSprite.transform.localPosition = new Vector3(0, _unitData.SummonHeight);
         NameText.text = _cardData.DisplayName;
     }
 

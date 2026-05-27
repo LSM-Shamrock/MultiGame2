@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum LayerType
+public enum AltitudeType
 {
     Ground,
     Air,
@@ -29,12 +29,22 @@ public class CardData
     public string CodeName;
     public string DisplayName;
     public int CostMP;
+    public int UnitId;
+}
+
+[Serializable]
+public class UnitData
+{
+    public int UnitId;
+    public string CodeName;
+    public string DisplayName;
     public float SummonHeight;
     public int Health;
-    public LayerType LayerType;
+    public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
 }
+
 
 [ExcelAsset]
 public class StaticDB : ScriptableObject
@@ -43,9 +53,14 @@ public class StaticDB : ScriptableObject
     public static StaticDB Instance => s_instance ?? (s_instance = Resources.Load<StaticDB>(nameof(StaticDB)));
 
 
-    [SerializeField] 
-    private List<CardData> _cards;
+    [SerializeField] private List<CardData> _cards;
+    [SerializeField] private List<UnitData> _units;
+
+
     private Dictionary<int, CardData> _cardDictionary;
+    private Dictionary<int, UnitData> _unitDictionary;
+    public IReadOnlyList<CardData> CardDataList => _cards;    
+    public IReadOnlyList<UnitData> UnitDataList => _units;
 
     public IReadOnlyDictionary<int, CardData> CardDataTable
     {
@@ -58,6 +73,15 @@ public class StaticDB : ScriptableObject
             return _cardDictionary;
         }
     }
-    public IReadOnlyList<CardData> CardDataList => _cards;    
-
+    public IReadOnlyDictionary<int, UnitData> UnitDataTable
+    {
+        get
+        {
+            if (_unitDictionary == null)
+            {
+                _unitDictionary = _units.ToDictionary(e => e.UnitId);
+            }
+            return _unitDictionary;
+        }
+    }
 }
