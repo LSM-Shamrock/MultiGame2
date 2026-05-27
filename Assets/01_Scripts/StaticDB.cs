@@ -22,6 +22,11 @@ public enum ColliderType
     Small,
 }
 
+public enum AttackType
+{
+    BodyAttack,
+}
+
 [Serializable]
 public class CardData
 {
@@ -43,6 +48,7 @@ public class UnitData
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
+    public AttackType AttackType;
     public int AttackHitId;
 }
 
