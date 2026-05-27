@@ -18,7 +18,7 @@ public class NextCardUI : MonoBehaviour
 
         CardData cardData = StaticDB.Instance.CardDataTable[cardId];
 
-        string path = $"CardSprite/Card_{cardData.CodeName}";
+        string path = $"CardSprite/{cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         CardImage.sprite = sprite;

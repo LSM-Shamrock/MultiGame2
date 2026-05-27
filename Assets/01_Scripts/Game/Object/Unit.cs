@@ -59,7 +59,7 @@ public class Unit : FieldObject
             _unitData = StaticDB.Instance.UnitDataTable[_unitId];
         }
 
-        string path = $"UnitSprite/Unit_{_unitData.CodeName}";
+        string path = $"UnitSprite/{_unitData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
         _unitSprite.sprite = sprite;
