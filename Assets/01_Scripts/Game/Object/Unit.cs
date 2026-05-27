@@ -14,7 +14,7 @@ public class Unit : FieldObject
 
     public NetworkVariable<int> UnitId { get; set; } = new();
 
-    [SerializeField, ChildField("UnitSpriteRoot")] private Transform _unitSpriteRoot;
+    [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSprite;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
