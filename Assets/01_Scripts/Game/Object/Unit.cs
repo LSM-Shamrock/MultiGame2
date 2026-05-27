@@ -135,12 +135,13 @@ public class Unit : FieldObject
             }
             else
             {
-                float animationDuration = 1f;
+                float animationDuration = 0.2f;
                 float hitNormalizedTime = 0.4f;
                 string clipAndStateName = "Unit_Anim_BodyAttack";
                 var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
-                _unitAnimator.speed = clip.length / animationDuration;
+                _unitAnimator.SetFloat("AnimationSpeed", clip.length / animationDuration);
                 _unitAnimator.Play(clipAndStateName, 0, 0f);
+
 
                 yield return new WaitForSeconds(animationDuration * hitNormalizedTime);
 
