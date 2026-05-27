@@ -33,6 +33,7 @@ public enum AttackType
 {
     Motion,
     Projectile,
+    Lightning,
     Wave,
 }
 

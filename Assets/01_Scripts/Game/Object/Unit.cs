@@ -116,7 +116,6 @@ public class Unit : FieldObject
 
             float xDir = _target.transform.position.x - transform.position.x;
             xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
-
             transform.right = Vector3.right * xDir;
 
             float attackDistance = _unitData.AttackRangeType switch
@@ -125,7 +124,6 @@ public class Unit : FieldObject
                 AttackRangeType.Directional => GetColliderDistance(_target),
                 _ => horizontalDistance
             };
-
             if (attackDistance > _unitData.AttackRange)
             {
                 switch (_unitData.MoveType)
@@ -138,7 +136,7 @@ public class Unit : FieldObject
             {
                 switch (_unitData.AttackType)
                 {
-                    case AttackType.Motion: yield return Attack_Motion(); break;
+                    case AttackType.Motion: yield return Attack_Body(); break;
                     case AttackType.Projectile: yield return Attack_Projectile(); break;
                 }
             }
@@ -154,11 +152,11 @@ public class Unit : FieldObject
         transform.position += (_target.ColliderCenter - ColliderCenter).normalized * Time.deltaTime * 1f;
         _unitAnimator.Play("Unit_Anim_None");
     }
-    private IEnumerator Attack_Motion()
+    private IEnumerator Attack_Body()
     {
         float motionTime = 1f;
         float hitNormalizedTime = 0.4f;
-        string clipAndStateName = "Unit_Anim_BodyAttack";
+        string clipAndStateName = "Unit_Anim_Attack_Body";
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
 
         _animationPoint.right = _target.transform.position - transform.position;
