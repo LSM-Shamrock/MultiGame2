@@ -38,4 +38,9 @@ public abstract class FieldObject : NetworkBehaviour
 
         return distanceX;
     }
+
+    public void TakeHit(int damage)
+    {
+        CurrentHealth.Value -= damage;
+    }
 }

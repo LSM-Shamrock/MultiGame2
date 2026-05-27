@@ -116,13 +116,6 @@ public class Unit : FieldObject
         }
     }
 
-    private void PlayAnimForDuration(string clipAndStateName, float duration)
-    {
-        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
-
-        _unitAnimator.speed = clip.length / duration;
-        _unitAnimator.Play(clipAndStateName, 0, 0f);
-    }
     private IEnumerator Routine()
     {
         while (true)
@@ -142,10 +135,18 @@ public class Unit : FieldObject
             }
             else
             {
-                float duration = 1f;
+                float animationDuration = 1f;
+                float hitNormalizedTime = 0.4f;
+                string clipAndStateName = "Unit_Anim_BodyAttack";
+                var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
+                _unitAnimator.speed = clip.length / animationDuration;
+                _unitAnimator.Play(clipAndStateName, 0, 0f);
 
-                PlayAnimForDuration("Unit_Anim_BodyAttack", 1f);
-                yield return new WaitForSeconds(duration);
+                yield return new WaitForSeconds(animationDuration * hitNormalizedTime);
+
+                _target.TakeHit(50);
+
+                yield return new WaitForSeconds(animationDuration * (1 - hitNormalizedTime));
             }
         }
     }
