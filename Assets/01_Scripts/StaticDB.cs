@@ -7,7 +7,6 @@ using UnityEngine;
 #region Enum
 public enum AltitudeType { Ground, Air, }
 public enum TargetingType { Core, Ground, GroundOrAir, }
-public enum ColliderType { Normal, Small, }
 public enum MoveType { Horizontal, Directional, }
 public enum VerticalMoveType { None, Fall, UpDown, }
 public enum AttackRangeType { Horizontal, Directional, }
@@ -33,7 +32,8 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
 
     public float SummonHeight;
     public float Scale;
-    public ColliderType ColliderType;
+    public float ColliderWidth;
+    public float ColliderHeight;
     
     public int Health;
     public AltitudeType AltitudeType;

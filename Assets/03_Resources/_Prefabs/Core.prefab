@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 2575352348688817696}
   - component: {fileID: 3938210463904671634}
   - component: {fileID: 8024299388799183762}
-  - component: {fileID: 7937613787719522397}
+  - component: {fileID: 9011894535459424914}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -195,7 +195,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7937613787719522397
+--- !u!114 &9011894535459424914
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -204,11 +204,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5472137270354066069}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac34e8e9b293094469d1013926b1648c, type: 3}
+  m_Script: {fileID: 11500000, guid: de2e7deee32978c4c9ef04e92d4d06ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _object: {fileID: -1116683082141124118}
+  _core: {fileID: -1116683082141124118}
   _healthBarFill: {fileID: 1738243693330229767}
 --- !u!1 &6239668291141435857
 GameObject:

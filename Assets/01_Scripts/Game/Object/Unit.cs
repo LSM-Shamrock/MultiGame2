@@ -21,15 +21,13 @@ public class Unit : FieldObject
     [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
-    [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
-    [SerializeField, ChildField("ColliderSmall")] private Collider2D _colliderSmall;
+    [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
 
     private int _unitId;
     private UnitData _unitData;
     private AttackHitData _attackHitData;
     private Player _owner;
     private Player _opponent;
-    private Collider2D _collider;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
     private Coroutine _verticalMoveCoroutine;
@@ -42,13 +40,8 @@ public class Unit : FieldObject
         _unitId = unitId;
         _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
         _attackHitData = StaticDB.Instance.AttackHitData.Dictionary[_unitData.AttackHitId];
-        _collider = _unitData.ColliderType switch
-        {
-            ColliderType.Normal => _colliderNormal,
-            ColliderType.Small => _colliderSmall,
-            _ => _colliderNormal,
-        };
-        _collider.enabled = true;
+        _collider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
+        _collider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
     public override void OnNetworkSpawn()
     {

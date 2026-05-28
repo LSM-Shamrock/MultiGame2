@@ -235,39 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b94174e86cc68694f8f658212ad85f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &2365881448381895935
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7867578310398086197}
-  m_Layer: 0
-  m_Name: Colliders
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7867578310398086197
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2365881448381895935}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4209117807779125759}
-  - {fileID: 1479337208778780363}
-  m_Father: {fileID: 168701379678017959}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2525431417944658854
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,7 +268,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3991467076792880822}
-  - {fileID: 7867578310398086197}
+  - {fileID: 1479337208778780363}
   - {fileID: 4580960891633172316}
   - {fileID: 7279915135498808884}
   m_Father: {fileID: 0}
@@ -393,8 +360,7 @@ MonoBehaviour:
   _animationPoint: {fileID: 3991467076792880822}
   _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
-  _colliderNormal: {fileID: 2382955200887756817}
-  _colliderSmall: {fileID: 1835200029809010581}
+  _collider: {fileID: 1835200029809010581}
 --- !u!1 &3709814256980995587
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,7 +465,7 @@ GameObject:
   - component: {fileID: 6359565086291045794}
   - component: {fileID: 4080969157517205053}
   - component: {fileID: 8683233579419148256}
-  - component: {fileID: 4122914028683428369}
+  - component: {fileID: 8320862681060770353}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -590,7 +556,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4122914028683428369
+--- !u!114 &8320862681060770353
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -599,11 +565,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4317726315895573855}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac34e8e9b293094469d1013926b1648c, type: 3}
+  m_Script: {fileID: 11500000, guid: 986172bda94f6b74ca3f12abffd2e81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _object: {fileID: -2928703991887112052}
+  _unit: {fileID: -2928703991887112052}
   _healthBarFill: {fileID: 2329633854360610978}
 --- !u!1 &5501901558676319172
 GameObject:
@@ -616,7 +582,7 @@ GameObject:
   - component: {fileID: 1479337208778780363}
   - component: {fileID: 1835200029809010581}
   m_Layer: 0
-  m_Name: ColliderSmall
+  m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -635,7 +601,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7867578310398086197}
+  m_Father: {fileID: 168701379678017959}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1835200029809010581
 BoxCollider2D:
@@ -644,7 +610,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5501901558676319172}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -671,85 +637,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.375}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.75, y: 0.75}
-  m_EdgeRadius: 0
---- !u!1 &8108419230430319734
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4209117807779125759}
-  - component: {fileID: 2382955200887756817}
-  m_Layer: 0
-  m_Name: ColliderNormal
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4209117807779125759
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8108419230430319734}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7867578310398086197}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &2382955200887756817
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8108419230430319734}
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.5}
+  m_Offset: {x: 0, y: 1}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
