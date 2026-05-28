@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
                 _currentDeck = new ObservableArray<int>(8);
 
                 for (int i = 0; i < 8; i++) 
-                    _currentDeck[i] = StaticDB.Instance.CardDataList[i].CardId;
+                    _currentDeck[i] = StaticDB.Instance.CardData.List[i].CardId;
             }
             return _currentDeck;
         }

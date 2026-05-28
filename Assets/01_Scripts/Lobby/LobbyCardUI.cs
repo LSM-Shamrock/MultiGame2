@@ -62,14 +62,14 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         {
             int cardId = deckCardIds[_index];
 
-            CardData cardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(cardId);
+            CardData cardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(cardId);
 
             SetCardData(cardData);
             SetInteractable(true);
         }
         else
         {
-            var collection = StaticDB.Instance.CardDataList;
+            var collection = StaticDB.Instance.CardData.List;
 
             if (_index >= collection.Count)
             {

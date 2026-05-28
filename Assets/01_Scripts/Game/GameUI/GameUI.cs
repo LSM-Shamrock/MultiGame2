@@ -147,7 +147,7 @@ public class GameUI : MonoBehaviour
 
         _selectedIndex = index;
         _selectedCardId = _handCardIds[_selectedIndex];
-        _selectedCardData = StaticDB.Instance.CardDataTable.GetValueOrDefault(_selectedCardId); 
+        _selectedCardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(_selectedCardId); 
 
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].SetSelected(i == _selectedIndex);

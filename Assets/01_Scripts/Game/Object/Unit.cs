@@ -34,8 +34,8 @@ public class Unit : FieldObject
         _opponent = opponent;
 
         _unitId = unitId;
-        _unitData = StaticDB.Instance.UnitDataTable[_unitId];
-        _attackHitData = StaticDB.Instance.AttackHitDataTable[_unitData.AttackHitId];
+        _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
+        _attackHitData = StaticDB.Instance.AttackHitData.Dictionary[_unitData.AttackHitId];
         _collider = _unitData.ColliderType switch
         {
             ColliderType.Normal => _colliderNormal,
@@ -63,7 +63,7 @@ public class Unit : FieldObject
         else
         {
             _unitId = UnitId.Value;
-            _unitData = StaticDB.Instance.UnitDataTable[_unitId];
+            _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
         }
 
         string path = $"UnitSprite/{_unitData.CodeName}";
@@ -128,7 +128,8 @@ public class Unit : FieldObject
             {
                 switch (_unitData.MoveType)
                 {
-                    case MoveType.Horizontal: Move_Horizontal(); break;
+                    case MoveType.HorizontalAndFall: Move_HorizontalAndFall(); break;
+                    case MoveType.HorizontalAndUpDown: Move_HorizontalAndUpDown(); break;
                     case MoveType.Directional: Move_Directional(); break;
                 };
             }
@@ -142,7 +143,12 @@ public class Unit : FieldObject
             }
         }
     }
-    private void Move_Horizontal()
+    private void Move_HorizontalAndFall()
+    {
+        transform.position += transform.right * Time.deltaTime * 1f;
+        _unitAnimator.Play("Unit_Anim_None");
+    }
+    private void Move_HorizontalAndUpDown()
     {
         transform.position += transform.right * Time.deltaTime * 1f;
         _unitAnimator.Play("Unit_Anim_None");

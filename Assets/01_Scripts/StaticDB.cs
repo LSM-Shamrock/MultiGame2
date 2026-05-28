@@ -3,53 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum AltitudeType
-{
-    Ground,
-    Air,
-}
-public enum TargetingType
-{
-    Core,
-    Ground,
-    GroundOrAir,
-}
-public enum ColliderType
-{
-    Normal,
-    Small,
-}
-public enum MoveType
-{
-    Horizontal,
-    Directional,
-}
-public enum AttackRangeType
-{
-    Horizontal,
-    Directional,
-}
-public enum AttackType
-{
-    Motion,
-    Projectile,
-    Lightning,
-    Wave,
-}
 
-[Serializable]
-public class CardData
+#region Enum
+public enum AltitudeType { Ground, Air, }
+public enum TargetingType { Core, Ground, GroundOrAir, }
+public enum ColliderType { Normal, Small, }
+public enum MoveType { HorizontalAndFall, HorizontalAndUpDown, Directional, }
+public enum AttackRangeType { Horizontal, Directional, }
+public enum AttackType { Motion, Projectile, Lightning, Wave, }
+#endregion
+
+#region Data
+[Serializable] public class CardData : TableData
 {
+    public override int Key => CardId;
     public int CardId;
     public string CodeName;
     public string DisplayName;
     public int CostMP;
     public int UnitId;
 }
-
-[Serializable]
-public class UnitData
+[Serializable] public class UnitData : TableData
 {
+    public override int Key => UnitId;
     public int UnitId;
     public string CodeName;
     public string DisplayName;
@@ -65,34 +41,90 @@ public class UnitData
     public int AttackHitId;
 }
 
-[Serializable]
-public class AttackHitData
+[Serializable] public class AttackHitData : TableData
 {
+    public override int Key => AttackHitId;
     public int AttackHitId;
     public string CodeName;
     public int Damage;
     public float Knockback;
 }
 
+[Serializable] public class Move_HorizontalAndFallData : TableData
+{
+    public override int Key => MoveId;
+    public int MoveId;
+    public string Animation;
+    public float Speed;
+    public float FallSpeed;
+}
+[Serializable] public class Move_HorizontalAndUpDownData : TableData
+{
+    public override int Key => MoveId;
+    public int MoveId;
+    public string Animation;
+    public float Speed;
+    public float MinY;
+    public float MaxY;
+}
+[Serializable] public class Move_DirectionalData : TableData
+{
+    public override int Key => MoveId;
+    public int MoveId;
+    public string Animation;
+    public float Speed;
+}
+#endregion
+
+public abstract class TableData
+{
+    public abstract int Key { get; }
+}
+public class Table<T> where T : TableData
+{
+    public IReadOnlyList<T> List { get; }
+    public IReadOnlyDictionary<int, T> Dictionary { get; }
+    public Table(IReadOnlyList<T> datas)
+    {
+        List = datas;
+        Dictionary = datas.ToDictionary(e => e.Key);
+    }
+}
 [ExcelAsset]
 public class StaticDB : ScriptableObject
 {
     private static StaticDB s_instance;
     public static StaticDB Instance => s_instance ?? (s_instance = Resources.Load<StaticDB>(nameof(StaticDB)));
 
-    [SerializeField] private List<CardData> _Card;
-    [SerializeField] private List<UnitData> _Unit;
-    [SerializeField] private List<AttackHitData> _AttackHit;
+    [SerializeField] private List<CardData> Card;
+    [SerializeField] private List<UnitData> Unit;
+    [SerializeField] private List<AttackHitData> AttackHit;
+    [SerializeField] private List<Move_DirectionalData> Move_Directional;
+    [SerializeField] private List<Move_HorizontalAndFallData> Move_HorizontalAndFall;
+    [SerializeField] private List<Move_HorizontalAndUpDownData> Move_HorizontalAndUpDown;
 
-    private Dictionary<int, CardData> _CardDictionary;
-    private Dictionary<int, UnitData> _UnitDictionary;
-    private Dictionary<int, AttackHitData> _AttackHitDictionary;
+    private Dictionary<Type, object> _tables = new();
 
-    public IReadOnlyList<CardData> CardDataList => _Card;    
-    public IReadOnlyList<UnitData> UnitDataList => _Unit;
-    public IReadOnlyList<AttackHitData> AttackHitDataList => _AttackHit;
+    public Table<CardData> CardData => GetOrCreateTable(Card);
+    public Table<UnitData> UnitData => GetOrCreateTable(Unit);
+    public Table<AttackHitData> AttackHitData => GetOrCreateTable(AttackHit);
+    public Table<Move_DirectionalData> Move_DirectionalData => GetOrCreateTable(Move_Directional);
+    public Table<Move_HorizontalAndFallData> Move_HorizontalAndFallData => GetOrCreateTable(Move_HorizontalAndFall);
+    public Table<Move_HorizontalAndUpDownData> Move_HorizontalAndUpDownData => GetOrCreateTable(Move_HorizontalAndUpDown);
 
-    public IReadOnlyDictionary<int, CardData> CardDataTable => _CardDictionary ?? (_CardDictionary = _Card.ToDictionary(e => e.CardId));
-    public IReadOnlyDictionary<int, UnitData> UnitDataTable => _UnitDictionary ?? (_UnitDictionary = _Unit.ToDictionary(e => e.UnitId));
-    public IReadOnlyDictionary<int, AttackHitData> AttackHitDataTable => _AttackHitDictionary ?? (_AttackHitDictionary = _AttackHit.ToDictionary(e => e.AttackHitId));
+    private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData
+    {
+        if (_tables.TryGetValue(typeof(T), out var obj))
+        {
+            return (Table<T>)obj;
+        }
+        else
+        {
+            var table = new Table<T>(datas);
+
+            _tables.Add(typeof(T), table);
+            
+            return table;
+        }
+    }
 }

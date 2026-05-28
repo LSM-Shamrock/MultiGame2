@@ -17,7 +17,7 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
 
     public void SetCardId(int cardId)
     {
-        if (!StaticDB.Instance.CardDataTable.ContainsKey(cardId))
+        if (!StaticDB.Instance.CardData.Dictionary.ContainsKey(cardId))
         {
             _cardData = null;
             CardImage.gameObject.SetActive(false);
@@ -26,7 +26,7 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
 
         CardImage.gameObject.SetActive(true);
 
-        _cardData = StaticDB.Instance.CardDataTable[cardId];
+        _cardData = StaticDB.Instance.CardData.Dictionary[cardId];
         string path = $"CardSprite/{_cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
