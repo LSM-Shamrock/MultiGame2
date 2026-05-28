@@ -30,11 +30,14 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public int UnitId;
     public string CodeName;
     public string DisplayName;
+
     public float SummonHeight;
+    public float Scale;
+    public ColliderType ColliderType;
+    
     public int Health;
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
-    public ColliderType ColliderType;
     
     public MoveType MoveType;
     public string MoveAnimation;

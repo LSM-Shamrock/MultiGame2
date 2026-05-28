@@ -19,7 +19,7 @@ public class Unit : FieldObject
     public NetworkVariable<int> UnitId { get; set; } = new();
 
     [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
-    [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSprite;
+    [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("ColliderNormal")] private Collider2D _colliderNormal;
     [SerializeField, ChildField("ColliderSmall")] private Collider2D _colliderSmall;
@@ -72,7 +72,8 @@ public class Unit : FieldObject
 
         string path = $"UnitSprite/{_unitData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);
-        _unitSprite.sprite = sprite;
+        _unitSpriteRenderer.sprite = sprite;
+        transform.localScale = Vector3.one * _unitData.Scale;
     }
     public override void OnNetworkDespawn()
     {
@@ -211,7 +212,7 @@ public class Unit : FieldObject
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
 
         _animationPoint.right = target.transform.position - transform.position;
-        _unitSprite.transform.rotation = transform.rotation;
+        _unitSpriteRenderer.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / motionTime);
         _unitAnimator.Play(clipAndStateName, 0, 0f);
 

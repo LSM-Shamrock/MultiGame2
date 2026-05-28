@@ -391,7 +391,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _animationPoint: {fileID: 3991467076792880822}
-  _unitSprite: {fileID: 7279577024822690357}
+  _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
   _colliderNormal: {fileID: 2382955200887756817}
   _colliderSmall: {fileID: 1835200029809010581}
