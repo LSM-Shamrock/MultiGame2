@@ -27,6 +27,7 @@ public class Unit : FieldObject
     private Player _opponent;
     private Collider2D _collider;
     private FieldObject _target;
+    private Coroutine _attackCoroutine;
 
     public void Init(int unitId, Player owner, Player opponent)
     {
@@ -43,8 +44,6 @@ public class Unit : FieldObject
             _ => _colliderNormal,
         };
         _collider.enabled = true;
-
-        StartCoroutine(Routine());
     }
     public override void OnNetworkSpawn()
     {
@@ -80,6 +79,31 @@ public class Unit : FieldObject
             _owner.GroundUnits.Remove(this);
         }
     }
+    protected override void OnDead()
+    {
+        base.OnDead();
+
+        if (IsServer)
+        {
+            NetworkObject.Despawn();
+        }
+    }
+    private void Update()
+    {
+        if (IsServer)
+        {
+            FindTarget(out _target, out float horizontalDistance);
+
+            float attackDistance = _unitData.AttackRangeType switch
+            {
+                AttackRangeType.Horizontal => horizontalDistance,
+                AttackRangeType.Directional => GetColliderDistance(_target),
+                _ => horizontalDistance
+            };
+            UpdateMove(_target, attackDistance);
+            UpdateAttack(_target, attackDistance);
+        }
+    }
 
     private void FindTarget(out FieldObject find, out float horizontalDistance)
     {
@@ -106,83 +130,72 @@ public class Unit : FieldObject
             }
         }
     }
-    private IEnumerator Routine()
+
+    private void UpdateMove(FieldObject target, float distance)
     {
-        while (true)
+        if (_attackCoroutine != null)
+            return;
+
+        float xDir = target.transform.position.x - transform.position.x;
+        xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
+        transform.right = Vector3.right * xDir;
+
+        Vector3 dir = _unitData.MoveType switch
         {
-            yield return null;
+            MoveType.Directional => (target.ColliderCenter - ColliderCenter).normalized,
+            MoveType.Horizontal => Vector3.right * xDir,
+            _ => default,
+        };
 
-            FindTarget(out _target, out float horizontalDistance);
-
-            float xDir = _target.transform.position.x - transform.position.x;
-            xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
-            transform.right = Vector3.right * xDir;
-
-            float attackDistance = _unitData.AttackRangeType switch
-            {
-                AttackRangeType.Horizontal => horizontalDistance,
-                AttackRangeType.Directional => GetColliderDistance(_target),
-                _ => horizontalDistance
-            };
-            if (attackDistance > _unitData.AttackRange)
-            {
-                switch (_unitData.MoveType)
-                {
-                    case MoveType.Directional: Move_Directional(StaticDB.Instance.Move_DirectionalData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
-                    case MoveType.Horizontal: Move_Horizontal(StaticDB.Instance.Move_HorizontalAndFallData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
-                };
-            }
-            else
-            {
-                switch (_unitData.AttackType)
-                {
-                    case AttackType.Motion: yield return Attack_Body(); break;
-                    case AttackType.Projectile: yield return Attack_Projectile(); break;
-                }
-            }
+        if (distance > _unitData.AttackRange)
+        {
+            _unitAnimator.Play(_unitData.MoveAnimation);
+            transform.position += dir * Time.deltaTime * _unitData.MoveSpeed;
+        }
+        else if (distance < _unitData.AttackRange * _unitData.BackoffRatio)
+        {
+            _unitAnimator.Play(_unitData.MoveAnimation);
+            transform.position -= dir * Time.deltaTime * _unitData.MoveSpeed * _unitData.BackoffSpeedRatio;
         }
     }
-    private void Move_Directional(Move_DirectionalData data)
+    private void UpdateAttack(FieldObject target, float distance)
     {
-        _unitAnimator.Play(data.Animation);
-        transform.position += (_target.ColliderCenter - ColliderCenter).normalized * Time.deltaTime * data.Speed;
+        if (distance <= _unitData.AttackRange && _attackCoroutine == null)
+        {
+            var enumerator = _unitData.AttackType switch
+            {
+                AttackType.Motion => Attack_Motion(target),
+                AttackType.Projectile => Attack_Projectile(target),
+                _ => null
+            };
+            if (enumerator != null)
+                _attackCoroutine = StartCoroutine(enumerator);
+        }
     }
-    private void Move_Horizontal(Move_HorizontalAndFallData data)
-    {
-        transform.position += transform.right * Time.deltaTime * 1f;
-        _unitAnimator.Play("Unit_Anim_None");
-    }
-    private IEnumerator Attack_Body()
+    private IEnumerator Attack_Motion(FieldObject target)
     {
         float motionTime = 1f;
         float hitNormalizedTime = 0.4f;
         string clipAndStateName = "Unit_Anim_Attack_Body";
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
 
-        _animationPoint.right = _target.transform.position - transform.position;
+        _animationPoint.right = target.transform.position - transform.position;
         _unitSprite.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / motionTime);
         _unitAnimator.Play(clipAndStateName, 0, 0f);
 
         yield return new WaitForSeconds(motionTime * hitNormalizedTime);
 
-        if (_target)
-            _target.TakeHit(_attackHitData);
+        if (target)
+            target.TakeHit(_attackHitData);
 
         yield return new WaitForSeconds(motionTime * (1 - hitNormalizedTime));
+
+        _attackCoroutine = null;
     }
-    private IEnumerator Attack_Projectile()
+    private IEnumerator Attack_Projectile(FieldObject target)
     {
+        _attackCoroutine = null;
         yield break;
-    }
-
-    protected override void OnDead()
-    {
-        base.OnDead();
-
-        if (IsServer)
-        {
-            NetworkObject.Despawn();
-        }
     }
 }

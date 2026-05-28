@@ -36,11 +36,13 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public ColliderType ColliderType;
     
     public MoveType MoveType;
-    public int MoveId;
+    public string MoveAnimation;
+    public float MoveSpeed;
+    public float BackoffRatio;
+    public float BackoffSpeedRatio;
 
     public AttackRangeType AttackRangeType;
     public float AttackRange;
-    
     public AttackType AttackType;
     public int AttackHitId;
 }
@@ -52,34 +54,6 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public string CodeName;
     public int Damage;
     public float Knockback;
-}
-
-[Serializable] public class Move_HorizontalAndFallData : TableData
-{
-    public override int Key => MoveId;
-    public int MoveId;
-    public string CodeName;
-    public string Animation;
-    public float Speed;
-    public float FallSpeed;
-}
-[Serializable] public class Move_HorizontalAndUpDownData : TableData
-{
-    public override int Key => MoveId;
-    public int MoveId;
-    public string CodeName;
-    public string Animation;
-    public float Speed;
-    public float MinY;
-    public float MaxY;
-}
-[Serializable] public class Move_DirectionalData : TableData
-{
-    public override int Key => MoveId;
-    public int MoveId;
-    public string CodeName;
-    public string Animation;
-    public float Speed;
 }
 #endregion
 
@@ -106,18 +80,12 @@ public class StaticDB : ScriptableObject
     [SerializeField] private List<CardData> Card;
     [SerializeField] private List<UnitData> Unit;
     [SerializeField] private List<AttackHitData> AttackHit;
-    [SerializeField] private List<Move_DirectionalData> Move_Directional;
-    [SerializeField] private List<Move_HorizontalAndFallData> Move_HorizontalAndFall;
-    [SerializeField] private List<Move_HorizontalAndUpDownData> Move_HorizontalAndUpDown;
 
     private Dictionary<Type, object> _tables = new();
 
     public Table<CardData> CardData => GetOrCreateTable(Card);
     public Table<UnitData> UnitData => GetOrCreateTable(Unit);
     public Table<AttackHitData> AttackHitData => GetOrCreateTable(AttackHit);
-    public Table<Move_DirectionalData> Move_DirectionalData => GetOrCreateTable(Move_Directional);
-    public Table<Move_HorizontalAndFallData> Move_HorizontalAndFallData => GetOrCreateTable(Move_HorizontalAndFall);
-    public Table<Move_HorizontalAndUpDownData> Move_HorizontalAndUpDownData => GetOrCreateTable(Move_HorizontalAndUpDown);
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData
     {
