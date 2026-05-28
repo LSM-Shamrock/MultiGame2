@@ -84,7 +84,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
             SetCardData(data);
             SetInteractable(!isInDeck);
         }
-}
+    }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
     {

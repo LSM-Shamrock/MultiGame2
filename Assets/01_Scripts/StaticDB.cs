@@ -70,8 +70,9 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public string CodeName;
     public string Animation;
     public float Speed;
-    public float MinY;
-    public float MaxY;
+    public float MinHeight;
+    public float MaxHeight;
+    public float UpDownSpeed;
 }
 [Serializable] public class Move_DirectionalData : TableData
 {
