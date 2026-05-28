@@ -129,8 +129,7 @@ public class Unit : FieldObject
                 switch (_unitData.MoveType)
                 {
                     case MoveType.Directional: Move_Directional(StaticDB.Instance.Move_DirectionalData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
-                    case MoveType.HorizontalAndFall: Move_HorizontalAndFall(StaticDB.Instance.Move_HorizontalAndFallData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
-                    case MoveType.HorizontalAndUpDown: Move_HorizontalAndUpDown(StaticDB.Instance.Move_HorizontalAndUpDownData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
+                    case MoveType.Horizontal: Move_Horizontal(StaticDB.Instance.Move_HorizontalAndFallData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
                 };
             }
             else
@@ -148,12 +147,7 @@ public class Unit : FieldObject
         _unitAnimator.Play(data.Animation);
         transform.position += (_target.ColliderCenter - ColliderCenter).normalized * Time.deltaTime * data.Speed;
     }
-    private void Move_HorizontalAndFall(Move_HorizontalAndFallData data)
-    {
-        transform.position += transform.right * Time.deltaTime * 1f;
-        _unitAnimator.Play("Unit_Anim_None");
-    }
-    private void Move_HorizontalAndUpDown(Move_HorizontalAndUpDownData data)
+    private void Move_Horizontal(Move_HorizontalAndFallData data)
     {
         transform.position += transform.right * Time.deltaTime * 1f;
         _unitAnimator.Play("Unit_Anim_None");
@@ -181,8 +175,6 @@ public class Unit : FieldObject
     {
         yield break;
     }
-
-
 
     protected override void OnDead()
     {
