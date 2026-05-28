@@ -10,8 +10,6 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class Unit : FieldObject
 {
-    public const float GROUND_Y = -2.5f;
-
     public override Collider2D Collider => _collider;
 
     public NetworkVariable<int> UnitId { get; set; } = new();
@@ -110,8 +108,6 @@ public class Unit : FieldObject
     }
     private IEnumerator Routine()
     {
-        var moveRoutine = GetMoveRoutine();
-
         while (true)
         {
             yield return null;
@@ -128,72 +124,39 @@ public class Unit : FieldObject
                 AttackRangeType.Directional => GetColliderDistance(_target),
                 _ => horizontalDistance
             };
-
             if (attackDistance > _unitData.AttackRange)
             {
-                if (moveRoutine.MoveNext() == false)
+                switch (_unitData.MoveType)
                 {
-                    moveRoutine = GetMoveRoutine();
-                    moveRoutine.MoveNext();
-                }
-                yield return moveRoutine.Current;
+                    case MoveType.Directional: Move_Directional(StaticDB.Instance.Move_DirectionalData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
+                    case MoveType.HorizontalAndFall: Move_HorizontalAndFall(StaticDB.Instance.Move_HorizontalAndFallData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
+                    case MoveType.HorizontalAndUpDown: Move_HorizontalAndUpDown(StaticDB.Instance.Move_HorizontalAndUpDownData.Dictionary.GetValueOrDefault(_unitData.MoveId)); break;
+                };
             }
             else
             {
-                moveRoutine = GetMoveRoutine();
-                
-                yield return GetAttackRoutine();
+                switch (_unitData.AttackType)
+                {
+                    case AttackType.Motion: yield return Attack_Body(); break;
+                    case AttackType.Projectile: yield return Attack_Projectile(); break;
+                }
             }
         }
     }
-    private IEnumerator GetMoveRoutine()
-    {
-        return _unitData.MoveType switch
-        {
-            MoveType.Directional => Move_Directional(StaticDB.Instance.Move_DirectionalData.Dictionary.GetValueOrDefault(_unitData.MoveId)),
-            MoveType.HorizontalAndFall => Move_HorizontalAndFall(StaticDB.Instance.Move_HorizontalAndFallData.Dictionary.GetValueOrDefault(_unitData.MoveId)),
-            MoveType.HorizontalAndUpDown => Move_HorizontalAndUpDown(StaticDB.Instance.Move_HorizontalAndUpDownData.Dictionary.GetValueOrDefault(_unitData.MoveId)),
-            _ => null
-        };
-    }
-    private IEnumerator GetAttackRoutine()
-    {
-        return _unitData.AttackType switch
-        {
-            AttackType.Motion => Attack_Body(),
-            AttackType.Projectile => Attack_Projectile(),
-            _ => null
-        };
-    }
-    private IEnumerator Move_Directional(Move_DirectionalData data)
+    private void Move_Directional(Move_DirectionalData data)
     {
         _unitAnimator.Play(data.Animation);
         transform.position += (_target.ColliderCenter - ColliderCenter).normalized * Time.deltaTime * data.Speed;
-        yield break;
     }
-    private IEnumerator Move_HorizontalAndFall(Move_HorizontalAndFallData data)
+    private void Move_HorizontalAndFall(Move_HorizontalAndFallData data)
     {
-        _unitAnimator.Play(data.Animation);
         transform.position += transform.right * Time.deltaTime * 1f;
-        yield break;
-
+        _unitAnimator.Play("Unit_Anim_None");
     }
-    private IEnumerator Move_HorizontalAndUpDown(Move_HorizontalAndUpDownData data)
+    private void Move_HorizontalAndUpDown(Move_HorizontalAndUpDownData data)
     {
-        _unitAnimator.Play(data.Animation);
-        
-        while (transform.position.y < GROUND_Y + data.MaxHeight)
-        {
-            transform.position += transform.right * Time.deltaTime * data.Speed;
-            transform.position += Vector3.up * Time.deltaTime * data.UpDownSpeed;
-            yield return null;
-        }
-        while (transform.position.y > GROUND_Y + data.MinHeight)
-        {
-            transform.position += transform.right * Time.deltaTime * data.Speed;
-            transform.position += Vector3.down * Time.deltaTime * data.UpDownSpeed;
-            yield return null;
-        }
+        transform.position += transform.right * Time.deltaTime * 1f;
+        _unitAnimator.Play("Unit_Anim_None");
     }
     private IEnumerator Attack_Body()
     {
