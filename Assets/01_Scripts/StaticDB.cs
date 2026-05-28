@@ -50,7 +50,7 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public AttackRangeType AttackRangeType;
     public float AttackRange;
     public AttackType AttackType;
-    public int AttackHitId;
+    public int AttackId;
 }
 [Serializable] public class AttackHitData : TableData
 {
@@ -75,6 +75,23 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public float UpSpeed;
     public float DownSpeed;
 }
+[Serializable] public class Attack_MotionData : TableData
+{
+    public override int Key => AttackId;
+    public int AttackId;
+    public string CodeName;
+    public float MotionTime;
+    public string AnimationName;
+    public float HitNomalizedTime;
+    public int AttackHitId;
+}
+[Serializable] public class Attack_ProjectileData : TableData
+{
+    public override int Key => AttackId;
+    public int AttackId;
+    public string CodeName;
+    public int AttackHitId;
+}
 #endregion
 
 public abstract class TableData
@@ -91,7 +108,7 @@ public class Table<T> where T : TableData
         Dictionary = datas.ToDictionary(e => e.Key);
     }
 }
-[ExcelAsset]
+[ExcelAsset] 
 public class StaticDB : ScriptableObject
 {
     private static StaticDB s_instance;
@@ -102,6 +119,8 @@ public class StaticDB : ScriptableObject
     [SerializeField] private List<AttackHitData> AttackHit;
     [SerializeField] private List<VerticalMove_FallData> VerticalMove_Fall;
     [SerializeField] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
+    [SerializeField] private List<Attack_MotionData> Attack_Motion;
+    [SerializeField] private List<Attack_ProjectileData> Attack_Projectile;
 
     private Dictionary<Type, object> _tables = new();
 
@@ -110,6 +129,8 @@ public class StaticDB : ScriptableObject
     public Table<AttackHitData> AttackHitData => GetOrCreateTable(AttackHit);
     public Table<VerticalMove_FallData> VerticalMove_FallData => GetOrCreateTable(VerticalMove_Fall);
     public Table<VerticalMove_UpDownData> VerticalMove_UpDownData => GetOrCreateTable(VerticalMove_UpDown);
+    public Table<Attack_MotionData> Attack_MotionData => GetOrCreateTable(Attack_Motion);
+    public Table<Attack_ProjectileData> Attack_ProjectileData => GetOrCreateTable(Attack_Projectile);
 
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData

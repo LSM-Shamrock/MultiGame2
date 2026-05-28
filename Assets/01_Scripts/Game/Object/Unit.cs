@@ -25,7 +25,6 @@ public class Unit : FieldObject
 
     private int _unitId;
     private UnitData _unitData;
-    private AttackHitData _attackHitData;
     private Player _owner;
     private Player _opponent;
     private FieldObject _target;
@@ -39,7 +38,6 @@ public class Unit : FieldObject
 
         _unitId = unitId;
         _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
-        _attackHitData = StaticDB.Instance.AttackHitData.Dictionary[_unitData.AttackHitId];
         _collider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
         _collider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
@@ -174,8 +172,8 @@ public class Unit : FieldObject
         {
             var enumerator = _unitData.AttackType switch
             {
-                AttackType.Motion => Attack_Motion(target),
-                AttackType.Projectile => Attack_Projectile(target),
+                AttackType.Motion => Attack_Motion(target, StaticDB.Instance.Attack_MotionData.Dictionary[_unitData.AttackId]),
+                AttackType.Projectile => Attack_Projectile(target, StaticDB.Instance.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
                 _ => null
             };
             if (enumerator != null)
@@ -197,28 +195,25 @@ public class Unit : FieldObject
         }
     }
 
-    private IEnumerator Attack_Motion(FieldObject target)
+    private IEnumerator Attack_Motion(FieldObject target, Attack_MotionData data)
     {
-        float motionTime = 1f;
-        float hitNormalizedTime = 0.4f;
-        string clipAndStateName = "Unit_Anim_Attack_Body";
-        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == clipAndStateName);
+        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.AnimationName);
 
         _animationPoint.right = target.transform.position - transform.position;
         _unitSpriteRenderer.transform.rotation = transform.rotation;
-        _unitAnimator.SetFloat("AnimationSpeed", clip.length / motionTime);
-        _unitAnimator.Play(clipAndStateName, 0, 0f);
+        _unitAnimator.SetFloat("AnimationSpeed", clip.length / data.MotionTime);
+        _unitAnimator.Play(data.AnimationName, 0, 0f);
 
-        yield return new WaitForSeconds(motionTime * hitNormalizedTime);
+        yield return new WaitForSeconds(data.MotionTime * data.HitNomalizedTime);
 
         if (target)
-            target.TakeHit(_attackHitData);
+            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
 
-        yield return new WaitForSeconds(motionTime * (1 - hitNormalizedTime));
+        yield return new WaitForSeconds(data.MotionTime * (1 - data.HitNomalizedTime));
 
         _attackCoroutine = null;
     }
-    private IEnumerator Attack_Projectile(FieldObject target)
+    private IEnumerator Attack_Projectile(FieldObject target, Attack_ProjectileData data)
     {
         _attackCoroutine = null;
         yield break;
