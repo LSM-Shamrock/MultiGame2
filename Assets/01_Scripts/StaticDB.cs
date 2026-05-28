@@ -9,6 +9,7 @@ public enum AltitudeType { Ground, Air, }
 public enum TargetingType { Core, Ground, GroundOrAir, }
 public enum ColliderType { Normal, Small, }
 public enum MoveType { Horizontal, Directional, }
+public enum VerticalMoveType { None, Fall, UpDown, }
 public enum AttackRangeType { Horizontal, Directional, }
 public enum AttackType { Motion, Projectile, Lightning, Wave, }
 #endregion
@@ -40,13 +41,14 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public float MoveSpeed;
     public float BackoffRatio;
     public float BackoffSpeedRatio;
+    public VerticalMoveType VerticalMoveType;
+    public int VerticalMoveId;
 
     public AttackRangeType AttackRangeType;
     public float AttackRange;
     public AttackType AttackType;
     public int AttackHitId;
 }
-
 [Serializable] public class AttackHitData : TableData
 {
     public override int Key => AttackHitId;
@@ -54,6 +56,21 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public string CodeName;
     public int Damage;
     public float Knockback;
+}
+[Serializable] public class VerticalMove_FallData : TableData
+{
+    public override int Key => VerticalMoveId;
+    public int VerticalMoveId;
+    public float FallSpeed;
+}
+[Serializable] public class VerticalMove_UpDownData : TableData
+{
+    public override int Key => VerticalMoveId;
+    public int VerticalMoveId;
+    public float UpHeight;
+    public float DownHeight;
+    public float UpSpeed;
+    public float DownSpeed;
 }
 #endregion
 
@@ -80,12 +97,17 @@ public class StaticDB : ScriptableObject
     [SerializeField] private List<CardData> Card;
     [SerializeField] private List<UnitData> Unit;
     [SerializeField] private List<AttackHitData> AttackHit;
+    [SerializeField] private List<VerticalMove_FallData> VerticalMove_Fall;
+    [SerializeField] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
 
     private Dictionary<Type, object> _tables = new();
 
     public Table<CardData> CardData => GetOrCreateTable(Card);
     public Table<UnitData> UnitData => GetOrCreateTable(Unit);
     public Table<AttackHitData> AttackHitData => GetOrCreateTable(AttackHit);
+    public Table<VerticalMove_FallData> VerticalMove_FallData => GetOrCreateTable(VerticalMove_Fall);
+    public Table<VerticalMove_UpDownData> VerticalMove_UpDownData => GetOrCreateTable(VerticalMove_UpDown);
+
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData
     {

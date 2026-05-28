@@ -13,8 +13,8 @@ public class Core : FieldObject
     {
         if (IsServer)
         {
-            MaxHealth.Value = 10000;
-            CurrentHealth.Value = 10000;
+            MaxHealth.Value = 5000;
+            CurrentHealth.Value = 5000;
         }
 
         if (IsOwner)

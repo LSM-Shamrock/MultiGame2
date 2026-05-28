@@ -10,6 +10,10 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class Unit : FieldObject
 {
+    private const float GROUND_Y = -2.5f;
+    private const float X_MIN = -11.5f;
+    private const float X_MAX = 11.5f;
+
     public override Collider2D Collider => _collider;
 
     public NetworkVariable<int> UnitId { get; set; } = new();
@@ -28,6 +32,7 @@ public class Unit : FieldObject
     private Collider2D _collider;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
+    private Coroutine _verticalMoveCoroutine;
 
     public void Init(int unitId, Player owner, Player opponent)
     {
@@ -102,6 +107,17 @@ public class Unit : FieldObject
             };
             UpdateMove(_target, attackDistance);
             UpdateAttack(_target, attackDistance);
+            UpdateVerticalMove();
+        }
+    }
+    private void LateUpdate()
+    {
+        if (IsServer)
+        {
+            if (transform.position.x > X_MAX)
+                transform.position = new Vector3(X_MAX, transform.position.y);
+            if (transform.position.x < X_MIN)
+                transform.position = new Vector3(X_MIN, transform.position.y);
         }
     }
 
@@ -172,6 +188,21 @@ public class Unit : FieldObject
                 _attackCoroutine = StartCoroutine(enumerator);
         }
     }
+    private void UpdateVerticalMove()
+    {
+        if (_verticalMoveCoroutine == null)
+        {
+            var enumerator = _unitData.VerticalMoveType switch
+            {
+                VerticalMoveType.Fall => VerticalMove_Fall(StaticDB.Instance.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.UpDown => VerticalMove_UpDown(StaticDB.Instance.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
+                _ => null
+            };
+            if (enumerator != null)
+                _verticalMoveCoroutine = StartCoroutine(enumerator);
+        }
+    }
+
     private IEnumerator Attack_Motion(FieldObject target)
     {
         float motionTime = 1f;
@@ -197,5 +228,36 @@ public class Unit : FieldObject
     {
         _attackCoroutine = null;
         yield break;
+    }
+    
+    private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
+    {
+        float amount = Time.deltaTime * data.FallSpeed;
+
+        if (transform.position.y - amount > GROUND_Y)
+            transform.position += Vector3.down * amount;
+        else
+            transform.position = new Vector3(transform.position.x, GROUND_Y);
+
+        _verticalMoveCoroutine = null;
+        yield break;
+    }
+    private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
+    {
+        while (transform.position.y < GROUND_Y + data.UpHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                transform.position += Vector3.up * Time.deltaTime * data.UpSpeed;
+        }
+        while (transform.position.y > GROUND_Y + data.DownHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                transform.position += Vector3.down * Time.deltaTime * data.DownSpeed;
+        }
+        _verticalMoveCoroutine = null;
     }
 }
