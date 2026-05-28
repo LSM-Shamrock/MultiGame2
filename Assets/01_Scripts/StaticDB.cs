@@ -34,9 +34,13 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public ColliderType ColliderType;
+    
     public MoveType MoveType;
+    public int MoveId;
+
     public AttackRangeType AttackRangeType;
     public float AttackRange;
+    
     public AttackType AttackType;
     public int AttackHitId;
 }
@@ -54,6 +58,7 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
 {
     public override int Key => MoveId;
     public int MoveId;
+    public string CodeName;
     public string Animation;
     public float Speed;
     public float FallSpeed;
@@ -62,6 +67,7 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
 {
     public override int Key => MoveId;
     public int MoveId;
+    public string CodeName;
     public string Animation;
     public float Speed;
     public float MinY;
@@ -71,6 +77,7 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
 {
     public override int Key => MoveId;
     public int MoveId;
+    public string CodeName;
     public string Animation;
     public float Speed;
 }
