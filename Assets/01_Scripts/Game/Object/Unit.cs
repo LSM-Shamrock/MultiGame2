@@ -14,7 +14,7 @@ public class Unit : FieldObject
 
     public override Collider2D Collider => _collider;
 
-    public NetworkVariable<int> UnitId { get; set; } = new();
+    public NetworkVariable<int> UnitId { get; } = new();
 
     [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;

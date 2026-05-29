@@ -8,8 +8,11 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class Projectile : NetworkBehaviour
 {
+    [SerializeField, ChildField("ProjectileSprite")] private SpriteRenderer _spriteRenderer;
     [SerializeField, ChildField("ProjectileSprite")] private Animator _animator;
     [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
+
+    public NetworkVariable<int> ProjectileId { get; } = new();
 
     private Player _owner;
     private Player _opponent;
@@ -36,6 +39,21 @@ public class Projectile : NetworkBehaviour
 
         _moveDirection = GetMoveDirection();
         transform.right = _moveDirection;
+    }
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            ProjectileId.Value = _projectileData.ProjectileId;
+            _spriteRenderer.sortingLayerName = _projectileData.SortingLayerName;
+        }
+        else
+        {
+            _projectileData = StaticDB.Instance.ProjectileData.Dictionary[ProjectileId.Value];
+            _spriteRenderer.sortingLayerName = _projectileData.SortingLayerName;
+        }
     }
 
     private void Update()

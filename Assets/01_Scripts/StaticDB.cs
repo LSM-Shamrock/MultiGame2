@@ -108,6 +108,7 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float ColliderHeight;
     public float ColliderOffsetX;
     public float ColliderOffsetY;
+    public string SortingLayerName;
     public ProjectileSummonPositionType SummonPositionType;
     public ProjectileMoveType MoveType;
     public float Speed;
