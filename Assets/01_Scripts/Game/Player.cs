@@ -183,13 +183,13 @@ public class Player : NetworkBehaviour
 
     private void SummonCore()
     {
-        GameObject go = Instantiate(_corePrefab, CorePos.position, CorePos.rotation);
+        GameObject go = Instantiate(_corePrefab, (Vector2)CorePos.position, CorePos.rotation);
         Core = go.GetComponent<Core>();
         Core.NetworkObject.SpawnWithOwnership(OwnerClientId);
 
         AllObjects.Add(Core);
     }
-    private void SummonUnit(UnitData unitData, Vector3 position)
+    private void SummonUnit(UnitData unitData, Vector2 position)
     {
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
         Unit unit = go.GetComponent<Unit>();

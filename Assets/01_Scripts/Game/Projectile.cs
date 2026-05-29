@@ -88,8 +88,6 @@ public class Projectile : NetworkBehaviour
 
             if (obj.Collider.bounds.Intersects(_collider.bounds))
             {
-                Debug.Log("투사체 접촉 감지", obj);
-
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;
 
