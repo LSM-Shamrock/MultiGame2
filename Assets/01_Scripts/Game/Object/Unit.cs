@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 [AutoInjectionTarget]
@@ -22,6 +23,7 @@ public class Unit : FieldObject
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
+    [SerializeField, AssetField("Projectile")] private GameObject _projectilePrefab;
 
     private int _unitId;
     private UnitData _unitData;
@@ -233,7 +235,11 @@ public class Unit : FieldObject
         
         if (target)
         {
-            Debug.Log($"{this}유닛이 {target} 공격함");
+            GameObject go = Instantiate(_projectilePrefab, ColliderCenter, Quaternion.identity);
+            Projectile projectile = go.GetComponent<Projectile>();
+            projectile.Init(target);
+            projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
+
             target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
         }
 

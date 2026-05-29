@@ -361,6 +361,7 @@ MonoBehaviour:
   _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
   _collider: {fileID: 1835200029809010581}
+  _projectilePrefab: {fileID: 3884218659786432794, guid: ba2aeaa032827c04c8ec2d38a5fa41d3, type: 3}
 --- !u!1 &3709814256980995587
 GameObject:
   m_ObjectHideFlags: 0
