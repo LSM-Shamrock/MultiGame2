@@ -10,34 +10,42 @@ public abstract class FieldObject : NetworkBehaviour
     public NetworkVariable<int> MaxHealth { get; } = new();
     public NetworkVariable<int> CurrentHealth { get; } = new();
 
-    public float GetColliderDistance(FieldObject target)
+    public float GetColliderDistance(Collider2D targetCollider)
     {
-        var colA = Collider;
-        var colB = target.Collider;
-
-        if (colA == null || colB == null)
+        if (Collider == null || targetCollider == null)
             return float.PositiveInfinity;
 
-        float result = Physics2D.Distance(colA, colB).distance;
+        float result = Physics2D.Distance(Collider, targetCollider).distance;
 
         return result;
     }
-    public float GetColliderHorizontalDistance(FieldObject target)
+    public float GetColliderHorizontalDistance(Collider2D targetCollider)
     {
-        var colA = Collider;
-        var colB = target.Collider;
-
-        if (colA == null || colB == null)
+        if (Collider == null || targetCollider == null)
             return float.PositiveInfinity;
 
-        var a = colA.bounds;
-        var b = colB.bounds;
+        var a = Collider.bounds;
+        var b = targetCollider.bounds;
 
         float distanceX = Mathf.Abs(a.center.x - b.center.x) - (a.extents.x + b.extents.x);
 
         distanceX = Mathf.Max(distanceX, 0f);
 
         return distanceX;
+    }
+    public float GetColliderVerticalDistance(Collider2D targetCollider)
+    {
+        if (Collider == null || targetCollider == null)
+            return float.PositiveInfinity;
+
+        var a = Collider.bounds;
+        var b = targetCollider.bounds;
+
+        float distanceY = Mathf.Abs(a.center.y - b.center.y) - (a.extents.y + b.extents.y);
+
+        distanceY = Mathf.Max(distanceY, 0f);
+
+        return distanceY;
     }
 
     public void TakeHit(AttackHitData data)

@@ -10,7 +10,9 @@ public enum TargetingType { Core, Ground, GroundOrAir, }
 public enum MoveType { Horizontal, Directional, }
 public enum VerticalMoveType { None, Fall, UpDown, }
 public enum AttackRangeType { Horizontal, Directional, }
-public enum AttackType { Motion, Projectile, Lightning, Wave, }
+public enum AttackType { Motion, Projectile, }
+public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
+public enum ProjectileMoveType { Directional, Horizontal }
 #endregion
 
 #region Data
@@ -83,7 +85,9 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public float MotionTime;
     public string MotionAnimation;
     public float HitNomalizedTime;
+    public string EffectAnimation;
     public int AttackHitId;
+    public float Cooltime;
 }
 [Serializable] public class Attack_ProjectileData : TableData
 {
@@ -91,17 +95,26 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public int AttackId;
     public string CodeName;
     public string MotionAnimation;
-    public float Cooltime;
     public int ProjectileId;
-
+    public float Cooltime;
 }
 [Serializable] public class ProjectileData : TableData
 {
     public override int Key => ProjectileId;
     public int ProjectileId;
     public string CodeName;
-    public int AttackHitId;
+    public float Scale;
+    public float ColliderWidth;
+    public float ColliderHeight;
+    public float ColliderOffsetX;
+    public float ColliderOffsetY;
+    public ProjectileSummonPositionType SummonPositionType;
+    public ProjectileMoveType MoveType;
     public float Speed;
+    public float MaxDistance;
+    public bool IsPierce;
+    public float PierceHitInterval;
+    public int AttackHitId;
 }
 #endregion
 

@@ -23,9 +23,9 @@ public class Unit : FieldObject
     [SerializeField, AssetField("Projectile")] private GameObject _projectilePrefab;
 
     private int _unitId;
-    private UnitData _unitData;
     private Player _owner;
     private Player _opponent;
+    private UnitData _unitData;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
     private Coroutine _verticalMoveCoroutine;
@@ -52,6 +52,8 @@ public class Unit : FieldObject
             CurrentHealth.Value = _unitData.Health;
 
             _owner.AllUnits.Add(this);
+            _owner.AllObjects.Add(this);
+
             if (_unitData.AltitudeType == AltitudeType.Ground)
                 _owner.GroundUnits.Add(this);
 
@@ -73,6 +75,7 @@ public class Unit : FieldObject
         {
             _owner.AllUnits.Remove(this);
             _owner.GroundUnits.Remove(this);
+            _owner.AllObjects.Remove(this);
         }
     }
     protected override void OnDead()
@@ -93,7 +96,7 @@ public class Unit : FieldObject
             float attackDistance = _unitData.AttackRangeType switch
             {
                 AttackRangeType.Horizontal => horizontalDistance,
-                AttackRangeType.Directional => GetColliderDistance(_target),
+                AttackRangeType.Directional => GetColliderDistance(_target.Collider),
                 _ => horizontalDistance
             };
             UpdateMove(_target, attackDistance);
@@ -115,7 +118,7 @@ public class Unit : FieldObject
     private void FindTarget(out FieldObject find, out float horizontalDistance)
     {
         find = _opponent.Core;
-        horizontalDistance = GetColliderHorizontalDistance(find);
+        horizontalDistance = GetColliderHorizontalDistance(find.Collider);
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
@@ -129,7 +132,7 @@ public class Unit : FieldObject
 
         foreach (Unit unit in units)
         {
-            var dist = GetColliderHorizontalDistance(unit);
+            var dist = GetColliderHorizontalDistance(unit.Collider);
             if (dist < horizontalDistance)
             {
                 horizontalDistance = dist;
@@ -222,6 +225,7 @@ public class Unit : FieldObject
 
         yield return new WaitForSeconds(data.MotionTime * (1 - data.HitNomalizedTime));
 
+        _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
     }
     private IEnumerator Attack_Projectile(FieldObject target, Attack_ProjectileData data)
@@ -229,14 +233,9 @@ public class Unit : FieldObject
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.MotionAnimation);
 
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
-        
+
         if (target)
-        {
-            GameObject go = Instantiate(_projectilePrefab, ColliderCenter, Quaternion.identity);
-            Projectile projectile = go.GetComponent<Projectile>();
-            projectile.Init(target, StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId]);
-            projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
-        }
+            SummonProjectile(target, StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId]);
 
         yield return new WaitForSeconds(clip.length);
         
@@ -244,7 +243,7 @@ public class Unit : FieldObject
         _attackCoroutine = null;
         _unitAnimator.Play("Unit_Anim_None", 0, 0f);
     }
-    
+
     private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
     {
         float amount = Time.deltaTime * data.FallSpeed;
@@ -274,5 +273,20 @@ public class Unit : FieldObject
                 transform.position += Vector3.down * Time.deltaTime * data.DownSpeed;
         }
         _verticalMoveCoroutine = null;
+    }
+
+    private void SummonProjectile(FieldObject target, ProjectileData data)
+    {
+        Vector3 position = data.SummonPositionType switch
+        {
+            ProjectileSummonPositionType.UnitCenter => ColliderCenter,
+            ProjectileSummonPositionType.UnitGround => new Vector3(transform.position.x, GROUND_Y),
+            _ => ColliderCenter,
+        };
+
+        GameObject go = Instantiate(_projectilePrefab, position, transform.rotation);
+        Projectile projectile = go.GetComponent<Projectile>();
+        projectile.Init(target, data, _owner, _opponent);
+        projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 }

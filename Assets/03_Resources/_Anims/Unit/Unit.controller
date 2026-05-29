@@ -137,7 +137,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Attack_Shoot_Dragon
+  m_Name: Attack_Dragon
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -330,7 +330,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Attack_Shoot_WaveSpirit
+  m_Name: Attack_WaveSpirit
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -408,7 +408,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Attack_Shoot_ElectricDragon
+  m_Name: Attack_ElectricDragon
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
