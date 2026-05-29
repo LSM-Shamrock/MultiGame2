@@ -13,6 +13,8 @@ public class Unit : FieldObject
     private const float X_MAX = 11.5f;
 
     public override Collider2D Collider => _collider;
+    public Player Owner => _owner;
+    public Player Opponent => _opponent;
 
     public NetworkVariable<int> UnitId { get; } = new();
 
@@ -286,7 +288,7 @@ public class Unit : FieldObject
 
         GameObject go = Instantiate(_projectilePrefab, position, transform.rotation);
         Projectile projectile = go.GetComponent<Projectile>();
-        projectile.Init(target, data, _owner, _opponent);
+        projectile.Init(this, target, data);
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 }

@@ -14,8 +14,7 @@ public class Projectile : NetworkBehaviour
 
     public NetworkVariable<int> ProjectileId { get; } = new();
 
-    private Player _owner;
-    private Player _opponent;
+    private Unit _unit;
     private FieldObject _target;
     private ProjectileData _projectileData;
     private AttackHitData _attackHitData;
@@ -23,10 +22,9 @@ public class Projectile : NetworkBehaviour
     private float _currentMoveDistance;
     private Dictionary<FieldObject, float> _pierceHitWaitings = new();
 
-    public void Init(FieldObject target, ProjectileData data, Player owner, Player opponent)
+    public void Init(Unit unit, FieldObject target, ProjectileData data)
     {
-        _owner = owner;
-        _opponent = opponent;
+        _unit = unit;
         _target = target;
         _projectileData = data;
         _attackHitData = StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId];
@@ -96,8 +94,8 @@ public class Projectile : NetworkBehaviour
     }
     private void UpdateCollision()
     {
-        FieldObject[] fieldObjects = new FieldObject[_opponent.AllObjects.Count];
-        _opponent.AllObjects.CopyTo(fieldObjects);
+        FieldObject[] fieldObjects = new FieldObject[_unit.Opponent.AllObjects.Count];
+        _unit.Opponent.AllObjects.CopyTo(fieldObjects);
 
         foreach (var obj in fieldObjects)
         {
