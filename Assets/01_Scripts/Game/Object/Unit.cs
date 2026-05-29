@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 
 [AutoInjectionTarget]
@@ -237,10 +234,8 @@ public class Unit : FieldObject
         {
             GameObject go = Instantiate(_projectilePrefab, ColliderCenter, Quaternion.identity);
             Projectile projectile = go.GetComponent<Projectile>();
-            projectile.Init(target);
+            projectile.Init(target, StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId]);
             projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
-
-            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
         }
 
         yield return new WaitForSeconds(clip.length);

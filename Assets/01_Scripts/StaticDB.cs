@@ -92,8 +92,16 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public string CodeName;
     public string MotionAnimation;
     public float Cooltime;
-    public int AttackHitId;
+    public int ProjectileId;
 
+}
+[Serializable] public class ProjectileData : TableData
+{
+    public override int Key => ProjectileId;
+    public int ProjectileId;
+    public string CodeName;
+    public int AttackHitId;
+    public float Speed;
 }
 #endregion
 
@@ -124,6 +132,7 @@ public class StaticDB : ScriptableObject
     [SerializeField] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
     [SerializeField] private List<Attack_MotionData> Attack_Motion;
     [SerializeField] private List<Attack_ProjectileData> Attack_Projectile;
+    [SerializeField] private List<ProjectileData> Projectile;
 
     private Dictionary<Type, object> _tables = new();
 
@@ -134,6 +143,7 @@ public class StaticDB : ScriptableObject
     public Table<VerticalMove_UpDownData> VerticalMove_UpDownData => GetOrCreateTable(VerticalMove_UpDown);
     public Table<Attack_MotionData> Attack_MotionData => GetOrCreateTable(Attack_Motion);
     public Table<Attack_ProjectileData> Attack_ProjectileData => GetOrCreateTable(Attack_Projectile);
+    public Table<ProjectileData> ProjectileData => GetOrCreateTable(Projectile);
 
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData
