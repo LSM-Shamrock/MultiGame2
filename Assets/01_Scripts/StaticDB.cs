@@ -81,7 +81,7 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public int AttackId;
     public string CodeName;
     public float MotionTime;
-    public string AnimationName;
+    public string MotionAnimation;
     public float HitNomalizedTime;
     public int AttackHitId;
 }
@@ -90,7 +90,10 @@ public enum AttackType { Motion, Projectile, Lightning, Wave, }
     public override int Key => AttackId;
     public int AttackId;
     public string CodeName;
+    public string MotionAnimation;
+    public float Cooltime;
     public int AttackHitId;
+
 }
 #endregion
 

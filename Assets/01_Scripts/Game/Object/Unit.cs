@@ -54,6 +54,8 @@ public class Unit : FieldObject
             _owner.AllUnits.Add(this);
             if (_unitData.AltitudeType == AltitudeType.Ground)
                 _owner.GroundUnits.Add(this);
+
+            _unitAnimator.Play($"{_unitData.CodeName}");
         }
         else
         {
@@ -61,9 +63,6 @@ public class Unit : FieldObject
             _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
         }
 
-        string path = $"UnitSprite/{_unitData.CodeName}";
-        Sprite sprite = Resources.Load<Sprite>(path);
-        _unitSpriteRenderer.sprite = sprite;
         transform.localScale = Vector3.one * _unitData.Scale;
     }
     public override void OnNetworkDespawn()
@@ -197,12 +196,12 @@ public class Unit : FieldObject
 
     private IEnumerator Attack_Motion(FieldObject target, Attack_MotionData data)
     {
-        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.AnimationName);
+        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.MotionAnimation);
 
         _animationPoint.right = target.transform.position - transform.position;
         _unitSpriteRenderer.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / data.MotionTime);
-        _unitAnimator.Play(data.AnimationName, 0, 0f);
+        _unitAnimator.Play(data.MotionAnimation, 0, 0f);
 
         yield return new WaitForSeconds(data.MotionTime * data.HitNomalizedTime);
 
@@ -215,8 +214,17 @@ public class Unit : FieldObject
     }
     private IEnumerator Attack_Projectile(FieldObject target, Attack_ProjectileData data)
     {
+        var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.MotionAnimation);
+
+        _unitAnimator.Play(data.MotionAnimation, 0, 0f);
+        
+        if (target)
+            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
+
+        yield return new WaitForSeconds(clip.length);
+        yield return new WaitForSeconds(data.Cooltime);
+
         _attackCoroutine = null;
-        yield break;
     }
     
     private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
