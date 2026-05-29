@@ -30,6 +30,7 @@ public class Unit : FieldObject
     private FieldObject _target;
     private Coroutine _attackCoroutine;
     private Coroutine _verticalMoveCoroutine;
+    private float _attackCooltime;
 
     public void Init(int unitId, Player owner, Player opponent)
     {
@@ -167,16 +168,28 @@ public class Unit : FieldObject
     }
     private void UpdateAttack(FieldObject target, float distance)
     {
-        if (distance <= _unitData.AttackRange && _attackCoroutine == null)
+        if (_attackCoroutine != null)
+            return;
+
+        if (_attackCooltime > 0f)
         {
-            var enumerator = _unitData.AttackType switch
+            _attackCooltime -= Time.deltaTime;
+        }
+        else
+        {
+            _attackCooltime = 0f;
+
+            if (distance <= _unitData.AttackRange)
             {
-                AttackType.Motion => Attack_Motion(target, StaticDB.Instance.Attack_MotionData.Dictionary[_unitData.AttackId]),
-                AttackType.Projectile => Attack_Projectile(target, StaticDB.Instance.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
-                _ => null
-            };
-            if (enumerator != null)
-                _attackCoroutine = StartCoroutine(enumerator);
+                var enumerator = _unitData.AttackType switch
+                {
+                    AttackType.Motion => Attack_Motion(target, StaticDB.Instance.Attack_MotionData.Dictionary[_unitData.AttackId]),
+                    AttackType.Projectile => Attack_Projectile(target, StaticDB.Instance.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
+                    _ => null
+                };
+                if (enumerator != null)
+                    _attackCoroutine = StartCoroutine(enumerator);
+            }
         }
     }
     private void UpdateVerticalMove()
@@ -219,12 +232,16 @@ public class Unit : FieldObject
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
         
         if (target)
+        {
+            Debug.Log($"{this}유닛이 {target} 공격함");
             target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
+        }
 
         yield return new WaitForSeconds(clip.length);
-        yield return new WaitForSeconds(data.Cooltime);
-
+        
+        _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
+        _unitAnimator.Play("Unit_Anim_None", 0, 0f);
     }
     
     private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
