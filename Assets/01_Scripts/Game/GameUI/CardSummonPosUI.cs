@@ -10,13 +10,14 @@ public class CardSummonPosUI : MonoBehaviour
 
     private CardData _cardData;
     private UnitData _unitData;
+    private Sprite _sprite;
+    private float _playerMP;
 
     public void SetSelectedHandCardId(int cardId)
     {
         if (!StaticDB.Instance.CardData.Dictionary.ContainsKey(cardId))
         {
             _cardData = null;
-            gameObject.SetActive(false);
             return;
         }
 
@@ -24,27 +25,38 @@ public class CardSummonPosUI : MonoBehaviour
         _unitData = StaticDB.Instance.UnitData.Dictionary[_cardData.UnitId];
 
         string path = $"UnitSprite/{_unitData.CodeName}";
-        Sprite sprite = Resources.Load<Sprite>(path);
-
-        UnitSprite.sprite = sprite;
-        UnitSprite.transform.localPosition = new Vector3(0, _unitData.SummonHeight);
-        NameText.text = _cardData.DisplayName;
+        _sprite = Resources.Load<Sprite>(path);
+        Refresh();
     }
-
     public void SetPlayerMP(float playerMP)
     {
-        if (_cardData == null)
-            return;
+        _playerMP = playerMP;
+        Refresh();
+    }
 
-        if (playerMP >= _cardData.CostMP)
+    private void Refresh()
+    {
+        if (_cardData == null)
         {
-            MpText.color = Color.white;
-            MpText.text = $"{_cardData.CostMP}";
+            gameObject.SetActive(false);
+            return;
         }
         else
         {
-            MpText.color = Color.red;
-            MpText.text = $"{(int)playerMP}/{_cardData.CostMP}";
+            UnitSprite.sprite = _sprite;
+            UnitSprite.transform.localPosition = new Vector3(0, _unitData.SummonHeight);
+            NameText.text = _cardData.DisplayName;
+
+            if (_playerMP >= _cardData.CostMP)
+            {
+                MpText.color = Color.white;
+                MpText.text = $"{_cardData.CostMP}";
+            }
+            else
+            {
+                MpText.color = Color.red;
+                MpText.text = $"{(int)_playerMP}/{_cardData.CostMP}";
+            }
         }
     }
 }
