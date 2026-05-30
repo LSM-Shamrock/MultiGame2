@@ -35,6 +35,11 @@ public abstract class FieldObjectUI : NetworkBehaviour
     {
         transform.rotation = _camera.transform.rotation;
 
+        if (_currentHealth > _displayHealth)
+            HealthBarFillBack.color = Color.green;
+        else
+            HealthBarFillBack.color = Color.white;
+
         if (Mathf.Abs(_currentHealth - _displayHealth) < 1)
             _displayHealth = _currentHealth;
         else
