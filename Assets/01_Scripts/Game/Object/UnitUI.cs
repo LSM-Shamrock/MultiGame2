@@ -5,10 +5,12 @@ using UnityEngine.UI;
 public class UnitUI : FieldObjectUI
 {
     protected override FieldObject Object => _unit;
-    protected override Image HealthBarFill => _healthBarFill;
+    protected override Image HealthBarFillBack => _healthBarFillBack;
+    protected override Image HealthBarFillFront => _healthBarFillFront;
 
     [SerializeField, ParentField] private Unit _unit;
-    [SerializeField, ChildField] private Image _healthBarFill;
+    [SerializeField, ChildField] private Image _healthBarFillBack;
+    [SerializeField, ChildField] private Image _healthBarFillFront;
 
     private int _unitId;
     private UnitData _unitData;
@@ -22,8 +24,10 @@ public class UnitUI : FieldObjectUI
 
         transform.localPosition = new Vector3(0f, _unitData.ColliderHeight + 0.5f);
     }
-    private void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate();
+
         transform.rotation = _camera.transform.rotation;
     }
 }
