@@ -222,6 +222,9 @@ public class Unit : FieldObject
 
         _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
+
+        _unitAnimator.SetFloat("AnimationSpeed", 1f);
+        _unitAnimator.Play(_unitData.CodeName, 0, 0f);
     }
     private IEnumerator Attack_Projectile(FieldObject target, Attack_ProjectileData data)
     {
@@ -236,7 +239,7 @@ public class Unit : FieldObject
         
         _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
-        _unitAnimator.Play("Unit_Anim_None", 0, 0f);
+        _unitAnimator.Play(_unitData.CodeName, 0, 0f);
     }
 
     private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)

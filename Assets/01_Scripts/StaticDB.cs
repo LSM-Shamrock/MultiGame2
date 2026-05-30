@@ -64,6 +64,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float KnockbackDistance;
     public float KnockbackSpeed;
     public float DrainRatio;
+    public string EffectAnimation;
+    public float EffectTime;
 }
 [Serializable] public class VerticalMove_FallData : TableData
 {
@@ -88,7 +90,6 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float MotionTime;
     public string MotionAnimation;
     public float HitNomalizedTime;
-    public string EffectAnimation;
     public int AttackHitId;
     public float Cooltime;
 }

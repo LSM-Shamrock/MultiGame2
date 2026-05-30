@@ -57,6 +57,11 @@ public abstract class FieldObject : NetworkBehaviour
         target.OnKnockback(hitDirection.normalized, data.KnockbackDistance, data.KnockbackSpeed);
 
         attacker.OnHeal((int)(data.Damage * data.DrainRatio));
+
+        if (string.IsNullOrEmpty(data.EffectAnimation) == false)
+        {
+            HitEffectPool.Instance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+        }
     }
 
     protected virtual void OnDamage(int damage)
