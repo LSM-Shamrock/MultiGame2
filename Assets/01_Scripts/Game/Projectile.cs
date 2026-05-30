@@ -56,7 +56,7 @@ public class Projectile : NetworkBehaviour
 
     private void Update()
     {
-        if (IsServer)
+        if (IsServer && IsSpawned)
         {
             UpdateMove();
             UpdateCollision();
@@ -107,7 +107,7 @@ public class Projectile : NetworkBehaviour
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;
 
-                obj.TakeHit(_attackHitData, _moveDirection);
+                FieldObject.ApplyHit(obj, _unit, _attackHitData, _moveDirection);
 
                 if (_projectileData.IsPierce)
                     _pierceHitWaitings[obj] = _projectileData.PierceHitInterval;
@@ -129,6 +129,7 @@ public class Projectile : NetworkBehaviour
 
     private void DestroyProjectile()
     {
-        NetworkObject.Despawn();
+        if (IsSpawned)
+            NetworkObject.Despawn();
     }
 }

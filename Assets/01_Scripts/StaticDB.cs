@@ -63,6 +63,7 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int Damage;
     public float KnockbackDistance;
     public float KnockbackSpeed;
+    public float DrainRatio;
 }
 [Serializable] public class VerticalMove_FallData : TableData
 {

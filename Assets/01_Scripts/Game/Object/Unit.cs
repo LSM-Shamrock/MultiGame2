@@ -216,7 +216,7 @@ public class Unit : FieldObject
         yield return new WaitForSeconds(data.MotionTime * data.HitNomalizedTime);
 
         if (target)
-            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId], dir);
+            ApplyHit(target, this, StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId], dir);
 
         yield return new WaitForSeconds(data.MotionTime * (1 - data.HitNomalizedTime));
 
