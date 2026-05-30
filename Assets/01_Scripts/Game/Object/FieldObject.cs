@@ -48,13 +48,13 @@ public abstract class FieldObject : NetworkBehaviour
         return distanceY;
     }
 
-    public void TakeHit(AttackHitData data)
+    public void TakeHit(AttackHitData data, Vector2 hitDirection)
     {
         if (IsDead.Value)
             return;
 
         OnDamage(data.Damage);
-        OnKnockback(data.Knockback);
+        OnKnockback(hitDirection.normalized, data.KnockbackDistance, data.KnockbackSpeed);
     }
     protected virtual void OnDamage(int damage)
     {
@@ -63,7 +63,7 @@ public abstract class FieldObject : NetworkBehaviour
         if (CurrentHealth.Value <= 0)
             OnDead();
     }
-    protected virtual void OnKnockback(float knockback)
+    protected virtual void OnKnockback(Vector2 direction, float distance, float speed)
     {
 
     }

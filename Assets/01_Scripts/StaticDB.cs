@@ -40,6 +40,7 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int Health;
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
+    public bool IsKnockbackIgnore;
     
     public MoveType MoveType;
     public string MoveAnimation;
@@ -60,7 +61,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int AttackHitId;
     public string CodeName;
     public int Damage;
-    public float Knockback;
+    public float KnockbackDistance;
+    public float KnockbackSpeed;
 }
 [Serializable] public class VerticalMove_FallData : TableData
 {

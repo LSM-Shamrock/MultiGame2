@@ -107,7 +107,7 @@ public class Projectile : NetworkBehaviour
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;
 
-                obj.TakeHit(_attackHitData);
+                obj.TakeHit(_attackHitData, _moveDirection);
 
                 if (_projectileData.IsPierce)
                     _pierceHitWaitings[obj] = _projectileData.PierceHitInterval;

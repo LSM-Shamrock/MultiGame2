@@ -80,15 +80,6 @@ public class Unit : FieldObject
             _owner.AllObjects.Remove(this);
         }
     }
-    protected override void OnDead()
-    {
-        base.OnDead();
-
-        if (IsServer)
-        {
-            NetworkObject.Despawn();
-        }
-    }
     private void Update()
     {
         if (IsServer)
@@ -215,7 +206,9 @@ public class Unit : FieldObject
     {
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.MotionAnimation);
 
-        _animationPoint.right = target.transform.position - transform.position;
+        var dir = (target.transform.position - transform.position).normalized;
+
+        _animationPoint.right = dir;
         _unitSpriteRenderer.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / data.MotionTime);
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
@@ -223,7 +216,7 @@ public class Unit : FieldObject
         yield return new WaitForSeconds(data.MotionTime * data.HitNomalizedTime);
 
         if (target)
-            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId]);
+            target.TakeHit(StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId], dir);
 
         yield return new WaitForSeconds(data.MotionTime * (1 - data.HitNomalizedTime));
 
@@ -290,5 +283,37 @@ public class Unit : FieldObject
         Projectile projectile = go.GetComponent<Projectile>();
         projectile.Init(this, target, data);
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
+    }
+
+    private IEnumerator Knockback(Vector2 direction, float distance, float speed)
+    {
+        float accumulated = 0f;
+
+        while (accumulated < distance)
+        {
+            yield return null;
+
+            float amount = Time.deltaTime * speed;
+
+            transform.position += (Vector3)direction * amount;
+            accumulated += amount;
+        }
+    }
+
+    protected override void OnDead()
+    {
+        base.OnDead();
+
+        if (IsServer)
+        {
+            NetworkObject.Despawn();
+        }
+    }
+    protected override void OnKnockback(Vector2 direction, float distance, float speed)
+    {
+        base.OnKnockback(direction, distance, speed);
+
+        if (_unitData.IsKnockbackIgnore == false)
+            StartCoroutine(Knockback(direction, distance, speed));
     }
 }
