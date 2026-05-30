@@ -24,10 +24,4 @@ public class UnitUI : FieldObjectUI
 
         transform.localPosition = new Vector3(0f, _unitData.ColliderHeight + 0.5f);
     }
-    protected override void LateUpdate()
-    {
-        base.LateUpdate();
-
-        transform.rotation = _camera.transform.rotation;
-    }
 }

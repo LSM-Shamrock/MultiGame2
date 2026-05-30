@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
@@ -11,4 +12,12 @@ public class CoreUI : FieldObjectUI
     [SerializeField, ParentField] private Core _core;
     [SerializeField, ChildField] private Image _healthBarFillBack;
     [SerializeField, ChildField] private Image _healthBarFillFront;
+    [SerializeField, ChildField] private TextMeshProUGUI _healthText;
+
+    protected override void LateUpdate()
+    {
+        base.LateUpdate();
+
+        _healthText.text = $"{_currentHealth}/{_maxHealth}";
+    }
 }

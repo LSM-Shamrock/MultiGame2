@@ -33,7 +33,13 @@ public abstract class FieldObjectUI : NetworkBehaviour
 
     protected virtual void LateUpdate()
     {
-        _displayHealth = Mathf.Lerp(_displayHealth, _currentHealth, Time.deltaTime);
+        transform.rotation = _camera.transform.rotation;
+
+        if (Mathf.Abs(_currentHealth - _displayHealth) < 1)
+            _displayHealth = _currentHealth;
+        else
+            _displayHealth = Mathf.Lerp(_displayHealth, _currentHealth, Time.deltaTime * 1.5f);
+
         RefreshHealthBar();
     }
 
