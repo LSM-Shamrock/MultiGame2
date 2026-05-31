@@ -7,6 +7,12 @@ public class HitEffect : MonoBehaviour
     [SerializeField, ChildField("HitEffectSprite")]
     private Animator _animator;
 
+    private void Hide()
+    {
+        gameObject.SetActive(false);
+        EffectPool.Instance.ReturnHitEffectToPool(this);
+    }
+
     public void Show(AttackHitData data, Vector2 position)
     {
         transform.position = position;
@@ -18,11 +24,5 @@ public class HitEffect : MonoBehaviour
         _animator.Play(data.EffectAnimation, 0, 0f);
 
         Invoke(nameof(Hide), data.EffectTime);
-    }
-
-    private void Hide()
-    {
-        gameObject.SetActive(false);
-        HitEffectPool.Instance.ReturnToPool(this);
     }
 }

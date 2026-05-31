@@ -1,10 +1,12 @@
-﻿using Unity.Netcode;
+﻿using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public abstract class FieldObject : NetworkBehaviour
 {
     public abstract Collider2D Collider { get; }
     public Vector3 ColliderCenter => Collider.bounds.center;
+    public abstract bool IsKnockbackIgnore { get; }
 
     public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
@@ -60,22 +62,23 @@ public abstract class FieldObject : NetworkBehaviour
 
         if (string.IsNullOrEmpty(data.EffectAnimation) == false)
         {
-            HitEffectPool.Instance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+            EffectPool.Instance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+        }
+
+        if (StaticDB.Instance.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
+        {
+            target.OnDotEffect(dotEffectData);
         }
     }
 
-    protected virtual void OnDamage(int damage)
+    private void OnDamage(int damage)
     {
         CurrentHealth.Value -= damage;
 
         if (CurrentHealth.Value <= 0)
             OnDead();
     }
-    protected virtual void OnKnockback(Vector2 direction, float distance, float speed)
-    {
-
-    }
-    protected virtual void OnHeal(int amount)
+    private void OnHeal(int amount)
     {
         if (CurrentHealth.Value + amount > MaxHealth.Value)
             CurrentHealth.Value = MaxHealth.Value;
@@ -85,5 +88,43 @@ public abstract class FieldObject : NetworkBehaviour
     protected virtual void OnDead()
     {
         IsDead.Value = true;
+    }
+    
+    private void OnKnockback(Vector2 direction, float distance, float speed)
+    {
+        if (IsKnockbackIgnore == false)
+            StartCoroutine(Knockback(direction, distance, speed));
+    }
+    private IEnumerator Knockback(Vector2 direction, float distance, float speed)
+    {
+        float accumulated = 0f;
+
+        while (accumulated < distance)
+        {
+            yield return null;
+
+            float amount = Time.deltaTime * speed;
+
+            transform.position += (Vector3)direction * amount;
+            accumulated += amount;
+        }
+    }
+
+    private void OnDotEffect(DotEffectData data)
+    {
+        StartCoroutine(DotEffect(data));
+
+        EffectPool.Instance.ShowDotEffectRpc(NetworkObjectId, data.DotEffectId);
+    }
+    private IEnumerator DotEffect(DotEffectData data)
+    {
+        var waitForInterval = new WaitForSeconds(data.DotInterval);
+
+        for (int i = 0; i < data.DotCount; i++)
+        {
+            yield return waitForInterval;
+
+            OnDamage(data.DotDamage);
+        }
     }
 }

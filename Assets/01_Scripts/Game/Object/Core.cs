@@ -5,6 +5,7 @@ using UnityEngine;
 public class Core : FieldObject
 {
     public override Collider2D Collider => _collider;
+    public override bool IsKnockbackIgnore => true;
 
     [SerializeField, ComponentField] private SpriteRenderer _spriteRenderer;
     [SerializeField, ComponentField] private Collider2D _collider;

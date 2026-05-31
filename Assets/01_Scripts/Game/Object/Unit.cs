@@ -13,6 +13,7 @@ public class Unit : FieldObject
     private const float X_MAX = 11.5f;
 
     public override Collider2D Collider => _collider;
+    public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
     public Player Owner => _owner;
     public Player Opponent => _opponent;
 
@@ -288,21 +289,6 @@ public class Unit : FieldObject
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 
-    private IEnumerator Knockback(Vector2 direction, float distance, float speed)
-    {
-        float accumulated = 0f;
-
-        while (accumulated < distance)
-        {
-            yield return null;
-
-            float amount = Time.deltaTime * speed;
-
-            transform.position += (Vector3)direction * amount;
-            accumulated += amount;
-        }
-    }
-
     protected override void OnDead()
     {
         base.OnDead();
@@ -311,12 +297,5 @@ public class Unit : FieldObject
         {
             NetworkObject.Despawn();
         }
-    }
-    protected override void OnKnockback(Vector2 direction, float distance, float speed)
-    {
-        base.OnKnockback(direction, distance, speed);
-
-        if (_unitData.IsKnockbackIgnore == false)
-            StartCoroutine(Knockback(direction, distance, speed));
     }
 }

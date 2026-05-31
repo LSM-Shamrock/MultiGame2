@@ -55,18 +55,6 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public AttackType AttackType;
     public int AttackId;
 }
-[Serializable] public class AttackHitData : TableData
-{
-    public override int Key => AttackHitId;
-    public int AttackHitId;
-    public string CodeName;
-    public int Damage;
-    public float KnockbackDistance;
-    public float KnockbackSpeed;
-    public float DrainRatio;
-    public string EffectAnimation;
-    public float EffectTime;
-}
 [Serializable] public class VerticalMove_FallData : TableData
 {
     public override int Key => VerticalMoveId;
@@ -121,6 +109,31 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float PierceHitInterval;
     public int AttackHitId;
 }
+[Serializable]
+public class AttackHitData : TableData
+{
+    public override int Key => AttackHitId;
+    public int AttackHitId;
+    public string CodeName;
+    public int Damage;
+    public float KnockbackDistance;
+    public float KnockbackSpeed;
+    public float DrainRatio;
+    public string EffectAnimation;
+    public float EffectTime;
+    public int DotEffectId;
+}
+[Serializable]
+public class DotEffectData : TableData
+{
+    public override int Key => DotEffectId;
+    public int DotEffectId;
+    public string CodeName;
+    public int DotDamage;
+    public float DotInterval;
+    public float DotCount;
+    public string EffectAnimation;
+}
 #endregion
 
 public abstract class TableData
@@ -145,12 +158,13 @@ public class StaticDB : ScriptableObject
 
     [SerializeField] private List<CardData> Card;
     [SerializeField] private List<UnitData> Unit;
-    [SerializeField] private List<AttackHitData> AttackHit;
     [SerializeField] private List<VerticalMove_FallData> VerticalMove_Fall;
     [SerializeField] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
     [SerializeField] private List<Attack_MotionData> Attack_Motion;
     [SerializeField] private List<Attack_ProjectileData> Attack_Projectile;
     [SerializeField] private List<ProjectileData> Projectile;
+    [SerializeField] private List<AttackHitData> AttackHit;
+    [SerializeField] private List<DotEffectData> DotEffect;
 
     private Dictionary<Type, object> _tables = new();
 
@@ -162,6 +176,7 @@ public class StaticDB : ScriptableObject
     public Table<Attack_MotionData> Attack_MotionData => GetOrCreateTable(Attack_Motion);
     public Table<Attack_ProjectileData> Attack_ProjectileData => GetOrCreateTable(Attack_Projectile);
     public Table<ProjectileData> ProjectileData => GetOrCreateTable(Projectile);
+    public Table<DotEffectData> DotEffectData => GetOrCreateTable(DotEffect);
 
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData

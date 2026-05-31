@@ -1624,7 +1624,7 @@ GameObject:
   - component: {fileID: 594746288}
   - component: {fileID: 594746287}
   m_Layer: 0
-  m_Name: HitEffectPool
+  m_Name: EffectPool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1659,6 +1659,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _hitEffectPrefab: {fileID: 6709866007021861717, guid: 31209b0c2d58d384d8f00f2deca3531e, type: 3}
+  _DottEffectPrefab: {fileID: 7098368053351736587, guid: 8cbfb9f69f7a239499b12ceea1b738ca, type: 3}
 --- !u!114 &594746288
 MonoBehaviour:
   m_ObjectHideFlags: 0
