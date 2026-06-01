@@ -13,7 +13,8 @@ public class DotEffect : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = _target.ColliderCenter;
+        if (_target != null && _target.IsDead.Value == false)
+            transform.position = _target.ColliderCenter;
     }
 
     private void Hide()
@@ -45,14 +46,21 @@ public class DotEffect : MonoBehaviour
 
     public IEnumerator FadeRoutine(DotEffectData data)
     {
-        var color = _spriteRenderer.color;
+        var color = Color.white;
         var alphaDecrease = color.a / data.DotCount;
 
-        var waitForInterval = new WaitForSeconds(data.DotInterval);
+        _spriteRenderer.color = color;
 
         for (int i = 0; i < data.DotCount; i++)
         {
-            yield return waitForInterval;
+            float sec = data.DotInterval;
+            while (sec > 0 && _target != null && !_target.IsDead.Value)
+            {
+                yield return null;
+                sec -= Time.deltaTime;
+            }
+            if (_target == null || _target.IsDead.Value)
+                break;
 
             color.a -= alphaDecrease;
             _spriteRenderer.color = color;
