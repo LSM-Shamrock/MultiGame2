@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public abstract class FieldObject : NetworkBehaviour
 {
@@ -73,10 +74,18 @@ public abstract class FieldObject : NetworkBehaviour
 
     private void OnDamage(int damage)
     {
-        CurrentHealth.Value -= damage;
+        if (IsDead.Value)
+            return;
 
-        if (CurrentHealth.Value <= 0)
+        if (CurrentHealth.Value > damage)
+        {
+            CurrentHealth.Value -= damage;
+        }
+        else
+        {
+            CurrentHealth.Value = 0;
             OnDead();
+        }
     }
     private void OnHeal(int amount)
     {

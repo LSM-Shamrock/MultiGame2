@@ -9,6 +9,13 @@ public class DotEffect : MonoBehaviour
     [SerializeField, ChildField("DotEffectSprite")] private Animator _animator;
     [SerializeField, ChildField("DotEffectSprite")] private SpriteRenderer _spriteRenderer;
 
+    private FieldObject _target;
+
+    private void LateUpdate()
+    {
+        transform.position = _target.ColliderCenter;
+    }
+
     private void Hide()
     {
         gameObject.SetActive(false);
@@ -23,9 +30,9 @@ public class DotEffect : MonoBehaviour
             return;
         }
 
-        transform.parent = target.transform;
-        transform.position = target.ColliderCenter;
-        transform.localScale = Vector3.one;
+        _target = target;
+        transform.position = _target.ColliderCenter;
+        transform.localScale = _target.transform.localScale;
         gameObject.SetActive(true);
 
         var clip = _animator.runtimeAnimatorController.animationClips.First(c => c.name == data.EffectAnimation);

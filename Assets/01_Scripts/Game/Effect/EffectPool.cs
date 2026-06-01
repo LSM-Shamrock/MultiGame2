@@ -17,10 +17,10 @@ public class EffectPool : NetworkBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
             _hitEffects.Enqueue(CreateHitEffect());
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
             _dotEffects.Enqueue(CreateDotEffect());
     }
 
