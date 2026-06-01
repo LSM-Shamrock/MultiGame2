@@ -9,8 +9,8 @@ public class SoundManager : MonoBehaviour
     public ObservableValue<float> BgmVolume { get; } = new(1f, Mathf.Clamp01);
     public ObservableValue<float> SfxVolume { get; } = new(1f, Mathf.Clamp01);
 
-    [SerializeField, ComponentField]
-    private AudioSource _audioSource;
+    [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
+    [SerializeField, ChildField("SfxPlayer")] private AudioSource _sfxPlayer;
 
     private void Awake()
     {
@@ -28,20 +28,25 @@ public class SoundManager : MonoBehaviour
 
     private void OnBgmVolumeChanged(float value)
     {
-        _audioSource.volume = value;
+        _bgmPlayer.volume = value;
     }
     private void OnSfxVolumeChanged(float value)
     {
-
+        _sfxPlayer.volume = value;
     }
 
     public void PlayBgm(AudioClip clip)
     {
-        _audioSource.clip = clip;
-        _audioSource.Play();
+        _bgmPlayer.clip = clip;
+        _bgmPlayer.Play();
     }
     public void StopBgm()
     {
-        _audioSource.Stop();
+        _bgmPlayer.Stop();
+    }
+
+    public void PlaySfx(AudioClip clip, float volumeScale = 1f)
+    {
+        _bgmPlayer.PlayOneShot(clip, volumeScale);
     }
 }

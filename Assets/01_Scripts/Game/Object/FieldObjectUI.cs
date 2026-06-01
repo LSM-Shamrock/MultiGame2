@@ -48,18 +48,18 @@ public abstract class FieldObjectUI : NetworkBehaviour
         RefreshHealthBar();
     }
 
-    private void OnCurrentHealthChanged(int prevValue, int newValue)
+    protected virtual void OnCurrentHealthChanged(int prevValue, int newValue)
     {
         _currentHealth = newValue;
         RefreshHealthBar();
     }
-    private void OnMaxHealthChanged(int prevValue, int newValue)
+    protected virtual void OnMaxHealthChanged(int prevValue, int newValue)
     {
         _displayHealth = newValue;
         _displayHealth = newValue;
         RefreshHealthBar();
     }
-    private void RefreshHealthBar()
+    protected virtual void RefreshHealthBar()
     {
         if (_maxHealth == 0)
             return;

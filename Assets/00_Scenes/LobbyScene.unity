@@ -5589,6 +5589,7 @@ MonoBehaviour:
   MatchmakingUI: {fileID: 929026897}
   SettingUI: {fileID: 1397896066}
   Bgm: {fileID: 8300000, guid: 9abbfc5b80670834a9125c1e55a625d3, type: 3}
+  Sfx_MatchingSuccess: {fileID: 8300000, guid: 6372936ac7de17640898b4f3cc146b47, type: 3}
 --- !u!1 &1474433734
 GameObject:
   m_ObjectHideFlags: 0

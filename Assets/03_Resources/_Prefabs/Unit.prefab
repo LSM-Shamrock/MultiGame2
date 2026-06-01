@@ -649,6 +649,8 @@ MonoBehaviour:
   _unit: {fileID: -2928703991887112052}
   _healthBarFillBack: {fileID: 2329633854360610978}
   _healthBarFillFront: {fileID: 6891761456638625680}
+  _sfx_summon: {fileID: 8300000, guid: a5661dfc01182774aa9cd8f9cd40f010, type: 3}
+  _sfx_hit: {fileID: 8300000, guid: 48c250ac8a928d6478247bf9bf104a08, type: 3}
 --- !u!1 &5501901558676319172
 GameObject:
   m_ObjectHideFlags: 0

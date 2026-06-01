@@ -72,7 +72,7 @@ public abstract class FieldObject : NetworkBehaviour
         }
     }
 
-    private void OnDamage(int damage)
+    protected virtual void OnDamage(int damage)
     {
         if (IsDead.Value)
             return;
@@ -87,7 +87,7 @@ public abstract class FieldObject : NetworkBehaviour
             OnDead();
         }
     }
-    private void OnHeal(int amount)
+    protected virtual void OnHeal(int amount)
     {
         if (CurrentHealth.Value + amount > MaxHealth.Value)
             CurrentHealth.Value = MaxHealth.Value;

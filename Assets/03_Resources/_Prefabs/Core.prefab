@@ -351,6 +351,7 @@ MonoBehaviour:
   _healthBarFillBack: {fileID: 8447434808635367862}
   _healthBarFillFront: {fileID: 1738243693330229767}
   _healthText: {fileID: 4137454835531557728}
+  _sfx_hit: {fileID: 8300000, guid: 48c250ac8a928d6478247bf9bf104a08, type: 3}
 --- !u!1 &6239668291141435857
 GameObject:
   m_ObjectHideFlags: 0

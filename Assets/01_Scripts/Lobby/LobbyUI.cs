@@ -15,6 +15,7 @@ public class LobbyUI : MonoBehaviour
     [SceneComponentField] public MatchmakingUI MatchmakingUI;
     [SceneComponentField] public SettingUI SettingUI;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
+    [AssetField("Sfx_Lobby_MatchingSuccess")] public AudioClip Sfx_MatchingSuccess;
 
     private void Start()
     {
@@ -76,11 +77,18 @@ public class LobbyUI : MonoBehaviour
     }
     private void OnGameManagerStateChanged(GameManagerState value)
     {
-        if (value == GameManagerState.Lobby) MatchmakingUI.gameObject.SetActive(false);
-        if (value == GameManagerState.FindingMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.CreateingMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.JoiningMatching) MatchmakingUI.gameObject.SetActive(true);
-        if (value == GameManagerState.StartingGame) MatchmakingUI.JoinCodeField.text = "";
+        switch (value)
+        {
+            case GameManagerState.Lobby:  MatchmakingUI.gameObject.SetActive(false); break;
+            case GameManagerState.FindingMatching: MatchmakingUI.gameObject.SetActive(true); break;
+            case GameManagerState.CreateingMatching: MatchmakingUI.gameObject.SetActive(true); break;
+            case GameManagerState.JoiningMatching: MatchmakingUI.gameObject.SetActive(true); break;
+
+            case GameManagerState.StartingGame: 
+                MatchmakingUI.JoinCodeField.text = "";
+                SoundManager.Instance.PlaySfx(Sfx_MatchingSuccess);
+                break;
+        }
 
         MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
         MatchmakingUI.StateText.text = value switch

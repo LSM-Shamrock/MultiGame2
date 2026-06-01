@@ -21,10 +21,10 @@ public class Player : NetworkBehaviour
     private Queue<int> _nextCardIds = new();
     private Player _opponent;
 
-    [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
-    [SerializeField, AssetField("Core")] private GameObject _corePrefab;
     [SerializeField, ChildField] private Transform CorePos;
     [SerializeField, ChildrenGroupField] private Transform[] SummonGrid;
+    [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
+    [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
     public Core Core { get; private set; }
     public HashSet<Unit> GroundUnits { get; } = new();

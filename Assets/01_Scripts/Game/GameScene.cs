@@ -7,10 +7,8 @@ public class GameScene : MonoBehaviour
     public static GameScene Instance => _instance ?? (_instance = FindAnyObjectByType<GameScene>());
     private static GameScene _instance;
 
-    [SerializeField, AssetField("Player")]
-    private GameObject _playerPrefab;
-    [SerializeField, AssetField("Bgm_Game")]
-    private AudioClip _gameBgm;
+    [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
+    [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
 
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
