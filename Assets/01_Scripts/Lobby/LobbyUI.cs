@@ -9,17 +9,21 @@ public class LobbyUI : MonoBehaviour
     [ChildField] public Button PlayButton;
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
+    [ChildField] public Button SettingButton;
     [ChildField] public TMP_InputField JoinCodeInput;
     [ChildField] public TMP_InputField PlayerNameInput;
     [SceneComponentField] public MatchmakingUI MatchmakingUI;
+    [SceneComponentField] public SettingUI SettingUI;
 
     private void Start()
     {
+        PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
         CreateButton.onClick.AddListener(OnClick_CreateButton);
         JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
-        PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInput);
-        MatchmakingUI.CancleButton.onClick.AddListener(OnClick_CancleButton);
+        MatchmakingUI.CancleButton.onClick.AddListener(OnClick_MatchmaingUI_CancleButton);
+
+        SettingButton.onClick.AddListener(SettingUI.Show);
 
         if (GameManager.Instance)
         {
@@ -35,6 +39,8 @@ public class LobbyUI : MonoBehaviour
         PlayerNameInput.onValueChanged.RemoveAllListeners();
         MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
+        SettingButton.onClick.RemoveAllListeners();
+
         if (GameManager.Instance)
         {
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
@@ -46,7 +52,7 @@ public class LobbyUI : MonoBehaviour
         JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text);
     }
 
-    private void OnPlayerNameInput(string value)
+    private void OnPlayerNameInputChanged(string value)
     {
         GameManager.Instance.PlayerName = value;
     }
@@ -102,8 +108,9 @@ public class LobbyUI : MonoBehaviour
         MatchmakingUI.JoinCodeField.text = "";
         await GameManager.Instance.AutoMatchingAsync();
     }
-    private async void OnClick_CancleButton()
+    private async void OnClick_MatchmaingUI_CancleButton()
     {
         await GameManager.Instance.CancelMatcingAsync();
     }
 }
+

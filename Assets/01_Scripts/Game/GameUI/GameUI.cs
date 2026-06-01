@@ -16,7 +16,7 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildField] private MpBarUI MpBar;
     [SerializeField, ChildField] private NextCardUI NextCard;
     [SerializeField, ChildrenGroupField] private HandCardUI[] HandCards;
-    [SerializeField, ChildField] private PointerEventHandler DragArea;
+    [SerializeField, ChildField] private PointerEventBinder DragArea;
 
     private Camera _camera;
     private Player _player;
