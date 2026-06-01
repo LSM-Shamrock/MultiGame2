@@ -9,7 +9,9 @@ public class GameScene : MonoBehaviour
 
     [SerializeField, AssetField("Player")]
     private GameObject _playerPrefab;
-    
+    [SerializeField, AssetField("Bgm_Game")]
+    private AudioClip _gameBgm;
+
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
 
@@ -22,6 +24,8 @@ public class GameScene : MonoBehaviour
             foreach (var (k, v) in GameManager.Instance.PlayerSessionDatas)
                 SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds, v.ClientId != NetworkManager.Singleton.LocalClientId);
         }
+
+        SoundManager.Instance.PlayBgm(_gameBgm);
     }
 
     private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)

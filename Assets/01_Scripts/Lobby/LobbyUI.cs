@@ -14,6 +14,7 @@ public class LobbyUI : MonoBehaviour
     [ChildField] public TMP_InputField PlayerNameInput;
     [SceneComponentField] public MatchmakingUI MatchmakingUI;
     [SceneComponentField] public SettingUI SettingUI;
+    [AssetField("Bgm_Lobby")] public AudioClip Bgm;
 
     private void Start()
     {
@@ -30,6 +31,8 @@ public class LobbyUI : MonoBehaviour
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
             GameManager.Instance.State.OnValueChanged += OnGameManagerStateChanged;
         }
+
+        SoundManager.Instance.PlayBgm(Bgm);
     }
     private void OnDestroy()
     {

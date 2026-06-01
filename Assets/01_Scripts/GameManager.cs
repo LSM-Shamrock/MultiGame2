@@ -92,11 +92,11 @@ public class GameManager : MonoBehaviour
     {
         if (_instance != null && _instance != this)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
         _instance = this;
-        DontDestroyOnLoad(this);
+        DontDestroyOnLoad(gameObject);
 
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
     }

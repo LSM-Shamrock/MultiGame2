@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
@@ -13,11 +13,20 @@ public class SettingUI : MonoBehaviour
     {
         CloseButton.onClick.AddListener(Hide);
         BackPanel.AddEvent(PointerEventType.PointerClick, Hide);
+
+        BgmVolumeSlider.onValueChanged.AddListener(OnBgmVolumeSliderChanged);
+        SfxVolumeSlider.onValueChanged.AddListener(OnSfxVolumeSliderChanged);
+
+        BgmVolumeSlider.value = SoundManager.Instance.BgmVolume.Value;
+        SfxVolumeSlider.value = SoundManager.Instance.SfxVolume.Value;
     }
     private void OnDestroy()
     {
         CloseButton.onClick.RemoveAllListeners();
         BackPanel.RemvoeEvent(PointerEventType.PointerClick, Hide);
+
+        BgmVolumeSlider.onValueChanged.RemoveAllListeners();
+        SfxVolumeSlider.onValueChanged.RemoveAllListeners();
     }
 
     public void Show()
@@ -27,5 +36,14 @@ public class SettingUI : MonoBehaviour
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    private void OnBgmVolumeSliderChanged(float value)
+    {
+        SoundManager.Instance.BgmVolume.Value = value;
+    }
+    private void OnSfxVolumeSliderChanged(float value)
+    {
+        SoundManager.Instance.SfxVolume.Value = value;
     }
 }
