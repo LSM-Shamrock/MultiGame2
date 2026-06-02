@@ -1,8 +1,9 @@
-﻿using Unity.Netcode;
+﻿using System;
+using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class GameScene : MonoBehaviour
+public class GameScene : NetworkBehaviour
 {
     public static GameScene Instance => _instance ?? (_instance = FindAnyObjectByType<GameScene>());
     private static GameScene _instance;
@@ -12,6 +13,9 @@ public class GameScene : MonoBehaviour
 
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
+
+    public bool IsGameFinished { get; private set; } = false;
+    public event Action<ulong?> OnGameFinished;
 
     private void Start()
     {
@@ -25,6 +29,18 @@ public class GameScene : MonoBehaviour
 
         SoundManager.Instance.PlayBgm(_gameBgm);
     }
+    private void Update()
+    {
+        if (IsServer)
+        {
+            if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
+            {
+                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead) FinishGameRpc(isDraw: true);
+                else if (LocalPlayer.Value.IsDead) FinishGameRpc(isDraw: false, OpponentPlayer.Value.OwnerClientId);
+                else if (OpponentPlayer.Value.IsDead) FinishGameRpc(isDraw: false, LocalPlayer.Value.OwnerClientId);
+            }
+        }
+    }
 
     private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
     {
@@ -33,5 +49,15 @@ public class GameScene : MonoBehaviour
         Player player = go.GetComponent<Player>();
         player.Init(playerName, deckCardIds);
         obj.SpawnAsPlayerObject(clientId);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void FinishGameRpc(bool isDraw, ulong winnerClientId = 0)
+    {
+        if (IsGameFinished)
+            return;
+
+        IsGameFinished = true;
+        OnGameFinished?.Invoke(isDraw ? null : winnerClientId);
     }
 }

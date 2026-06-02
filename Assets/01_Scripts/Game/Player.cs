@@ -30,6 +30,7 @@ public class Player : NetworkBehaviour
     public HashSet<Unit> GroundUnits { get; } = new();
     public HashSet<Unit> AllUnits { get; } = new();
     public HashSet<FieldObject> AllObjects { get; } = new();
+    public bool IsDead { get; set; } = false;
 
     public void Init(string playerName, int[] deckCardIds)
     {
@@ -185,6 +186,8 @@ public class Player : NetworkBehaviour
     {
         GameObject go = Instantiate(_corePrefab, (Vector2)CorePos.position, CorePos.rotation);
         Core = go.GetComponent<Core>();
+
+        Core.Init(this);
         Core.NetworkObject.SpawnWithOwnership(OwnerClientId);
 
         AllObjects.Add(Core);

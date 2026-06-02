@@ -9,6 +9,13 @@ public class Core : FieldObject
 
     [SerializeField, ComponentField] private SpriteRenderer _spriteRenderer;
     [SerializeField, ComponentField] private Collider2D _collider;
+    
+    private Player _owner;
+
+    public void Init(Player owner)
+    {
+        _owner = owner;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -26,5 +33,12 @@ public class Core : FieldObject
         {
             _spriteRenderer.sprite = Resources.Load<Sprite>("CoreSprite/Core_Red");
         }
+    }
+
+    protected override void OnDead()
+    {
+        base.OnDead();
+
+        _owner.IsDead = true;
     }
 }
