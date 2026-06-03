@@ -106,7 +106,7 @@ public class AutoInjectionEditor : Editor
             InjectAllFields(com);
         }
     }
-    
+
     static void InjectFromPrefabAsset(GameObject prefabRoot)
     {
         var assetPath = AssetDatabase.GetAssetPath(prefabRoot);
@@ -191,7 +191,7 @@ public class AutoInjectionEditor : Editor
             EditorSceneManager.RestoreSceneManagerSetup(sceneSetup);
         }
     }
-    
+
     static void InjectFromAllPrefabs()
     {
         var guids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });

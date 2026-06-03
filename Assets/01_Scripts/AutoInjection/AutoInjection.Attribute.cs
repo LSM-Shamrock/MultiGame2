@@ -20,10 +20,10 @@ public class SceneComponentField : AutoInjectionField
 {
     public override bool Inject(MonoBehaviour target, FieldInfo field)
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(target))
             return false;
-        #endif
+#endif
 
         var component = UnityEngine.Object.FindAnyObjectByType(field.FieldType, FindObjectsInactive.Include);
         if (component == null)
@@ -83,9 +83,9 @@ public class ChildField : AutoInjectionField
     private readonly string _childName;
 
     public ChildField() { }
-    public ChildField(string childName = null) 
-    { 
-        _childName = childName; 
+    public ChildField(string childName = null)
+    {
+        _childName = childName;
     }
 
     public override bool Inject(MonoBehaviour target, FieldInfo field)
@@ -119,9 +119,9 @@ public class ChildrenGroupField : AutoInjectionField
     private readonly string _childrenGroupName;
 
     public ChildrenGroupField() { }
-    public ChildrenGroupField(string childrenGroupName = null) 
-    { 
-        _childrenGroupName = childrenGroupName; 
+    public ChildrenGroupField(string childrenGroupName = null)
+    {
+        _childrenGroupName = childrenGroupName;
     }
 
     public override bool Inject(MonoBehaviour target, FieldInfo field)
@@ -170,7 +170,7 @@ public class AssetField : AutoInjectionField
         if (assetPath == null)
             assetPath = AutoInjectionUtil.GetDefaultFindNameByFieldName(field.Name);
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
 
         // 경로에 확장자가 없으면 타입 기반으로 에셋 검색
         UnityEngine.Object asset;
@@ -203,8 +203,8 @@ public class AssetField : AutoInjectionField
         field.SetValue(target, asset);
         return true;
 
-        #else
+#else
         return false;
-        #endif
+#endif
     }
 }

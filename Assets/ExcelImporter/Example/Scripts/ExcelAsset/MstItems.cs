@@ -1,10 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [ExcelAsset]
 public class MstItems : ScriptableObject
 {
-	public List<MstItemEntity> Entities; 
+    public List<MstItemEntity> Entities;
 }

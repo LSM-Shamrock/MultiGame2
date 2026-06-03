@@ -237,7 +237,7 @@ public class Unit : FieldObject
             SummonProjectile(target, StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId]);
 
         yield return new WaitForSeconds(clip.length);
-        
+
         _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
         _unitAnimator.Play(_unitData.CodeName, 0, 0f);

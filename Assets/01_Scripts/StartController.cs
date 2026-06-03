@@ -8,7 +8,7 @@ public class StartController : MonoBehaviour
     private async void Start()
     {
         await UnityServices.InitializeAsync();
-        
+
         if (AuthenticationService.Instance.IsSignedIn == false)
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
 

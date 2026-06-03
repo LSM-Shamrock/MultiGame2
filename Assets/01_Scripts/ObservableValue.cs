@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public interface IObservOnlyValue<T>
 {
     event Action<T> OnValueChanged;
-    
+
     T Value { get; }
 }
 public class ObservableValue<T> : IObservOnlyValue<T>

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -57,7 +56,7 @@ public class GameResultUI : MonoBehaviour
         }
 
         StartCoroutine(ShowRoutine());
-        
+
     }
 
     private IEnumerator ShowRoutine()
@@ -67,7 +66,7 @@ public class GameResultUI : MonoBehaviour
 
         OkButton.interactable = false;
         MainPanel.gameObject.SetActive(true);
-        
+
         while (t < 1f)
         {
             var colorA = new Color(0.0f, 0.0f, 0.0f, 0.4f);

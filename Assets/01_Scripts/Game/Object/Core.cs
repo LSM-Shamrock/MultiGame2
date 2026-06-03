@@ -1,5 +1,4 @@
-﻿using Unity.Netcode;
-using UnityEngine;
+﻿using UnityEngine;
 
 [AutoInjectionTarget]
 public class Core : FieldObject
@@ -9,7 +8,7 @@ public class Core : FieldObject
 
     [SerializeField, ComponentField] private SpriteRenderer _spriteRenderer;
     [SerializeField, ComponentField] private Collider2D _collider;
-    
+
     private Player _owner;
 
     public void Init(Player owner)

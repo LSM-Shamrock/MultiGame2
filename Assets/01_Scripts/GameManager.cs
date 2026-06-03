@@ -4,17 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 
 [Serializable]
@@ -57,7 +54,7 @@ public class GameManager : MonoBehaviour
     private const string SCENE_LOBBY = "LobbyScene";
 
     public IObservOnlyValue<GameManagerState> State => _state;
-    private ObservableValue<GameManagerState> _state = new(GameManagerState.Lobby); 
+    private ObservableValue<GameManagerState> _state = new(GameManagerState.Lobby);
 
     public string PlayerName { get; set; }
     public ObservableArray<int> CurrentDeckCardIds
@@ -68,7 +65,7 @@ public class GameManager : MonoBehaviour
             {
                 _currentDeck = new ObservableArray<int>(8);
 
-                for (int i = 0; i < 8; i++) 
+                for (int i = 0; i < 8; i++)
                     _currentDeck[i] = StaticDB.Instance.CardData.List[i].CardId;
             }
             return _currentDeck;
@@ -222,9 +219,9 @@ public class GameManager : MonoBehaviour
     private async Task UploadLobbyPlayerDataAsync()
     {
         PlayerSessionData data = new PlayerSessionData(
-            _lobby.Id, 
-            NetworkManager.Singleton.LocalClientId, 
-            PlayerName, 
+            _lobby.Id,
+            NetworkManager.Singleton.LocalClientId,
+            PlayerName,
             CurrentDeckCardIds.Values.ToArray());
 
         string json = JsonConvert.SerializeObject(data);
@@ -246,14 +243,14 @@ public class GameManager : MonoBehaviour
             foreach (var (dataKey, dataValue) in playerData)
             {
                 string dataString = dataValue.Value.Value;
-                
+
                 switch (dataKey)
                 {
                     case "PlayerSessionData":
                         if (NetworkManager.Singleton.IsHost)
                         {
                             PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
-                            
+
                             if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
                             {
                                 OpponentPlayerSessionData = obj;
@@ -272,7 +269,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    
+
     private async Task DeleteLobbyAsync()
     {
         if (_lobby.HostId != AuthenticationService.Instance.PlayerId)
@@ -305,7 +302,7 @@ public class GameManager : MonoBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-        
+
             _state.Value = GameManagerState.Lobby;
         }
     }

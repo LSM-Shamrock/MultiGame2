@@ -14,7 +14,7 @@ public class CoreUI : FieldObjectUI
     [SerializeField, ChildField] private Image _healthBarFillFront;
     [SerializeField, ChildField] private TextMeshProUGUI _healthText;
     [SerializeField, AssetField("Sfx_Game_Unit_Hit")] private AudioClip _sfx_hit;
-    
+
     protected override void LateUpdate()
     {
         base.LateUpdate();

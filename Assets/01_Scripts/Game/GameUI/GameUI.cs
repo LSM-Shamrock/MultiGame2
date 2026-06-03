@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 [AutoInjectionTarget]
 public class GameUI : MonoBehaviour
@@ -123,7 +121,7 @@ public class GameUI : MonoBehaviour
 
         foreach (var card in HandCards)
             card.SetPlayerMP(_displayMP);
-        
+
         CardSummonPos.SetPlayerMP(_displayMP);
     }
     private void RefreshNextCardId(int value)
@@ -146,7 +144,7 @@ public class GameUI : MonoBehaviour
 
         _selectedIndex = index;
         _selectedCardId = _handCardIds[_selectedIndex];
-        _selectedCardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(_selectedCardId); 
+        _selectedCardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(_selectedCardId);
 
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].SetSelected(i == _selectedIndex);

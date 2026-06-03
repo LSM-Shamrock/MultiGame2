@@ -79,12 +79,12 @@ public class LobbyUI : MonoBehaviour
     {
         switch (value)
         {
-            case GameManagerState.Lobby:  MatchmakingUI.gameObject.SetActive(false); break;
+            case GameManagerState.Lobby: MatchmakingUI.gameObject.SetActive(false); break;
             case GameManagerState.FindingMatching: MatchmakingUI.gameObject.SetActive(true); break;
             case GameManagerState.CreateingMatching: MatchmakingUI.gameObject.SetActive(true); break;
             case GameManagerState.JoiningMatching: MatchmakingUI.gameObject.SetActive(true); break;
 
-            case GameManagerState.StartingGame: 
+            case GameManagerState.StartingGame:
                 MatchmakingUI.JoinCodeField.text = "";
                 SoundManager.Instance.PlaySfx(Sfx_MatchingSuccess);
                 break;
@@ -111,7 +111,7 @@ public class LobbyUI : MonoBehaviour
     }
     private async void OnClick_JoinButton()
     {
-        MatchmakingUI.JoinCodeField.text  = "";
+        MatchmakingUI.JoinCodeField.text = "";
         await GameManager.Instance.JoinMatchingAsync(JoinCodeInput.text);
     }
     private async void OnClick_AutoMatching()

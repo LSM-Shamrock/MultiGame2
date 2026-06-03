@@ -48,7 +48,7 @@ public class EffectPool : NetworkBehaviour
         return effect;
     }
 
-    [Rpc(SendTo.ClientsAndHost)] 
+    [Rpc(SendTo.ClientsAndHost)]
     public void ShowHitEffectRpc(int attackHitId, Vector2 postion)
     {
         var data = StaticDB.Instance.AttackHitData.Dictionary[attackHitId];
@@ -58,7 +58,7 @@ public class EffectPool : NetworkBehaviour
 
         hitEffect.Show(data, postion);
     }
-    [Rpc(SendTo.ClientsAndHost)] 
+    [Rpc(SendTo.ClientsAndHost)]
     public void ShowDotEffectRpc(ulong targetNetworkObjectId, int dotEffectId)
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out var targetNetworkObject))

@@ -46,7 +46,7 @@ public class HandCardUI : MonoBehaviour, IPointerDownHandler
         }
         else
         {
-            FadeImage.fillAmount =  1 - playerMP / _cardData.CostMP;
+            FadeImage.fillAmount = 1 - playerMP / _cardData.CostMP;
             CardImage.color = Color.gray;
             MpText.color = Color.red;
         }

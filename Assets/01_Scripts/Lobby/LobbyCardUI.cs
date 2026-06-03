@@ -30,7 +30,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
     }
     private void OnDestroy()
     {
-        if (GameManager.Instance != null) 
+        if (GameManager.Instance != null)
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
     }
 
@@ -55,7 +55,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
         CardImage.raycastTarget = isInteractable;
         FadeImage.gameObject.SetActive(!isInteractable);
     }
-    
+
     private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
     {
         if (_isDeck)
@@ -84,7 +84,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
             SetCardData(data);
             SetInteractable(!isInDeck);
         }
-}
+    }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
     {

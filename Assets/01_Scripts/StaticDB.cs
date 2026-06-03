@@ -16,7 +16,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
 #endregion
 
 #region Data
-[Serializable] public class CardData : TableData
+[Serializable]
+public class CardData : TableData
 {
     public override int Key => CardId;
     public int CardId;
@@ -25,7 +26,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int CostMP;
     public int UnitId;
 }
-[Serializable] public class UnitData : TableData
+[Serializable]
+public class UnitData : TableData
 {
     public override int Key => UnitId;
     public int UnitId;
@@ -36,12 +38,12 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float Scale;
     public float ColliderWidth;
     public float ColliderHeight;
-    
+
     public int Health;
     public AltitudeType AltitudeType;
     public TargetingType TargetingType;
     public bool IsKnockbackIgnore;
-    
+
     public MoveType MoveType;
     public string MoveAnimation;
     public float MoveSpeed;
@@ -55,13 +57,15 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public AttackType AttackType;
     public int AttackId;
 }
-[Serializable] public class VerticalMove_FallData : TableData
+[Serializable]
+public class VerticalMove_FallData : TableData
 {
     public override int Key => VerticalMoveId;
     public int VerticalMoveId;
     public float FallSpeed;
 }
-[Serializable] public class VerticalMove_UpDownData : TableData
+[Serializable]
+public class VerticalMove_UpDownData : TableData
 {
     public override int Key => VerticalMoveId;
     public int VerticalMoveId;
@@ -70,7 +74,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float UpSpeed;
     public float DownSpeed;
 }
-[Serializable] public class Attack_MotionData : TableData
+[Serializable]
+public class Attack_MotionData : TableData
 {
     public override int Key => AttackId;
     public int AttackId;
@@ -81,7 +86,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int AttackHitId;
     public float Cooltime;
 }
-[Serializable] public class Attack_ProjectileData : TableData
+[Serializable]
+public class Attack_ProjectileData : TableData
 {
     public override int Key => AttackId;
     public int AttackId;
@@ -90,7 +96,8 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public int ProjectileId;
     public float Cooltime;
 }
-[Serializable] public class ProjectileData : TableData
+[Serializable]
+public class ProjectileData : TableData
 {
     public override int Key => ProjectileId;
     public int ProjectileId;
@@ -150,7 +157,7 @@ public class Table<T> where T : TableData
         Dictionary = datas.ToDictionary(e => e.Key);
     }
 }
-[ExcelAsset] 
+[ExcelAsset]
 public class StaticDB : ScriptableObject
 {
     private static StaticDB s_instance;
@@ -190,7 +197,7 @@ public class StaticDB : ScriptableObject
             var table = new Table<T>(datas);
 
             _tables.Add(typeof(T), table);
-            
+
             return table;
         }
     }

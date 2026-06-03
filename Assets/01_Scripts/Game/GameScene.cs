@@ -8,7 +8,7 @@ public class GameScene : NetworkBehaviour
     public static GameScene SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameScene>());
     private static GameScene _sceneInstance;
 
-    [SerializeField, AssetField("Player")] 
+    [SerializeField, AssetField("Player")]
     private GameObject _playerPrefab;
 
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();

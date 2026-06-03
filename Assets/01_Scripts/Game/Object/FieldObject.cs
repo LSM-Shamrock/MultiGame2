@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public abstract class FieldObject : NetworkBehaviour
 {
@@ -51,7 +50,7 @@ public abstract class FieldObject : NetworkBehaviour
         return distanceY;
     }
 
-    public static void ApplyHit(FieldObject target, FieldObject attacker,  AttackHitData data, Vector2 hitDirection)
+    public static void ApplyHit(FieldObject target, FieldObject attacker, AttackHitData data, Vector2 hitDirection)
     {
         if (target.IsDead.Value)
             return;
@@ -92,13 +91,13 @@ public abstract class FieldObject : NetworkBehaviour
         if (CurrentHealth.Value + amount > MaxHealth.Value)
             CurrentHealth.Value = MaxHealth.Value;
         else
-            CurrentHealth.Value += amount;  
+            CurrentHealth.Value += amount;
     }
     protected virtual void OnDead()
     {
         IsDead.Value = true;
     }
-    
+
     private void OnKnockback(Vector2 direction, float distance, float speed)
     {
         if (IsKnockbackIgnore == false)
