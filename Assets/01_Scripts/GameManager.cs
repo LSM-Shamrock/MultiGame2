@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,6 +54,7 @@ public class GameManager : MonoBehaviour
 
     private const int MAXPLAYERS = 2;
     private const string SCENE_GAME = "GameScene";
+    private const string SCENE_LOBBY = "LobbyScene";
 
     public IObservOnlyValue<GameManagerState> State => _state;
     private ObservableValue<GameManagerState> _state = new(GameManagerState.Lobby); 
@@ -76,10 +78,8 @@ public class GameManager : MonoBehaviour
 
     public string LobbyId => _lobby.Id;
     private Lobby _lobby;
-    private LobbyEventCallbacks _lobbyEventCallbacks = new();
     private ILobbyEvents _lobbyEvents;
-    private float _heartbeatTimer;
-    private bool _isHeartbeating;
+    private LobbyEventCallbacks _lobbyEventCallbacks = new();
     private const string LOBBY_NAME = "Lobby";
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
     private const float LOBBY_HEARTBEAT_INTERVAL = 15f;
@@ -99,18 +99,17 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
-    }
-    private async void Update()
-    {
-        await HeartbeatAsync();
+        _lobbyEventCallbacks.LobbyDeleted += OnLobbyDeleted;
+
+        StartCoroutine(HeartbeatRoutine());
     }
 
-    #region Lobby
-    public async Task CreateLobbyAsync(bool isPrivate = true)
+    #region Matching
+    public async Task CreateMatchingAsync(bool isPrivate = true)
     {
         _state.Value = GameManagerState.CreateingMatching;
 
-        Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
+        var allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
             allocation.RelayServer.IpV4,
             (ushort)allocation.RelayServer.Port,
@@ -134,7 +133,7 @@ public class GameManager : MonoBehaviour
 
         _state.Value = GameManagerState.WaitingForPalyers;
     }
-    public async Task<bool> JoinLobbyAsync(string lobbyId)
+    public async Task<bool> JoinMatchingAsync(string lobbyId)
     {
         _state.Value = GameManagerState.JoiningMatching;
 
@@ -143,14 +142,14 @@ public class GameManager : MonoBehaviour
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
             _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
-            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
+            var joinAllocation = await RelayService.Instance.JoinAllocationAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
-                allocation.RelayServer.IpV4,
-                (ushort)allocation.RelayServer.Port,
-                allocation.AllocationIdBytes,
-                allocation.Key,
-                allocation.ConnectionData,
-                allocation.HostConnectionData);
+                joinAllocation.RelayServer.IpV4,
+                (ushort)joinAllocation.RelayServer.Port,
+                joinAllocation.AllocationIdBytes,
+                joinAllocation.Key,
+                joinAllocation.ConnectionData,
+                joinAllocation.HostConnectionData);
             NetworkManager.Singleton.StartClient();
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
@@ -181,56 +180,43 @@ public class GameManager : MonoBehaviour
         bool joined = false;
         if (query.Results.Count > 0)
         {
-            joined = await JoinLobbyAsync(query.Results[0].Id);
+            joined = await JoinMatchingAsync(query.Results[0].Id);
             Debug.Log("찾은 로비로 접속 시도 결과 " + joined);
         }
         if (!joined)
         {
-            await CreateLobbyAsync(isPrivate: false);
+            await CreateMatchingAsync(isPrivate: false);
             Debug.Log("로비 새로 생성함");
         }
     }
     public async Task CancelMatcingAsync()
     {
-        _state.Value = GameManagerState.CancellingMatching;
-
-        if (NetworkManager.Singleton == null) 
+        if (_state.Value != GameManagerState.WaitingForPalyers)
             return;
 
-        if (_lobby != null)
-        {
-            await _lobbyEvents?.UnsubscribeAsync();
+        _state.Value = GameManagerState.CancellingMatching;
 
-            if (_lobby.HostId == AuthenticationService.Instance.PlayerId)
-                await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
-            else
-                await LobbyService.Instance.RemovePlayerAsync(_lobby.Id, AuthenticationService.Instance.PlayerId);
-
-            _lobby = null;
-        }
-
-        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-        NetworkManager.Singleton.Shutdown();
+        await DeleteLobbyAsync();
+        await ShutdownAsync();
 
         _state.Value = GameManagerState.Lobby;
     }
 
-    private async Task HeartbeatAsync()
+    private IEnumerator HeartbeatRoutine()
     {
-        if (_isHeartbeating) return;
-        if (_lobby == null) return;
-        if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
+        var wait = new WaitForSeconds(LOBBY_HEARTBEAT_INTERVAL);
 
-        _heartbeatTimer += Time.deltaTime;
-        if (_heartbeatTimer >= LOBBY_HEARTBEAT_INTERVAL)
+        while (true)
         {
-            _heartbeatTimer = 0f;
-            _isHeartbeating = true;
-            await LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
-            _isHeartbeating = false;
+            yield return wait;
+
+            if (_lobby == null) continue;
+            if (_lobby.HostId != AuthenticationService.Instance.PlayerId) continue;
+
+            LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
         }
     }
+
     private async Task UploadLobbyPlayerDataAsync()
     {
         PlayerSessionData data = new PlayerSessionData(
@@ -269,12 +255,12 @@ public class GameManager : MonoBehaviour
                             PlayerSessionDatas[obj.ClientId] = obj;
                             if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
                             {
-                                LocalClientId = obj.ClientId;
+                                OpponentClientId = obj.ClientId;
                                 Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
                             }
                             else
                             {
-                                OpponentClientId = obj.ClientId;
+                                LocalClientId = obj.ClientId;
                                 Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
                             }
 
@@ -285,18 +271,40 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    #endregion
+    
+    private async Task DeleteLobbyAsync()
+    {
+        if (_lobby.HostId != AuthenticationService.Instance.PlayerId)
+            return;
 
+        await _lobbyEvents?.UnsubscribeAsync();
+        await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
+
+        _lobbyEvents = null;
+        _lobby = null;
+    }
+    private void OnLobbyDeleted()
+    {
+        _lobbyEvents = null;
+        _lobby = null;
+    }
+
+    private async Task ShutdownAsync()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        NetworkManager.Singleton.Shutdown();
+
+        while (NetworkManager.Singleton.IsListening)
+            await Task.Yield();
+    }
     private void OnClientDisconnected(ulong clientId)
     {
-        if (NetworkManager.Singleton.IsHost)
+        if (clientId == NetworkManager.Singleton.LocalClientId)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-        }
-
-        if (clientId == NetworkManager.Singleton.LocalClientId)
-        {
+        
             _state.Value = GameManagerState.Lobby;
         }
     }
@@ -308,6 +316,7 @@ public class GameManager : MonoBehaviour
             await UploadLobbyPlayerDataAsync();
         }
     }
+    #endregion
 
     private async Task<bool> TryStartGameAsync()
     {
@@ -315,16 +324,19 @@ public class GameManager : MonoBehaviour
         if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return false;
         if (PlayerSessionDatas.Count < 2) return false;
 
-        // 더 이상 참가자 받지 않도록 로비 잠금
-        if (_lobby != null)
-        {
-            await LobbyService.Instance.UpdateLobbyAsync(_lobby.Id, new UpdateLobbyOptions { IsLocked = true });
-            await _lobbyEvents.UnsubscribeAsync();
-            _lobby = null;
-        }
+        await DeleteLobbyAsync();
 
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_GAME, LoadSceneMode.Single);
 
         return true;
+    }
+
+    public async Task ExitGameToLobbyAsync()
+    {
+        await ShutdownAsync();
+
+        _state.Value = GameManagerState.Lobby;
+
+        await SceneManager.LoadSceneAsync(SCENE_LOBBY);
     }
 }

@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Threading.Tasks;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class GameResultUI : MonoBehaviour
     private void Start()
     {
         GameScene.Instance.OnGameFinished += OnGameFinished;
+        OkButton.onClick.AddListener(OnOkButtonClick);
     }
 
     private void OnGameFinished(ulong? winnerClientId)
@@ -38,5 +40,9 @@ public class GameResultUI : MonoBehaviour
         }
 
         MainPanel.SetActive(true);
+    }
+    private async void OnOkButtonClick()
+    {
+        await GameManager.Instance.ExitGameToLobbyAsync();
     }
 }

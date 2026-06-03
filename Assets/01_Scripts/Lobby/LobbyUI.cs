@@ -106,13 +106,13 @@ public class LobbyUI : MonoBehaviour
     private async void OnClick_CreateButton()
     {
         MatchmakingUI.JoinCodeField.text = "코드 생성 중";
-        await GameManager.Instance.CreateLobbyAsync();
+        await GameManager.Instance.CreateMatchingAsync();
         MatchmakingUI.JoinCodeField.text = GameManager.Instance.LobbyId;
     }
     private async void OnClick_JoinButton()
     {
         MatchmakingUI.JoinCodeField.text  = "";
-        await GameManager.Instance.JoinLobbyAsync(JoinCodeInput.text);
+        await GameManager.Instance.JoinMatchingAsync(JoinCodeInput.text);
     }
     private async void OnClick_AutoMatching()
     {

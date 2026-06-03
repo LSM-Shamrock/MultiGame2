@@ -149,7 +149,7 @@ MonoBehaviour:
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
+  DontDestroyWithOwner: 1
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
@@ -166,8 +166,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _unitPrefab: {fileID: 2525431417944658854, guid: 770f33fea1c92604db71a796bc96aeb4, type: 3}
-  _corePrefab: {fileID: 6239668291141435857, guid: 34eb16b2b635143488bf6a7d120776b7, type: 3}
   CorePos: {fileID: 8852027703298439757}
   SummonGrid:
   - {fileID: 8301253649423998789}
@@ -176,6 +174,8 @@ MonoBehaviour:
   - {fileID: 8429607074316689638}
   - {fileID: 1593935605272681161}
   - {fileID: 6516959962318326619}
+  _unitPrefab: {fileID: 2525431417944658854, guid: 770f33fea1c92604db71a796bc96aeb4, type: 3}
+  _corePrefab: {fileID: 6239668291141435857, guid: 34eb16b2b635143488bf6a7d120776b7, type: 3}
 --- !u!1 &4645840644056748830
 GameObject:
   m_ObjectHideFlags: 0
