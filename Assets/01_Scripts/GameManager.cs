@@ -84,9 +84,8 @@ public class GameManager : MonoBehaviour
     private const string LOBBY_KEY_JOINCODE = "JoinCode";
     private const float LOBBY_HEARTBEAT_INTERVAL = 15f;
 
-    public ulong LocalClientId { get; private set; }
-    public ulong OpponentClientId { get; private set; }
-    public Dictionary<ulong, PlayerSessionData> PlayerSessionDatas { get; private set; } = new();
+    public PlayerSessionData LocalPlayerSessionData { get; private set; }
+    public PlayerSessionData OpponentPlayerSessionData { get; private set; }
 
     private void Awake()
     {
@@ -108,6 +107,9 @@ public class GameManager : MonoBehaviour
     public async Task CreateMatchingAsync(bool isPrivate = true)
     {
         _state.Value = GameManagerState.CreateingMatching;
+
+        LocalPlayerSessionData = null;
+        OpponentPlayerSessionData = null;
 
         var allocation = await RelayService.Instance.CreateAllocationAsync(MAXPLAYERS - 1);
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
@@ -252,15 +254,14 @@ public class GameManager : MonoBehaviour
                         {
                             PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
                             
-                            PlayerSessionDatas[obj.ClientId] = obj;
                             if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
                             {
-                                OpponentClientId = obj.ClientId;
+                                OpponentPlayerSessionData = obj;
                                 Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
                             }
                             else
                             {
-                                LocalClientId = obj.ClientId;
+                                LocalPlayerSessionData = obj;
                                 Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
                             }
 
@@ -322,7 +323,7 @@ public class GameManager : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsHost) return false;
         if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return false;
-        if (PlayerSessionDatas.Count < 2) return false;
+        if (LocalPlayerSessionData == null || OpponentPlayerSessionData == null) return false;
 
         await DeleteLobbyAsync();
 

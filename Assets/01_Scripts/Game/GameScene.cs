@@ -23,8 +23,10 @@ public class GameScene : NetworkBehaviour
 
         if (NetworkManager.Singleton.IsHost && GameManager.Instance)
         {
-            foreach (var (k, v) in GameManager.Instance.PlayerSessionDatas)
-                SpawnPlayer(v.ClientId, v.PlayerName, v.DeckCardIds, v.ClientId != NetworkManager.Singleton.LocalClientId);
+            var local = GameManager.Instance.LocalPlayerSessionData;
+            var opponent = GameManager.Instance.OpponentPlayerSessionData;
+            SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
+            SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
         }
 
         SoundManager.Instance.PlayBgm(_gameBgm);
