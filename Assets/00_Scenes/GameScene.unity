@@ -699,6 +699,7 @@ MonoBehaviour:
   - {fileID: 681897068}
   - {fileID: 316094218}
   DragArea: {fileID: 656369491}
+  _gameBgm: {fileID: 8300000, guid: 1a088d511bce1344d882e360d3abe054, type: 3}
 --- !u!1 &275743576
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,10 +815,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acd992313a65d2e4ca94030e75ba4fa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainPanel: {fileID: 1983919620}
+  MainPanel: {fileID: 1983919622}
   ResultText: {fileID: 322741212}
   SubText: {fileID: 647730806}
   OkButton: {fileID: 780907157}
+  _sfx_win: {fileID: 8300000, guid: 6d9ce0d23d02bc349b271a9f06bb44d5, type: 3}
+  _sfx_lose: {fileID: 8300000, guid: edf6a4bc78e7b8a42966c149679632dc, type: 3}
+  _sfx_draw: {fileID: 8300000, guid: ddc0ff7c1119db84d8bc83d09b41c773, type: 3}
 --- !u!1 &280454983
 GameObject:
   m_ObjectHideFlags: 0
@@ -5944,7 +5948,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _playerPrefab: {fileID: 3771861134317787343, guid: cd5fc06d0f4a3754faf8651b2cea3771, type: 3}
-  _gameBgm: {fileID: 8300000, guid: 1a088d511bce1344d882e360d3abe054, type: 3}
 --- !u!114 &1940161633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6175,7 +6178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.6}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.4}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

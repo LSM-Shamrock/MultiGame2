@@ -20,6 +20,7 @@ public class GameUI : MonoBehaviour
     [SerializeField, ChildField] private NextCardUI NextCard;
     [SerializeField, ChildrenGroupField] private HandCardUI[] HandCards;
     [SerializeField, ChildField] private PointerEventBinder DragArea;
+    [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
 
     private Camera _camera;
     private Player _player;
@@ -30,7 +31,7 @@ public class GameUI : MonoBehaviour
     private int _selectedCardId = -1;
     private CardData _selectedCardData = null;
 
-    private void Awake()
+    private void Start()
     {
         _camera = Camera.main;
 
@@ -39,6 +40,8 @@ public class GameUI : MonoBehaviour
 
         DragArea.AddEvent(PointerEventType.PointerEnter, () => _isPointerDragArea = true);
         DragArea.AddEvent(PointerEventType.PointerExit, () => _isPointerDragArea = false);
+
+        SoundManager.Instance.PlayBgm(_gameBgm);
     }
     private void LateUpdate()
     {

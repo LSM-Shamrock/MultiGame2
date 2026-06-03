@@ -8,8 +8,8 @@ public class GameScene : NetworkBehaviour
     public static GameScene SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameScene>());
     private static GameScene _sceneInstance;
 
-    [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
-    [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
+    [SerializeField, AssetField("Player")] 
+    private GameObject _playerPrefab;
 
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
@@ -28,8 +28,6 @@ public class GameScene : NetworkBehaviour
             SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
             SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
         }
-
-        SoundManager.Instance.PlayBgm(_gameBgm);
     }
     private void Update()
     {
