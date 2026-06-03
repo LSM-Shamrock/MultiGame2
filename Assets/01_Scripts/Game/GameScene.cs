@@ -5,8 +5,8 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class GameScene : NetworkBehaviour
 {
-    public static GameScene Instance => _instance ?? (_instance = FindAnyObjectByType<GameScene>());
-    private static GameScene _instance;
+    public static GameScene SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameScene>());
+    private static GameScene _sceneInstance;
 
     [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
     [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
@@ -19,7 +19,7 @@ public class GameScene : NetworkBehaviour
 
     private void Start()
     {
-        _instance = this;
+        _sceneInstance = this;
 
         if (NetworkManager.Singleton.IsHost && GameManager.Instance)
         {

@@ -34,7 +34,6 @@ public class MpBarUI : MonoBehaviour
                 fill = 0f;
                 color.a = 0f;
             }
-
             image.color = color;
             image.fillAmount = fill;
         }

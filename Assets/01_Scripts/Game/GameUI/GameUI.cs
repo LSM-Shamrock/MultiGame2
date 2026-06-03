@@ -9,6 +9,9 @@ using UnityEngine.EventSystems;
 [AutoInjectionTarget]
 public class GameUI : MonoBehaviour
 {
+    public static GameUI SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameUI>());
+    private static GameUI _sceneInstance;
+
     [SerializeField, ChildField] private GameObject CardSummonArea;
     [SerializeField, ChildField] private CardSummonPosUI CardSummonPos;
     [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
@@ -27,7 +30,7 @@ public class GameUI : MonoBehaviour
     private int _selectedCardId = -1;
     private CardData _selectedCardData = null;
 
-    private void Start()
+    private void Awake()
     {
         _camera = Camera.main;
 
@@ -36,18 +39,12 @@ public class GameUI : MonoBehaviour
 
         DragArea.AddEvent(PointerEventType.PointerEnter, () => _isPointerDragArea = true);
         DragArea.AddEvent(PointerEventType.PointerExit, () => _isPointerDragArea = false);
-
-        if (GameScene.Instance)
-        {
-            OnPlayerSpawned(GameScene.Instance.LocalPlayer.Value);
-            GameScene.Instance.LocalPlayer.OnValueChanged += OnPlayerSpawned;
-
-            OnOpponentSpawned(GameScene.Instance.OpponentPlayer.Value);
-            GameScene.Instance.OpponentPlayer.OnValueChanged += OnOpponentSpawned;
-        }
     }
     private void LateUpdate()
     {
+        if (_player == null)
+            return;
+
         if (_displayMP < 10)
             RefreshMP(_displayMP += Time.deltaTime / 2f);
         if (_displayMP > 10)
@@ -86,26 +83,25 @@ public class GameUI : MonoBehaviour
         }
     }
 
-    private void OnOpponentSpawned(Player player)
+    public void SetOpponentPlayer(Player player)
     {
         if (player == null)
             return;
 
         OpponentPlayerNameText.text = player.PlayerName.Value.ToString();
-
         player.PlayerName.OnValueChanged += OnOpponentNameChanged;
     }
-    private void OnPlayerSpawned(Player player)
+    public void SetLocalPlayer(Player player)
     {
         if (player == null)
             return;
 
-        _player = player; 
+        _player = player;
 
         LocalPlayerNameText.text = player.PlayerName.Value.ToString();
+        RefreshMP(player.MP.Value);
         RefreshHandCardIds(player.HandCardIds.AsNativeArray());
         RefreshNextCardId(player.NextCardId.Value);
-        RefreshMP(player.MP.Value);
 
         player.PlayerName.OnValueChanged += OnPlayerNameChanged;
         player.MP.OnValueChanged += OnMpChanged;

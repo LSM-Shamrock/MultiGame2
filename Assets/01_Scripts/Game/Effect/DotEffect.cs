@@ -20,7 +20,7 @@ public class DotEffect : MonoBehaviour
     private void Hide()
     {
         gameObject.SetActive(false);
-        EffectPool.Instance.ReturnDotEffectToPool(this);
+        EffectPool.SceneInstance.ReturnDotEffectToPool(this);
     }
 
     public void Show(DotEffectData data, FieldObject target)

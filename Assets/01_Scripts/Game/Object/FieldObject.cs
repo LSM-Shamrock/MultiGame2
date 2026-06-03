@@ -63,7 +63,7 @@ public abstract class FieldObject : NetworkBehaviour
 
         if (string.IsNullOrEmpty(data.EffectAnimation) == false)
         {
-            EffectPool.Instance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+            EffectPool.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
         }
 
         if (StaticDB.Instance.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
@@ -123,7 +123,7 @@ public abstract class FieldObject : NetworkBehaviour
     {
         StartCoroutine(DotEffect(data));
 
-        EffectPool.Instance.ShowDotEffectRpc(NetworkObjectId, data.DotEffectId);
+        EffectPool.SceneInstance.ShowDotEffectRpc(NetworkObjectId, data.DotEffectId);
     }
     private IEnumerator DotEffect(DotEffectData data)
     {
