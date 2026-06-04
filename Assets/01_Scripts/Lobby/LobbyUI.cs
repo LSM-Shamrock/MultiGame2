@@ -12,10 +12,13 @@ public class LobbyUI : MonoBehaviour
     [ChildField] public Button SettingButton;
     [ChildField] public TMP_InputField JoinCodeInput;
     [ChildField] public TMP_InputField PlayerNameInput;
+    [ChildField] public TextMeshProUGUI DeckInvalidText;
     [SceneComponentField] public MatchmakingUI MatchmakingUI;
     [SceneComponentField] public SettingUI SettingUI;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
     [AssetField("Sfx_Lobby_MatchingSuccess")] public AudioClip Sfx_MatchingSuccess;
+
+    private bool _isDeckValide = true;
 
     private void Start()
     {
@@ -53,7 +56,7 @@ public class LobbyUI : MonoBehaviour
     }
     private void Update()
     {
-        JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text);
+        JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text) && _isDeckValide;
     }
 
     private void OnPlayerNameInputChanged(string value)
@@ -71,9 +74,12 @@ public class LobbyUI : MonoBehaviour
                 break;
             }
         }
-        PlayButton.interactable = valid;
-        CreateButton.interactable = valid;
-        JoinButton.interactable = valid;
+        _isDeckValide = valid;
+
+        PlayButton.interactable = _isDeckValide;
+        CreateButton.interactable = _isDeckValide;
+        JoinButton.interactable = _isDeckValide;
+        DeckInvalidText.gameObject.SetActive(!_isDeckValide);
     }
     private void OnGameManagerStateChanged(GameManagerState value)
     {
