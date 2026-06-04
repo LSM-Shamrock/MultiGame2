@@ -4,6 +4,7 @@ using UnityEngine.UI;
 [AutoInjectionTarget]
 public class SettingUI : MonoBehaviour
 {
+    [SerializeField, ChildField] private GameObject MainPanel;
     [SerializeField, ChildField] private PointerEventBinder BackPanel;
     [SerializeField, ChildField] private Button CloseButton;
     [SerializeField, ChildField] private Slider BgmVolumeSlider;
@@ -28,14 +29,23 @@ public class SettingUI : MonoBehaviour
         BgmVolumeSlider.onValueChanged.RemoveAllListeners();
         SfxVolumeSlider.onValueChanged.RemoveAllListeners();
     }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Toggle();
+    }
 
     public void Show()
     {
-        gameObject.SetActive(true);
+        MainPanel.SetActive(true);
     }
     public void Hide()
     {
-        gameObject.SetActive(false);
+        MainPanel.SetActive(false);
+    }
+    public void Toggle()
+    {
+        MainPanel.SetActive(!MainPanel.activeSelf);
     }
 
     private void OnBgmVolumeSliderChanged(float value)
