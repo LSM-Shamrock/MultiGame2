@@ -6,21 +6,31 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
+public class LobbyCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField, ChildField] private Image CardImage;
-    [SerializeField, ChildField] private Image FadeImage;
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
+    [SerializeField, ChildField] private GameObject InUseDisplay;
+    [SerializeField, ChildField] private GameObject SelectMenuDisplay;
+    [SerializeField, ChildField] private Button InfoButton;
+    [SerializeField, ChildField] private Button AppendButton;
+    [SerializeField, ChildField] private Button RemoveButton;
 
     private CardData _cardData;
     private int _index;
     private bool _isDeck;
-    private bool _isInteractable;
+    private bool _isInDeck;
+    private bool _isOnPointer;
 
-    private void Start()
+    private void Awake()
     {
         _index = transform.GetSiblingIndex();
         _isDeck = transform.parent.name == "Deck";
+        SetIsInDeck(_isDeck);
+
+        InfoButton.onClick.AddListener(OnInfoButtonClick);
+        AppendButton.onClick.AddListener(OnAppendButtonClick);
+        RemoveButton.onClick.AddListener(OnRemoveButtonClick);
 
         if (GameManager.Instance != null)
         {
@@ -32,6 +42,38 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
     {
         if (GameManager.Instance != null)
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
+    }
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+            SelectMenuDisplay.SetActive(_isOnPointer);
+    }
+
+    private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
+    {
+        if (_isDeck)
+        {
+            int cardId = deckCardIds[_index];
+            CardData cardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(cardId);
+            SetCardData(cardData);
+        }
+        else
+        {
+            var collection = StaticDB.Instance.CardData.List;
+
+            if (_index >= collection.Count)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+            gameObject.SetActive(true);
+
+            CardData data = collection[_index];
+            bool isInDeck = deckCardIds.Contains(data.CardId);
+
+            SetCardData(data);
+            SetIsInDeck(isInDeck);
+        }
     }
 
     private void SetCardData(CardData cardData)
@@ -49,62 +91,52 @@ public class LobbyCardUI : MonoBehaviour, IPointerClickHandler
 
         MpText.text = $"{cardData.CostMP}";
     }
-    private void SetInteractable(bool isInteractable)
+    private void SetIsInDeck(bool isInDeck)
     {
-        _isInteractable = isInteractable;
-        CardImage.raycastTarget = isInteractable;
-        FadeImage.gameObject.SetActive(!isInteractable);
+        _isInDeck = isInDeck;
+        InUseDisplay.gameObject.SetActive(_isInDeck && !_isDeck);
+        AppendButton.gameObject.SetActive(!_isInDeck);
+        RemoveButton.gameObject.SetActive(_isInDeck);
     }
 
-    private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
+    private void OnInfoButtonClick()
     {
-        if (_isDeck)
+        SelectMenuDisplay.SetActive(false);
+
+    }
+    private void OnAppendButtonClick()
+    {
+        SelectMenuDisplay.SetActive(false);
+
+        for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
         {
-            int cardId = deckCardIds[_index];
-
-            CardData cardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(cardId);
-
-            SetCardData(cardData);
-            SetInteractable(true);
-        }
-        else
-        {
-            var collection = StaticDB.Instance.CardData.List;
-
-            if (_index >= collection.Count)
+            if (GameManager.Instance.CurrentDeckCardIds[i] == -1)
             {
-                gameObject.SetActive(false);
-                return;
+                GameManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
+                break;
             }
-            gameObject.SetActive(true);
+        }
+    }
+    private void OnRemoveButtonClick()
+    {
+        SelectMenuDisplay.SetActive(false);
 
-            CardData data = collection[_index];
-            bool isInDeck = deckCardIds.Contains(data.CardId);
-
-            SetCardData(data);
-            SetInteractable(!isInDeck);
+        for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
+        {
+            if (GameManager.Instance.CurrentDeckCardIds[i] == _cardData.CardId)
+            {
+                GameManager.Instance.CurrentDeckCardIds[i] = -1;
+                break;
+            }
         }
     }
 
-    void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
     {
-        if (!_isInteractable)
-            return;
-
-        if (_isDeck)
-        {
-            GameManager.Instance.CurrentDeckCardIds[_index] = -1;
-        }
-        else
-        {
-            for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
-            {
-                if (GameManager.Instance.CurrentDeckCardIds[i] == -1)
-                {
-                    GameManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
-                    break;
-                }
-            }
-        }
+        _isOnPointer = true;
+    }
+    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
+    {
+        _isOnPointer = false;
     }
 }
