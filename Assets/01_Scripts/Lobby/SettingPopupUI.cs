@@ -2,9 +2,12 @@
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class SettingUI : MonoBehaviour
+public class SettingPopupUI : MonoBehaviour, IPopupUI
 {
-    [SerializeField, ChildField] private GameObject MainPanel;
+    Canvas IPopupUI.Canvas => Canvas;
+    GameObject IPopupUI.GameObject => gameObject;
+
+    [SerializeField, ComponentField] private Canvas Canvas;
     [SerializeField, ChildField] private PointerEventBinder BackPanel;
     [SerializeField, ChildField] private Button CloseButton;
     [SerializeField, ChildField] private Slider BgmVolumeSlider;
@@ -29,23 +32,10 @@ public class SettingUI : MonoBehaviour
         BgmVolumeSlider.onValueChanged.RemoveAllListeners();
         SfxVolumeSlider.onValueChanged.RemoveAllListeners();
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Toggle();
-    }
 
-    public void Show()
+    private void Hide()
     {
-        MainPanel.SetActive(true);
-    }
-    public void Hide()
-    {
-        MainPanel.SetActive(false);
-    }
-    public void Toggle()
-    {
-        MainPanel.SetActive(!MainPanel.activeSelf);
+        PopupManager.Instance.ClosePopup(this);
     }
 
     private void OnBgmVolumeSliderChanged(float value)

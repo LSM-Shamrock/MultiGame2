@@ -14,7 +14,6 @@ public class LobbyUI : MonoBehaviour
     [ChildField] public TMP_InputField PlayerNameInput;
     [ChildField] public TextMeshProUGUI DeckInvalidText;
     [SceneComponentField] public MatchmakingUI MatchmakingUI;
-    [SceneComponentField] public SettingUI SettingUI;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
     [AssetField("Sfx_Lobby_MatchingSuccess")] public AudioClip Sfx_MatchingSuccess;
 
@@ -28,7 +27,7 @@ public class LobbyUI : MonoBehaviour
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
         MatchmakingUI.CancleButton.onClick.AddListener(OnClick_MatchmaingUI_CancleButton);
 
-        SettingButton.onClick.AddListener(SettingUI.Show);
+        SettingButton.onClick.AddListener(OnClick_SettingButton);
 
         if (GameManager.Instance)
         {
@@ -128,6 +127,11 @@ public class LobbyUI : MonoBehaviour
     private async void OnClick_MatchmaingUI_CancleButton()
     {
         await GameManager.Instance.CancelMatcingAsync();
+    }
+
+    private void OnClick_SettingButton()
+    {
+        PopupManager.Instance.ShowPopup<SettingPopupUI>();
     }
 }
 

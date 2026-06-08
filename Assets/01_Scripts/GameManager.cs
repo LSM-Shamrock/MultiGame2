@@ -46,7 +46,7 @@ public enum GameManagerState
 [AutoInjectionTarget]
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance => _instance ?? (_instance = FindAnyObjectByType<GameManager>());
+    public static GameManager Instance => _instance != null ? _instance : (_instance = FindAnyObjectByType<GameManager>());
     private static GameManager _instance;
 
     private const int MAXPLAYERS = 2;
