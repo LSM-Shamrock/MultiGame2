@@ -103,6 +103,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         SelectMenuDisplay.SetActive(false);
 
+        PopupManager.Instance.ShowPopup<LobbyCardInfoPopupUI>();
     }
     private void OnAppendButtonClick()
     {

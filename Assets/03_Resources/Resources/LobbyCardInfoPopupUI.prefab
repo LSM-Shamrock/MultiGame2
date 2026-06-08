@@ -539,7 +539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d18138687006f3e4cac432930c88f055, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainPanel: {fileID: 5075975501912624594}
+  Canvas: {fileID: 1805900717390051661}
   BackPanel: {fileID: 2330130229593226582}
   CloseButton: {fileID: 8325056365537641854}
 --- !u!1 &5075975501912624594
