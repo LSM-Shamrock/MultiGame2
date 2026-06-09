@@ -53,12 +53,12 @@ public class Player : NetworkBehaviour
         {
             Camera.main.transform.rotation = transform.rotation;
             GameScene.SceneInstance.LocalPlayer.Value = this;
-            GameUI.SceneInstance.SetLocalPlayer(this);
+            UI_Game.SceneInstance.SetLocalPlayer(this);
         }
         else
         {
             GameScene.SceneInstance.OpponentPlayer.Value = this;
-            GameUI.SceneInstance.SetOpponentPlayer(this);
+            UI_Game.SceneInstance.SetOpponentPlayer(this);
         }
     }
     private void SetupHandAndNextCards(int[] deck)

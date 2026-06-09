@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class NextCardUI : MonoBehaviour
+public class UI_NextCard : MonoBehaviour
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private TextMeshProUGUI MpText;

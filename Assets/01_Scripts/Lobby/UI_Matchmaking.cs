@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class MatchmakingUI : MonoBehaviour
+public class UI_Matchmaking : MonoBehaviour
 {
     [ChildField] public Button CancleButton;
     [ChildField] public TMP_InputField JoinCodeField;

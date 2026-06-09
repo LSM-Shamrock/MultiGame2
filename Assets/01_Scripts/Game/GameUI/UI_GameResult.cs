@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class GameResultUI : MonoBehaviour
+public class UI_GameResult : MonoBehaviour
 {
     [SerializeField, ChildField("MainPanel")] private Image MainPanel;
     [SerializeField, ChildField("ResultText")] private TextMeshProUGUI ResultText;

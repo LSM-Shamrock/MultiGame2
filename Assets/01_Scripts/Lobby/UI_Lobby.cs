@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class LobbyUI : MonoBehaviour
+public class UI_Lobby : MonoBehaviour
 {
     [ChildField] public Button PlayButton;
     [ChildField] public Button CreateButton;
@@ -13,7 +13,7 @@ public class LobbyUI : MonoBehaviour
     [ChildField] public TMP_InputField JoinCodeInput;
     [ChildField] public TMP_InputField PlayerNameInput;
     [ChildField] public TextMeshProUGUI DeckInvalidText;
-    [SceneComponentField] public MatchmakingUI MatchmakingUI;
+    [SceneComponentField] public UI_Matchmaking MatchmakingUI;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
     [AssetField("Sfx_Lobby_MatchingSuccess")] public AudioClip Sfx_MatchingSuccess;
 
@@ -131,7 +131,7 @@ public class LobbyUI : MonoBehaviour
 
     private void OnClick_SettingButton()
     {
-        PopupManager.Instance.ShowPopup<SettingPopupUI>();
+        PopupManager.Instance.ShowPopup<UI_SettingPopup>();
     }
 }
 

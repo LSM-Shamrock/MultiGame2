@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class SettingPopupUI : MonoBehaviour, IPopupUI
+public class UI_SettingPopup : MonoBehaviour, IPopupUI
 {
     Canvas IPopupUI.Canvas => Canvas;
     GameObject IPopupUI.GameObject => gameObject;

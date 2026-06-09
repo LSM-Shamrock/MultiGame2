@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class HandCardUI : MonoBehaviour, IPointerDownHandler
+public class UI_HandCard : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private Image FadeImage;

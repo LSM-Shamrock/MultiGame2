@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class MpBarUI : MonoBehaviour
+public class UI_MpBar : MonoBehaviour
 {
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
     [SerializeField, ChildrenGroupField] private Image[] FillImages;

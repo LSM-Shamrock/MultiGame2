@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class CardSummonPosUI : MonoBehaviour
+public class UI_CardSummonPos : MonoBehaviour
 {
     [ChildField] public SpriteRenderer UnitSprite;
     [ChildField] public TextMeshProUGUI MpText;

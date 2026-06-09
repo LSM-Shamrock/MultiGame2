@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class LobbyCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField, ChildField] private Image CardImage;
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
@@ -103,7 +103,7 @@ public class LobbyCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         SelectMenuDisplay.SetActive(false);
 
-        PopupManager.Instance.ShowPopup<LobbyCardInfoPopupUI>();
+        PopupManager.Instance.ShowPopup<UI_CardInfoPopup>();
     }
     private void OnAppendButtonClick()
     {

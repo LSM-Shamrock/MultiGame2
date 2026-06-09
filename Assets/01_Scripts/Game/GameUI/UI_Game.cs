@@ -5,18 +5,18 @@ using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class GameUI : MonoBehaviour
+public class UI_Game : MonoBehaviour
 {
-    public static GameUI SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameUI>());
-    private static GameUI _sceneInstance;
+    public static UI_Game SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<UI_Game>());
+    private static UI_Game _sceneInstance;
 
     [SerializeField, ChildField] private GameObject CardSummonArea;
-    [SerializeField, ChildField] private CardSummonPosUI CardSummonPos;
+    [SerializeField, ChildField] private UI_CardSummonPos CardSummonPos;
     [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
     [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
-    [SerializeField, ChildField] private MpBarUI MpBar;
-    [SerializeField, ChildField] private NextCardUI NextCard;
-    [SerializeField, ChildrenGroupField] private HandCardUI[] HandCards;
+    [SerializeField, ChildField] private UI_MpBar MpBar;
+    [SerializeField, ChildField] private UI_NextCard NextCard;
+    [SerializeField, ChildrenGroupField] private UI_HandCard[] HandCards;
     [SerializeField, ChildField] private PointerEventBinder DragArea;
     [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
 

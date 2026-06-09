@@ -75,7 +75,7 @@ public class PopupManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (_showingPopupStack.Count == 0)
-                ShowPopup<SettingPopupUI>();
+                ShowPopup<UI_SettingPopup>();
             else
                 ClosePopup();
         }
