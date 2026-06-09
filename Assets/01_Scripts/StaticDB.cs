@@ -23,6 +23,7 @@ public class CardData : TableData
     public int CardId;
     public string CodeName;
     public string DisplayName;
+    public string Description;
     public int CostMP;
     public int UnitId;
 }
@@ -75,26 +76,27 @@ public class VerticalMove_UpDownData : TableData
     public float DownSpeed;
 }
 [Serializable]
-public class Attack_MotionData : TableData
+public class AttackData : TableData
 {
     public override int Key => AttackId;
     public int AttackId;
     public string CodeName;
+    public string DisplayName;
+    public float Cooltime;
+}
+[Serializable]
+public class Attack_MotionData : AttackData
+{
     public float MotionTime;
     public string MotionAnimation;
     public float HitNomalizedTime;
     public int AttackHitId;
-    public float Cooltime;
 }
 [Serializable]
-public class Attack_ProjectileData : TableData
+public class Attack_ProjectileData : AttackData
 {
-    public override int Key => AttackId;
-    public int AttackId;
-    public string CodeName;
     public string MotionAnimation;
     public int ProjectileId;
-    public float Cooltime;
 }
 [Serializable]
 public class ProjectileData : TableData
