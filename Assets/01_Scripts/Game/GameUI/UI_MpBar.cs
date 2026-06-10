@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UI_MpBar : MonoBehaviour
 {
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
-    [SerializeField, ChildrenGroupField] private Image[] FillImages;
+    [SerializeField, ChildrenArrayField] private Image[] FillImages;
 
 
     public void SetMP(float Value)

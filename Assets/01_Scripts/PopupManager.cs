@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IPopupUI 
 {
     public Canvas Canvas { get; }
-    public GameObject GameObject { get; }
+    public GameObject GameObject { get; } 
 }
 
 public class PopupManager : MonoBehaviour

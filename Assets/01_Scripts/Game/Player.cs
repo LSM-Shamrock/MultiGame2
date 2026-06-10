@@ -20,7 +20,7 @@ public class Player : NetworkBehaviour
     private Player _opponent;
 
     [SerializeField, ChildField] private Transform CorePos;
-    [SerializeField, ChildrenGroupField] private Transform[] SummonGrid;
+    [SerializeField, ChildrenArrayField] private Transform[] SummonGrid;
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 

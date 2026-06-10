@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -114,14 +115,14 @@ public class ChildField : AutoInjectionField
 }
 
 [AttributeUsage(AttributeTargets.Field)]
-public class ChildrenGroupField : AutoInjectionField
+public class ChildrenArrayField : AutoInjectionField
 {
-    private readonly string _childrenGroupName;
+    private readonly string _childrenRootName;
 
-    public ChildrenGroupField() { }
-    public ChildrenGroupField(string childrenGroupName = null)
+    public ChildrenArrayField() { }
+    public ChildrenArrayField(string chidrenRootName = null)
     {
-        _childrenGroupName = childrenGroupName;
+        _childrenRootName = chidrenRootName;
     }
 
     public override bool Inject(MonoBehaviour target, FieldInfo field)
@@ -133,7 +134,7 @@ public class ChildrenGroupField : AutoInjectionField
         }
         var elementType = field.FieldType.GetElementType();
 
-        var nameToFind = _childrenGroupName;
+        var nameToFind = _childrenRootName;
         if (nameToFind == null)
             nameToFind = AutoInjectionUtil.GetDefaultFindNameByFieldName(field.Name);
 
@@ -144,9 +145,15 @@ public class ChildrenGroupField : AutoInjectionField
             return false;
         }
 
-        var components = find.transform.Cast<Transform>().Select(child => child.GetComponent(elementType)).ToArray();
-        var arr = Array.CreateInstance(elementType, components.Length);
-        Array.Copy(components, arr, components.Length);
+        var components = new List<Component>();
+        foreach (Transform child in find.transform)
+        {
+            var childComponent = child.GetComponent(elementType);
+            if (childComponent != null) components.Add(childComponent); 
+        }
+
+        var arr = Array.CreateInstance(elementType, components.Count);
+        Array.Copy(components.ToArray(), arr, components.Count);
 
         field.SetValue(target, arr);
         return true;

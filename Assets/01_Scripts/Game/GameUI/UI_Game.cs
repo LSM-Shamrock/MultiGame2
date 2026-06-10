@@ -16,7 +16,7 @@ public class UI_Game : MonoBehaviour
     [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
     [SerializeField, ChildField] private UI_MpBar MpBar;
     [SerializeField, ChildField] private UI_NextCard NextCard;
-    [SerializeField, ChildrenGroupField] private UI_HandCard[] HandCards;
+    [SerializeField, ChildrenArrayField] private UI_HandCard[] HandCards;
     [SerializeField, ChildField] private PointerEventBinder DragArea;
     [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
 

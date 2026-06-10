@@ -1,68 +1,86 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+public enum StatDisplayType
+{
+    None,
+    Unit_Health,
+    Unit_AltitudeType,
+    Unit_TargetingType,
+    Unit_MoveSpeed,
+    Unit_AttackRange,
+    Attack_Motion,
+    Attack_Motion_Interval,
+    Attack_Projectile,
+    AttackHit,
+    AttackHit_Damage,
+    AttackHit_KnockbackDistance,
+    AttackHit_KnockbackSpeed,
+    AttackHit_DrainRatio,
+}
 
 [AutoInjectionTarget]
-public class UI_StatItem : MonoBehaviour
+public class UI_StatItem : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField, ChildField] private Image IconImage;
     [SerializeField, ChildField] private TextMeshProUGUI StatNameText;
     [SerializeField, ChildField] private TextMeshProUGUI StatValueText;
     [SerializeField, ChildField] private Button AdditionalInfoButton;
+    [SerializeField, ChildField] private Transform AdditionalInfoPos;
 
-    public enum DisplayStatType
-    {
-        None,
-        Health,
-        AltitudeType,
-        TargetingType,
-        MoveSpeed,
-        AttackRange,
-        AttackType,
-    }
+    private StatDisplayType _type;
+    private object _data;
+    private bool _hasAdditionalInfo;
 
     private void Awake()
     {
         AdditionalInfoButton.onClick.AddListener(OnAdditionalInfoButtonClick);
     }
 
-    public void SetDisplay(DisplayStatType type, UnitData unitData)
+    private void SetDiplay(StatDisplayType type, object data, string statName, string statValue, bool hide, bool hasAdditionalInfo)
     {
-        if (type == DisplayStatType.None || unitData == null)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
+        _type = type;
+        _data = data;
+        _hasAdditionalInfo = hasAdditionalInfo;
 
-        AttackData attackData = unitData.AttackType switch
-        {
-            AttackType.Motion => StaticDB.Instance.Attack_MotionData.Dictionary[unitData.AttackId],
-            AttackType.Projectile => StaticDB.Instance.Attack_ProjectileData.Dictionary[unitData.AttackId],
-            _ => null
-        };
+        bool active = type != StatDisplayType.None && data != null && !hide;
+        gameObject.SetActive(active);
+        if (!active) return;
 
-        gameObject.SetActive(true);
+        StatNameText.text = statName + ":";
+        StatValueText.text = statValue;
+        IconImage.sprite = Resources.Load<Sprite>($"StatIconSprite/StatIcon_{type}");
+        AdditionalInfoButton.gameObject.SetActive(hasAdditionalInfo);
+    }
+    public void SetHide()
+    {
+        SetDiplay(StatDisplayType.None, null, "", "", true, false);
+    }
+    public void SetDisplay(StatDisplayType type, UnitData data)
+    {
         string statName = "";
         string statValue = "";
+        bool hide = false;
         bool additionalInfo = false;
         switch (type)
         {
-            case DisplayStatType.Health:
+            case StatDisplayType.Unit_Health:
                 statName = "체력";
-                statValue = $"{unitData.Health}";
+                statValue = $"{data.Health}";
                 break;
-            case DisplayStatType.AltitudeType:
+            case StatDisplayType.Unit_AltitudeType:
                 statName = "유형";
-                statValue = unitData.AltitudeType switch
+                statValue = data.AltitudeType switch
                 {
                     AltitudeType.Air => "공중",
                     AltitudeType.Ground => "지상",
                     _ => ""
                 };
                 break;
-            case DisplayStatType.TargetingType:
+            case StatDisplayType.Unit_TargetingType:
                 statName = "공격 대상";
-                statValue = unitData.TargetingType switch
+                statValue = data.TargetingType switch
                 {
                     TargetingType.Ground => "지상",
                     TargetingType.GroundOrAir => "지상 및 공중",
@@ -70,28 +88,111 @@ public class UI_StatItem : MonoBehaviour
                     _ => ""
                 };
                 break;
-            case DisplayStatType.MoveSpeed:
+            case StatDisplayType.Unit_MoveSpeed:
                 statName = "이동 속도";
-                statValue = $"{unitData.MoveSpeed} 타일/s";
+                statValue = $"{data.MoveSpeed} 타일/초";
                 break;
-            case DisplayStatType.AttackRange:
+            case StatDisplayType.Unit_AttackRange:
                 statName = "공격 범위";
-                statValue = $"{unitData.AttackRange} 타일";
+                statValue = $"{data.AttackRange} 타일";
                 break;
-            case DisplayStatType.AttackType:
-                statName = "공격 유형";
-                statValue = $"{attackData.DisplayName}";
+        }
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+    public void SetDisplay(StatDisplayType type, Attack_MotionData data)
+    {
+        string statName = "";
+        string statValue = "";
+        bool hide = false;
+        bool additionalInfo = false;
+        switch (type)
+        {
+            case StatDisplayType.Attack_Motion:
+                statName = "선판정 공격";
+                statValue = $"{data.DisplayName}";
+                additionalInfo = true;
+                break;
+            case StatDisplayType.Attack_Motion_Interval:
+                statName = "공격 간격";
+                statValue = $"{data.MotionTime + data.Cooltime}초";
+                break;
+
+        }
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+    public void SetDisplay(StatDisplayType type, Attack_ProjectileData data)
+    {
+        string statName = "";
+        string statValue = "";
+        bool hide = false;
+        bool additionalInfo = false;
+        switch (type)
+        {
+            case StatDisplayType.Attack_Projectile:
+                statName = "투사체 공격";
+                statValue = $"{data.DisplayName}";
                 additionalInfo = true;
                 break;
         }
-        StatNameText.text = statName + ":";
-        StatValueText.text = statValue;
-        IconImage.sprite = Resources.Load<Sprite>($"StatIconSprite/StatIcon_{type}");
-        AdditionalInfoButton.gameObject.SetActive(additionalInfo);
-    } 
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+    public void SetDisplay(StatDisplayType type, AttackHitData data)
+    {
+        string statName = "";
+        string statValue = "";
+        bool hide = false;
+        bool additionalInfo = false;
+        switch (type)
+        {
+            case StatDisplayType.AttackHit:
+                statName = "적중 효과";
+                statValue = $"";
+                additionalInfo = true;
+                break;
+            case StatDisplayType.AttackHit_Damage:
+                statName = "피해량";
+                statValue = $"{data.Damage}";
+                break;
+            case StatDisplayType.AttackHit_KnockbackDistance:
+                statName = "밀치기 거리";
+                statValue = $"{data.KnockbackDistance}타일";
+                hide = data.KnockbackDistance == 0;
+                break;
+            case StatDisplayType.AttackHit_KnockbackSpeed:
+                statName = "밀치기 속도";
+                statValue = $"{data.KnockbackSpeed}타일/초";
+                hide = data.KnockbackDistance == 0;
+                break;
+            case StatDisplayType.AttackHit_DrainRatio:
+                statName = "흡혈 비율";
+                statValue = $"{data.DrainRatio * 100}%";
+                hide = data.DrainRatio == 0;
+                break;
 
+        }
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+
+    void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+    {
+        OnAdditionalInfoButtonClick();
+    }
     private void OnAdditionalInfoButtonClick()
     {
-        PopupManager.Instance.ShowPopup<UI_StatAdditionalInfoPopup>().SetDisplay(AdditionalInfoButton.transform.position);
+        if (_hasAdditionalInfo == false)
+            return;
+
+        var p = AdditionalInfoPos.position;
+        
+        var ui = PopupManager.Instance.ShowPopup<UI_StatAdditionalInfoPopup>();
+        ui.SetPosition(p);
+
+        switch (_type)
+        {
+            case StatDisplayType.Attack_Motion: ui.SetDisplay(_data as Attack_MotionData); break;
+            case StatDisplayType.Attack_Projectile: ui.SetDisplay(_data as Attack_ProjectileData); break;
+            case StatDisplayType.AttackHit: ui.SetDisplay(_data as AttackHitData); break;
+            default: ui.Hide(); break;
+        }
     }
 }

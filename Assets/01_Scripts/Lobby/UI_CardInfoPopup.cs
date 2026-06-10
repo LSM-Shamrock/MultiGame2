@@ -15,10 +15,12 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
     [SerializeField, ChildField] private TextMeshProUGUI NameText;
     [SerializeField, ChildField] private TextMeshProUGUI DescriptionText;
-    [SerializeField, ChildrenGroupField] private UI_StatItem[] Stats;
+    [SerializeField, ChildrenArrayField] private UI_StatItem[] Stats;
 
     private CardData _cardData;
     private UnitData _unitData;
+    private Attack_MotionData _attack_MotionData;
+    private Attack_ProjectileData _attack_ProjectileData;
 
     private void Start()
     {
@@ -36,24 +38,37 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
         _cardData = cardData;
         _unitData = StaticDB.Instance.UnitData.Dictionary[_cardData.UnitId];
 
+        switch (_unitData.AttackType)
+        {
+
+            case AttackType.Motion: _attack_MotionData = StaticDB.Instance.Attack_MotionData.Dictionary[_unitData.AttackId]; break;
+            case AttackType.Projectile: _attack_ProjectileData = StaticDB.Instance.Attack_ProjectileData.Dictionary[_unitData.AttackId]; break;
+        }
+
         CardImage.sprite = Resources.Load<Sprite>($"CardSprite/{_cardData.CodeName}");
         MpText.text = $"{_cardData.CostMP}";
         NameText.text = $"{_cardData.DisplayName}";
         DescriptionText.text = $"{_cardData.Description}";
 
-        for (int i = 0; i < Stats.Length; i++)
+        int i = 0;
+        
+        Stats[i++].SetDisplay(StatDisplayType.Unit_Health, _unitData);
+        Stats[i++].SetDisplay(StatDisplayType.Unit_AltitudeType, _unitData); 
+        Stats[i++].SetDisplay(StatDisplayType.Unit_MoveSpeed, _unitData); 
+        Stats[i++].SetDisplay(StatDisplayType.Unit_TargetingType, _unitData);
+        Stats[i++].SetDisplay(StatDisplayType.Unit_AttackRange, _unitData); 
+
+        switch (_unitData.AttackType)
         {
-            var stat = Stats[i];
-            switch (i)
-            {
-                case 0: stat.SetDisplay(UI_StatItem.DisplayStatType.Health, _unitData); break;
-                case 1: stat.SetDisplay(UI_StatItem.DisplayStatType.AltitudeType, _unitData); break;
-                case 2: stat.SetDisplay(UI_StatItem.DisplayStatType.MoveSpeed, _unitData); break;
-                case 3: stat.SetDisplay(UI_StatItem.DisplayStatType.TargetingType, _unitData); break;
-                case 4: stat.SetDisplay(UI_StatItem.DisplayStatType.AttackRange, _unitData); break;
-                case 5: stat.SetDisplay(UI_StatItem.DisplayStatType.AttackType, _unitData); break;
-                default: stat.SetDisplay(UI_StatItem.DisplayStatType.None, _unitData); break;   
-            }
+            case AttackType.Motion:
+                Stats[i++].SetDisplay(StatDisplayType.Attack_Motion, _attack_MotionData); 
+                break;
+            case AttackType.Projectile:
+                Stats[i++].SetDisplay(StatDisplayType.Attack_Projectile, _attack_ProjectileData); 
+                break;
         }
+
+        for (; i < Stats.Length; i++)
+            Stats[i].SetHide(); 
     }
 }
