@@ -104,6 +104,7 @@ public class ProjectileData : TableData
     public override int Key => ProjectileId;
     public int ProjectileId;
     public string CodeName;
+    public string DisplayName;
     public float Scale;
     public float ColliderWidth;
     public float ColliderHeight;
@@ -138,6 +139,7 @@ public class DotEffectData : TableData
     public override int Key => DotEffectId;
     public int DotEffectId;
     public string CodeName;
+    public string DisplayName;
     public int DotDamage;
     public float DotInterval;
     public float DotCount;

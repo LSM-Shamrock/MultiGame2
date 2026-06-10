@@ -56,7 +56,9 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
         Stats[i++].SetDisplay(StatDisplayType.Unit_AltitudeType, _unitData); 
         Stats[i++].SetDisplay(StatDisplayType.Unit_MoveSpeed, _unitData); 
         Stats[i++].SetDisplay(StatDisplayType.Unit_TargetingType, _unitData);
-        Stats[i++].SetDisplay(StatDisplayType.Unit_AttackRange, _unitData); 
+        Stats[i++].SetDisplay(StatDisplayType.Unit_AttackRange, _unitData);
+        Stats[i++].SetDisplay(StatDisplayType.Unit_BackoffRatio, _unitData);
+        Stats[i++].SetDisplay(StatDisplayType.Unit_BackoffSpeedRatio, _unitData);
 
         switch (_unitData.AttackType)
         {

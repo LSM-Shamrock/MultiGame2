@@ -10,14 +10,21 @@ public enum StatDisplayType
     Unit_TargetingType,
     Unit_MoveSpeed,
     Unit_AttackRange,
-    Attack_Motion,
-    Attack_Motion_Interval,
-    Attack_Projectile,
+    Unit_BackoffRatio,
+    Unit_BackoffSpeedRatio,
     AttackHit,
     AttackHit_Damage,
     AttackHit_KnockbackDistance,
     AttackHit_KnockbackSpeed,
     AttackHit_DrainRatio,
+    DotEffect_Damage,
+    DotEffect_Interval,
+    Attack_Motion,
+    Attack_Motion_Interval,
+    Attack_Projectile,
+    Attack_Projectile_Interval,
+    Projectile_Speed,
+    Projectile_MaxDistance,
 }
 
 [AutoInjectionTarget]
@@ -50,7 +57,11 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
 
         StatNameText.text = statName + ":";
         StatValueText.text = statValue;
-        IconImage.sprite = Resources.Load<Sprite>($"StatIconSprite/StatIcon_{type}");
+        
+        var iconSprite = Resources.Load<Sprite>($"StatIconSprite/StatIcon_{type}");
+        IconImage.sprite = iconSprite;
+        IconImage.gameObject.SetActive(iconSprite != null);
+
         AdditionalInfoButton.gameObject.SetActive(hasAdditionalInfo);
     }
     public void SetHide()
@@ -96,6 +107,16 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
                 statName = "공격 범위";
                 statValue = $"{data.AttackRange} 타일";
                 break;
+            case StatDisplayType.Unit_BackoffRatio:
+                statName = "백무빙 거리";
+                statValue = $"공격 범위의 {data.BackoffRatio * 100}%";
+                hide = data.BackoffRatio == 0;
+                break;
+            case StatDisplayType.Unit_BackoffSpeedRatio:
+                statName = "백무빙 속도";
+                statValue = $"기본 속도의 {data.BackoffSpeedRatio * 100}%";
+                hide = data.BackoffRatio == 0;
+                break;
         }
         SetDiplay(type, data, statName, statValue, hide, additionalInfo);
     }
@@ -133,6 +154,29 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
                 statValue = $"{data.DisplayName}";
                 additionalInfo = true;
                 break;
+            case StatDisplayType.Attack_Projectile_Interval:
+                statName = "발사 간격";
+                statValue = $"{data.Cooltime}초";
+                break;
+        }
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+    public void SetDisplay(StatDisplayType type, ProjectileData data)
+    {
+        string statName = "";
+        string statValue = "";
+        bool hide = false;
+        bool additionalInfo = false;
+        switch (type)
+        {
+            case StatDisplayType.Projectile_Speed:
+                statName = $"{data.DisplayName} 발사 속도";
+                statValue = $"{data.Speed} 타일/초";
+                break;
+            case StatDisplayType.Projectile_MaxDistance:
+                statName = $"{data.DisplayName} 최대 발사 거리";
+                statValue = $"{data.MaxDistance} 타일";
+                break;
         }
         SetDiplay(type, data, statName, statValue, hide, additionalInfo);
     }
@@ -146,7 +190,7 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
         {
             case StatDisplayType.AttackHit:
                 statName = "적중 효과";
-                statValue = $"";
+                statValue = $">";
                 additionalInfo = true;
                 break;
             case StatDisplayType.AttackHit_Damage:
@@ -155,18 +199,38 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
                 break;
             case StatDisplayType.AttackHit_KnockbackDistance:
                 statName = "밀치기 거리";
-                statValue = $"{data.KnockbackDistance}타일";
+                statValue = $"{data.KnockbackDistance} 타일";
                 hide = data.KnockbackDistance == 0;
                 break;
             case StatDisplayType.AttackHit_KnockbackSpeed:
                 statName = "밀치기 속도";
-                statValue = $"{data.KnockbackSpeed}타일/초";
+                statValue = $"{data.KnockbackSpeed} 타일/초";
                 hide = data.KnockbackDistance == 0;
                 break;
             case StatDisplayType.AttackHit_DrainRatio:
                 statName = "흡혈 비율";
                 statValue = $"{data.DrainRatio * 100}%";
                 hide = data.DrainRatio == 0;
+                break;
+
+        }
+        SetDiplay(type, data, statName, statValue, hide, additionalInfo);
+    }
+    public void SetDisplay(StatDisplayType type, DotEffectData data)
+    {
+        string statName = "";
+        string statValue = "";
+        bool hide = false;
+        bool additionalInfo = false;
+        switch (type)
+        {
+            case StatDisplayType.DotEffect_Damage:
+                statName = $"{data.DisplayName} 효과 피해량";
+                statValue = $"{data.DotDamage} x {data.DotCount}";
+                break;
+            case StatDisplayType.DotEffect_Interval:
+                statName = $"{data.DisplayName} 효과 간격";
+                statValue = $"{data.DotInterval} 초";
                 break;
 
         }
@@ -191,7 +255,6 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
         {
             case StatDisplayType.Attack_Motion: ui.SetDisplay(_data as Attack_MotionData); break;
             case StatDisplayType.Attack_Projectile: ui.SetDisplay(_data as Attack_ProjectileData); break;
-            case StatDisplayType.AttackHit: ui.SetDisplay(_data as AttackHitData); break;
             default: ui.Hide(); break;
         }
     }

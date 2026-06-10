@@ -38,11 +38,11 @@ public class UI_StatAdditionalInfoPopup : MonoBehaviour, IPopupUI
     {
         TitleText.text = $"{data.DisplayName}";
 
-        var hitData = StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId];
+        AttackHitData hitData = StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId];
 
         _nextIndex = 0;
         Stats[_nextIndex++].SetDisplay(StatDisplayType.Attack_Motion_Interval, data);
-        Stats[_nextIndex++].SetDisplay(StatDisplayType.AttackHit, hitData);
+        AddAttackHitDatas(hitData);
 
         for (; _nextIndex < Stats.Length; _nextIndex++)
             Stats[_nextIndex].SetHide();
@@ -51,21 +51,31 @@ public class UI_StatAdditionalInfoPopup : MonoBehaviour, IPopupUI
     {
         TitleText.text = $"{data.DisplayName}";
 
+        ProjectileData projectileData = StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId];
+        AttackHitData hitData = StaticDB.Instance.AttackHitData.Dictionary[projectileData.AttackHitId];
+
+        _nextIndex = 0;
+        Stats[_nextIndex++].SetDisplay(StatDisplayType.Attack_Projectile_Interval, data);
+        Stats[_nextIndex++].SetDisplay(StatDisplayType.Projectile_Speed, projectileData);
+        AddAttackHitDatas(hitData);
 
         for (; _nextIndex < Stats.Length; _nextIndex++)
             Stats[_nextIndex].SetHide();
     }
-    public void SetDisplay(AttackHitData data)
-    {
-        TitleText.text = $"적중 효과";
 
-        _nextIndex = 0;
+    private void AddAttackHitDatas(AttackHitData data)
+    {
         Stats[_nextIndex++].SetDisplay(StatDisplayType.AttackHit_Damage, data);
         Stats[_nextIndex++].SetDisplay(StatDisplayType.AttackHit_KnockbackDistance, data);
         Stats[_nextIndex++].SetDisplay(StatDisplayType.AttackHit_KnockbackSpeed, data);
         Stats[_nextIndex++].SetDisplay(StatDisplayType.AttackHit_DrainRatio, data);
 
-        for (; _nextIndex < Stats.Length; _nextIndex++)
-            Stats[_nextIndex].SetHide();
+        if (data.DotEffectId != 0)
+        {
+            DotEffectData dotEffectData = StaticDB.Instance.DotEffectData.Dictionary[data.DotEffectId];
+
+            Stats[_nextIndex++].SetDisplay(StatDisplayType.DotEffect_Damage, dotEffectData);
+            Stats[_nextIndex++].SetDisplay(StatDisplayType.DotEffect_Interval, dotEffectData);
+        }
     }
 }
