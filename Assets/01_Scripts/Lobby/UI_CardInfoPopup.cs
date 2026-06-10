@@ -15,7 +15,7 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
     [SerializeField, ChildField] private TextMeshProUGUI MpText;
     [SerializeField, ChildField] private TextMeshProUGUI NameText;
     [SerializeField, ChildField] private TextMeshProUGUI DescriptionText;
-    [SerializeField, ChildrenGroupField] private UI_CardInfoStat[] Stats;
+    [SerializeField, ChildrenGroupField] private UI_StatItem[] Stats;
 
     private CardData _cardData;
     private UnitData _unitData;
@@ -26,7 +26,7 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
         BackPanel.AddEvent(PointerEventType.PointerClick, Hide);
     }
 
-    private void Hide()
+    public void Hide()
     {
         PopupManager.Instance.ClosePopup(this);
     }
@@ -46,13 +46,13 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
             var stat = Stats[i];
             switch (i)
             {
-                case 0: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.Health, _unitData); break;
-                case 1: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.AltitudeType, _unitData); break;
-                case 2: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.MoveSpeed, _unitData); break;
-                case 3: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.TargetingType, _unitData); break;
-                case 4: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.AttackRange, _unitData); break;
-                case 5: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.AttackType, _unitData); break;
-                default: stat.SetDisplay(UI_CardInfoStat.DisplayStatType.None, _unitData); break;   
+                case 0: stat.SetDisplay(UI_StatItem.DisplayStatType.Health, _unitData); break;
+                case 1: stat.SetDisplay(UI_StatItem.DisplayStatType.AltitudeType, _unitData); break;
+                case 2: stat.SetDisplay(UI_StatItem.DisplayStatType.MoveSpeed, _unitData); break;
+                case 3: stat.SetDisplay(UI_StatItem.DisplayStatType.TargetingType, _unitData); break;
+                case 4: stat.SetDisplay(UI_StatItem.DisplayStatType.AttackRange, _unitData); break;
+                case 5: stat.SetDisplay(UI_StatItem.DisplayStatType.AttackType, _unitData); break;
+                default: stat.SetDisplay(UI_StatItem.DisplayStatType.None, _unitData); break;   
             }
         }
     }
