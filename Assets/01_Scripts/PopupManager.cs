@@ -8,11 +8,8 @@ public interface IPopupUI
     public GameObject GameObject { get; } 
 }
 
-public class PopupManager : MonoBehaviour
+public class PopupManager : SingletonBehaviour<PopupManager>
 {
-    public static PopupManager Instance => _instance != null ? _instance : (_instance = FindAnyObjectByType<PopupManager>());
-    private static PopupManager _instance;
-
     private Dictionary<Type, Queue<IPopupUI>> _closedPopupPools = new();
     private Stack<IPopupUI> _showingPopupStack = new();
     private int _nextSortingOrder = 10;
@@ -62,13 +59,7 @@ public class PopupManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
+        InitSingleton();
     }
     private void Update()
     {

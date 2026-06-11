@@ -3,7 +3,7 @@ using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class StartController : MonoBehaviour
+public class StartScene : MonoBehaviour
 {
     private async void Start()
     {

@@ -44,11 +44,8 @@ public enum GameManagerState
 }
 
 [AutoInjectionTarget]
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonBehaviour<GameManager>
 {
-    public static GameManager Instance => _instance != null ? _instance : (_instance = FindAnyObjectByType<GameManager>());
-    private static GameManager _instance;
-
     private const int MAXPLAYERS = 2;
     private const string SCENE_GAME = "GameScene";
     private const string SCENE_LOBBY = "LobbyScene";
@@ -86,13 +83,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
+        InitSingleton();
 
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
         _lobbyEventCallbacks.LobbyDeleted += OnLobbyDeleted;

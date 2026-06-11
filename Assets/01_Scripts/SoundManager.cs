@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 
 [AutoInjectionTarget]
-public class SoundManager : MonoBehaviour
+public class SoundManager : SingletonBehaviour<SoundManager>
 {
-    private static SoundManager _instance;
-    public static SoundManager Instance => _instance ?? (_instance = FindAnyObjectByType<SoundManager>());
-
     public ObservableValue<float> BgmVolume { get; } = new(1f, Mathf.Clamp01);
     public ObservableValue<float> SfxVolume { get; } = new(1f, Mathf.Clamp01);
 
@@ -14,13 +11,7 @@ public class SoundManager : MonoBehaviour
 
     private void Awake()
     {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
+        InitSingleton();
 
         BgmVolume.OnValueChanged += OnBgmVolumeChanged;
         SfxVolume.OnValueChanged += OnSfxVolumeChanged;

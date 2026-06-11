@@ -10,6 +10,7 @@
     "com.unity.multiplayer.playmode": "1.6.3",
     "com.unity.netcode.gameobjects": "2.11.2",
     "com.unity.nuget.mono-cecil": "1.10.2",
+    "com.unity.remote-config": "4.2.5",
     "com.unity.render-pipelines.universal": "17.0.4",
     "com.unity.services.multiplayer": "2.2.2",
     "com.unity.test-framework": "1.6.0",
