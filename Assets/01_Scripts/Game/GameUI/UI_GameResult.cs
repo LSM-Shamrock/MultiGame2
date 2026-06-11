@@ -17,7 +17,7 @@ public class UI_GameResult : MonoBehaviour
 
     private void Start()
     {
-        GameScene.SceneInstance.OnGameFinished += OnGameFinished;
+        ISceneInstance<GameScene>.SceneInstance.OnGameFinished += OnGameFinished;
         OkButton.onClick.AddListener(OnOkButtonClick);
     }
 

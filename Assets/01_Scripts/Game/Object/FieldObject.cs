@@ -62,7 +62,7 @@ public abstract class FieldObject : NetworkBehaviour
 
         if (string.IsNullOrEmpty(data.EffectAnimation) == false)
         {
-            EffectPool.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+            ISceneInstance<EffectPool>.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
         }
 
         if (RemoteConfigManager.Instance.GameData.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
@@ -122,7 +122,7 @@ public abstract class FieldObject : NetworkBehaviour
     {
         StartCoroutine(DotEffect(data));
 
-        EffectPool.SceneInstance.ShowDotEffectRpc(NetworkObjectId, data.DotEffectId);
+        ISceneInstance<EffectPool>.SceneInstance.ShowDotEffectRpc(NetworkObjectId, data.DotEffectId);
     }
     private IEnumerator DotEffect(DotEffectData data)
     {

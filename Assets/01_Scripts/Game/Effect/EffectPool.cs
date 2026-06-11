@@ -3,11 +3,8 @@ using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class EffectPool : NetworkBehaviour
+public class EffectPool : NetworkBehaviour, ISceneInstance<EffectPool>
 {
-    public static EffectPool SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<EffectPool>());
-    private static EffectPool _sceneInstance;
-
     private Queue<HitEffect> _hitEffects = new();
     private Queue<DotEffect> _dotEffects = new();
 
@@ -17,6 +14,8 @@ public class EffectPool : NetworkBehaviour
 
     private void Start()
     {
+        ((ISceneInstance<EffectPool>)this).InitSceneInstance();
+
         for (int i = 0; i < 1; i++)
             _hitEffects.Enqueue(CreateHitEffect());
 

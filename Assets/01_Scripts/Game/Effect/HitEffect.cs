@@ -10,7 +10,7 @@ public class HitEffect : MonoBehaviour
     private void Hide()
     {
         gameObject.SetActive(false);
-        EffectPool.SceneInstance.ReturnHitEffectToPool(this);
+        ISceneInstance<EffectPool>.SceneInstance.ReturnHitEffectToPool(this);
     }
 
     public void Show(AttackHitData data, Vector2 position)

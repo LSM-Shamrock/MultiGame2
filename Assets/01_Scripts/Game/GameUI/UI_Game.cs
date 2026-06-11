@@ -5,11 +5,8 @@ using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class UI_Game : MonoBehaviour
+public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
 {
-    public static UI_Game SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<UI_Game>());
-    private static UI_Game _sceneInstance;
-
     [SerializeField, ChildField] private GameObject CardSummonArea;
     [SerializeField, ChildField] private UI_CardSummonPos CardSummonPos;
     [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
@@ -31,6 +28,8 @@ public class UI_Game : MonoBehaviour
 
     private void Start()
     {
+        ((ISceneInstance<UI_Game>)this).InitSceneInstance();
+
         _camera = Camera.main;
 
         for (int i = 0; i < HandCards.Length; i++)

@@ -52,13 +52,13 @@ public class Player : NetworkBehaviour
         if (IsOwner)
         {
             Camera.main.transform.rotation = transform.rotation;
-            GameScene.SceneInstance.LocalPlayer.Value = this;
-            UI_Game.SceneInstance.SetLocalPlayer(this);
+            ISceneInstance<GameScene>.SceneInstance.LocalPlayer.Value = this;
+            ISceneInstance<UI_Game>.SceneInstance.SetLocalPlayer(this);
         }
         else
         {
-            GameScene.SceneInstance.OpponentPlayer.Value = this;
-            UI_Game.SceneInstance.SetOpponentPlayer(this);
+            ISceneInstance<GameScene>.SceneInstance.OpponentPlayer.Value = this;
+            ISceneInstance<UI_Game>.SceneInstance.SetOpponentPlayer(this);
         }
     }
     private void SetupHandAndNextCards(int[] deck)
@@ -197,7 +197,7 @@ public class Player : NetworkBehaviour
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
         Unit unit = go.GetComponent<Unit>();
 
-        Player opponent = IsOwner ? GameScene.SceneInstance.OpponentPlayer.Value : GameScene.SceneInstance.LocalPlayer.Value;
+        Player opponent = IsOwner ? ISceneInstance<GameScene>.SceneInstance.OpponentPlayer.Value : ISceneInstance<GameScene>.SceneInstance.LocalPlayer.Value;
 
         unit.Init(unitData.UnitId, this, opponent);
         unit.NetworkObject.SpawnWithOwnership(OwnerClientId);

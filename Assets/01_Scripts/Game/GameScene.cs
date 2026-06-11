@@ -3,11 +3,8 @@ using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
-public class GameScene : NetworkBehaviour
+public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 {
-    public static GameScene SceneInstance => _sceneInstance != null ? _sceneInstance : (_sceneInstance = FindAnyObjectByType<GameScene>());
-    private static GameScene _sceneInstance;
-
     [SerializeField, AssetField("Player")]
     private GameObject _playerPrefab;
 
@@ -19,7 +16,7 @@ public class GameScene : NetworkBehaviour
 
     private void Start()
     {
-        _sceneInstance = this;
+        ((ISceneInstance<GameScene>)this).InitSceneInstance();
 
         if (NetworkManager.Singleton.IsHost && GameManager.Instance)
         {
