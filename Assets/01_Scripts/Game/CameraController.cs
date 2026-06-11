@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public class CameraController : MonoBehaviour, ISceneInstance<CameraController>
 {
-
+    private void Start()
+    {
+        ((ISceneInstance<CameraController>)this).InitSceneInstance();
+    }
 }
