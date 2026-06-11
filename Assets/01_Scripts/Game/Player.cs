@@ -121,7 +121,7 @@ public class Player : NetworkBehaviour
         if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
 
         int handCardId = HandCardIds[handIndex];
-        CardData cardData = StaticDB.Instance.CardData.Dictionary[handCardId];
+        CardData cardData = RemoteConfigManager.Instance.GameData.CardData.Dictionary[handCardId];
 
         if (MP.Value < cardData.CostMP)
         {
@@ -136,7 +136,7 @@ public class Player : NetworkBehaviour
             HandCardIds[handIndex] = _nextCardIds.Dequeue();
             NextCardId.Value = _nextCardIds.Peek();
 
-            UnitData unitData = StaticDB.Instance.UnitData.Dictionary[cardData.UnitId];
+            UnitData unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[cardData.UnitId];
             Vector3 position = SummonGrid[gridIndex].position;
             position.y += unitData.SummonHeight;
             SummonUnit(unitData, position);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
@@ -12,6 +13,7 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     [SerializeField, ChildField] private Button CloseButton;
     [SerializeField, ChildField] private Slider BgmVolumeSlider;
     [SerializeField, ChildField] private Slider SfxVolumeSlider;
+    [SerializeField, ChildField] private TextMeshProUGUI GameDataVersionText;
 
     private void Start()
     {
@@ -23,6 +25,8 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
 
         BgmVolumeSlider.value = SoundManager.Instance.BgmVolume.Value;
         SfxVolumeSlider.value = SoundManager.Instance.SfxVolume.Value;
+
+        GameDataVersionText.text = $"게임 데이터 버전: v{RemoteConfigManager.Instance.GameDataVersion}";
     }
     private void OnDestroy()
     {

@@ -144,7 +144,7 @@ public class UI_Game : MonoBehaviour
 
         _selectedIndex = index;
         _selectedCardId = _handCardIds[_selectedIndex];
-        _selectedCardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(_selectedCardId);
+        _selectedCardData = RemoteConfigManager.Instance.GameData.CardData.Dictionary.GetValueOrDefault(_selectedCardId);
 
         for (int i = 0; i < HandCards.Length; i++)
             HandCards[i].SetSelected(i == _selectedIndex);

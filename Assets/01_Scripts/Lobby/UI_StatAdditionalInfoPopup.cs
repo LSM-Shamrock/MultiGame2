@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem.HID;
 using static UnityEngine.Analytics.IAnalytic;
@@ -38,7 +38,7 @@ public class UI_StatAdditionalInfoPopup : MonoBehaviour, IPopupUI
     {
         TitleText.text = $"{data.DisplayName}";
 
-        AttackHitData hitData = StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId];
+        AttackHitData hitData = RemoteConfigManager.Instance.GameData.AttackHitData.Dictionary[data.AttackHitId];
 
         _nextIndex = 0;
         Stats[_nextIndex++].SetDisplay(StatDisplayType.Attack_Motion_Interval, data);
@@ -51,8 +51,8 @@ public class UI_StatAdditionalInfoPopup : MonoBehaviour, IPopupUI
     {
         TitleText.text = $"{data.DisplayName}";
 
-        ProjectileData projectileData = StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId];
-        AttackHitData hitData = StaticDB.Instance.AttackHitData.Dictionary[projectileData.AttackHitId];
+        ProjectileData projectileData = RemoteConfigManager.Instance.GameData.ProjectileData.Dictionary[data.ProjectileId];
+        AttackHitData hitData = RemoteConfigManager.Instance.GameData.AttackHitData.Dictionary[projectileData.AttackHitId];
 
         _nextIndex = 0;
         Stats[_nextIndex++].SetDisplay(StatDisplayType.Attack_Projectile_Interval, data);
@@ -72,7 +72,7 @@ public class UI_StatAdditionalInfoPopup : MonoBehaviour, IPopupUI
 
         if (data.DotEffectId != 0)
         {
-            DotEffectData dotEffectData = StaticDB.Instance.DotEffectData.Dictionary[data.DotEffectId];
+            DotEffectData dotEffectData = RemoteConfigManager.Instance.GameData.DotEffectData.Dictionary[data.DotEffectId];
 
             Stats[_nextIndex++].SetDisplay(StatDisplayType.DotEffect_Damage, dotEffectData);
             Stats[_nextIndex++].SetDisplay(StatDisplayType.DotEffect_Interval, dotEffectData);

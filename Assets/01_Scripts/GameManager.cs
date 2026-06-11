@@ -32,6 +32,13 @@ public class PlayerSessionData
     }
 }
 
+[Serializable] 
+public struct MatchingFilterData
+{
+    public string MatchingVersion;
+    public bool IsAutoMatching;
+}
+
 public enum GameManagerState
 {
     Lobby,
@@ -43,6 +50,13 @@ public enum GameManagerState
     StartingGame,
 }
 
+public enum MatchingType
+{
+    None,
+    AutoMatching,
+    LobbyIdMatching,
+}
+
 [AutoInjectionTarget]
 public class GameManager : SingletonBehaviour<GameManager>
 {
@@ -51,9 +65,21 @@ public class GameManager : SingletonBehaviour<GameManager>
     private const string SCENE_LOBBY = "LobbyScene";
 
     public IObservOnlyValue<GameManagerState> State => _state;
-    private ObservableValue<GameManagerState> _state = new(GameManagerState.Lobby);
+    private ObservableValue<GameManagerState> _state = new (GameManagerState.Lobby);
+    public MatchingType MatchingType
+    {
+        get
+        {
+            return _state.Value switch
+            {
+                GameManagerState.CreateingMatching => _matchingType,
+                GameManagerState.WaitingForPalyers => _matchingType,
+                _ => MatchingType.None,
+            };
+        }
+    }
+    private MatchingType _matchingType;
 
-    public string PlayerName { get; set; }
     public ObservableArray<int> CurrentDeckCardIds
     {
         get
@@ -63,23 +89,27 @@ public class GameManager : SingletonBehaviour<GameManager>
                 _currentDeck = new ObservableArray<int>(8);
 
                 for (int i = 0; i < 8; i++)
-                    _currentDeck[i] = StaticDB.Instance.CardData.List[i].CardId;
+                    _currentDeck[i] = RemoteConfigManager.Instance.GameData.CardData.List[i].CardId;
             }
             return _currentDeck;
         }
     }
     private ObservableArray<int> _currentDeck;
+    public string PlayerName { get; set; }
+    public PlayerSessionData LocalPlayerSessionData { get; private set; }
+    public PlayerSessionData OpponentPlayerSessionData { get; private set; }
 
+    public string MatchingFilter { get; private set; }
     public string LobbyId => _lobby.Id;
     private Lobby _lobby;
     private ILobbyEvents _lobbyEvents;
     private LobbyEventCallbacks _lobbyEventCallbacks = new();
-    private const string LOBBY_NAME = "Lobby";
-    private const string LOBBY_KEY_JOINCODE = "JoinCode";
-    private const float LOBBY_HEARTBEAT_INTERVAL = 15f;
-
-    public PlayerSessionData LocalPlayerSessionData { get; private set; }
-    public PlayerSessionData OpponentPlayerSessionData { get; private set; }
+    private const float                     LOBBY_HEARTBEAT_INTERVAL = 15f;
+    private const string                    LOBBY_NAME = "Lobby";
+    private const string                    LOBBY_DATA_JOINCODE = "JoinCode";
+    private const string                    LOBBY_DATA_MATCHINGFILTER = "FilterData";
+    private const DataObject.IndexOptions   LOBBY_DATA_MATCHINGFILTER_INDEX = DataObject.IndexOptions.S1;
+    private const QueryFilter.FieldOptions  LOBBY_DATA_MATCHINGFILTER_FILTER = QueryFilter.FieldOptions.S1;
 
     private void Awake()
     {
@@ -92,10 +122,21 @@ public class GameManager : SingletonBehaviour<GameManager>
     }
 
     #region Matching
-    public async Task CreateMatchingAsync(bool isPrivate = true)
+    private void SetMatchingInfo(MatchingType matchingType)
+    {
+        _matchingType = matchingType;
+
+        MatchingFilterData filterData = new MatchingFilterData
+        {
+            MatchingVersion = RemoteConfigManager.Instance.GameDataVersion,
+            IsAutoMatching = matchingType == MatchingType.AutoMatching,
+        };
+        MatchingFilter = JsonConvert.SerializeObject(filterData);
+    }
+    private async Task CreateMatchingAsync()
     {
         _state.Value = GameManagerState.CreateingMatching;
-
+        
         LocalPlayerSessionData = null;
         OpponentPlayerSessionData = null;
 
@@ -111,71 +152,96 @@ public class GameManager : SingletonBehaviour<GameManager>
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
+
         _lobby = await LobbyService.Instance.CreateLobbyAsync(LOBBY_NAME, MAXPLAYERS, new CreateLobbyOptions()
         {
-            IsPrivate = isPrivate,
+            IsPrivate = false,
             Data = new Dictionary<string, DataObject>
             {
-                { LOBBY_KEY_JOINCODE, new DataObject(DataObject.VisibilityOptions.Member, joinCode) }
+                { LOBBY_DATA_JOINCODE, new(DataObject.VisibilityOptions.Member, joinCode) },
+                { LOBBY_DATA_MATCHINGFILTER, new(DataObject.VisibilityOptions.Public, MatchingFilter, LOBBY_DATA_MATCHINGFILTER_INDEX) },
             }
         });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
         _state.Value = GameManagerState.WaitingForPalyers;
     }
-    public async Task<bool> JoinMatchingAsync(string lobbyId)
+    private async Task<bool> JoinMatchingAsync(string lobbyId)
     {
         _state.Value = GameManagerState.JoiningMatching;
+
+        var lobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
+        if (lobby != null && lobby.Data[LOBBY_DATA_MATCHINGFILTER].Value.Equals(MatchingFilter) == false)
+        {
+            Debug.LogWarning("입장하려는 방과 필터가 달라서 입장 실패함");
+            _state.Value = GameManagerState.Lobby;
+            return false;
+        }
 
         try
         {
             _lobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
             _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
-
-            var joinAllocation = await RelayService.Instance.JoinAllocationAsync(_lobby.Data[LOBBY_KEY_JOINCODE].Value);
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
-                joinAllocation.RelayServer.IpV4,
-                (ushort)joinAllocation.RelayServer.Port,
-                joinAllocation.AllocationIdBytes,
-                joinAllocation.Key,
-                joinAllocation.ConnectionData,
-                joinAllocation.HostConnectionData);
-            NetworkManager.Singleton.StartClient();
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-
-            return true;
         }
         catch (LobbyServiceException ex)
         {
             Debug.Log(ex);
-
             _state.Value = GameManagerState.Lobby;
-
             return false;
         }
+
+        var joinAllocation = await RelayService.Instance.JoinAllocationAsync(_lobby.Data[LOBBY_DATA_JOINCODE].Value);
+        NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
+            joinAllocation.RelayServer.IpV4,
+            (ushort)joinAllocation.RelayServer.Port,
+            joinAllocation.AllocationIdBytes,
+            joinAllocation.Key,
+            joinAllocation.ConnectionData,
+            joinAllocation.HostConnectionData);
+        NetworkManager.Singleton.StartClient();
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+        return true;
+    }
+
+    public async Task CreateLobbyIdAsync()
+    {
+        SetMatchingInfo(MatchingType.LobbyIdMatching);
+        await CreateMatchingAsync();
+    }
+    public async Task JoinWithLobbyIdAsync(string lobbyId)
+    {
+        SetMatchingInfo(MatchingType.LobbyIdMatching);
+        await JoinMatchingAsync(lobbyId);
     }
     public async Task AutoMatchingAsync()
     {
+        SetMatchingInfo(MatchingType.AutoMatching);
+
         _state.Value = GameManagerState.FindingMatching;
 
         QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
         {
             Filters = new List<QueryFilter>
             {
-                new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
+                new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT),
+                new QueryFilter(LOBBY_DATA_MATCHINGFILTER_FILTER, MatchingFilter, QueryFilter.OpOptions.EQ)
             }
         });
 
         bool joined = false;
-        if (query.Results.Count > 0)
+        foreach (Lobby lobby in query.Results)
         {
-            joined = await JoinMatchingAsync(query.Results[0].Id);
+            joined = await JoinMatchingAsync(lobby.Id);
             Debug.Log("찾은 로비로 접속 시도 결과 " + joined);
+
+            if (joined)
+                break;
         }
+        
         if (!joined)
         {
-            await CreateMatchingAsync(isPrivate: false);
+            await CreateMatchingAsync();
             Debug.Log("로비 새로 생성함");
         }
     }
@@ -319,7 +385,6 @@ public class GameManager : SingletonBehaviour<GameManager>
 
         return true;
     }
-
     public async Task ExitGameToLobbyAsync()
     {
         await ShutdownAsync();

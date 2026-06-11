@@ -24,7 +24,7 @@ public class Projectile : NetworkBehaviour
         _unit = unit;
         _target = target;
         _projectileData = data;
-        _attackHitData = StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId];
+        _attackHitData = RemoteConfigManager.Instance.GameData.AttackHitData.Dictionary[data.AttackHitId];
 
         _animator.Play($"{data.CodeName}");
 
@@ -46,7 +46,7 @@ public class Projectile : NetworkBehaviour
         }
         else
         {
-            _projectileData = StaticDB.Instance.ProjectileData.Dictionary[ProjectileId.Value];
+            _projectileData = RemoteConfigManager.Instance.GameData.ProjectileData.Dictionary[ProjectileId.Value];
             _spriteRenderer.sortingLayerName = _projectileData.SortingLayerName;
         }
     }

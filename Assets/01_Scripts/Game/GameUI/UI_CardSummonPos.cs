@@ -15,14 +15,14 @@ public class UI_CardSummonPos : MonoBehaviour
 
     public void SetSelectedHandCardId(int cardId)
     {
-        if (!StaticDB.Instance.CardData.Dictionary.ContainsKey(cardId))
+        if (!RemoteConfigManager.Instance.GameData.CardData.Dictionary.ContainsKey(cardId))
         {
             _cardData = null;
             return;
         }
 
-        _cardData = StaticDB.Instance.CardData.Dictionary[cardId];
-        _unitData = StaticDB.Instance.UnitData.Dictionary[_cardData.UnitId];
+        _cardData = RemoteConfigManager.Instance.GameData.CardData.Dictionary[cardId];
+        _unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[_cardData.UnitId];
 
         string path = $"UnitSprite/{_unitData.CodeName}";
         _sprite = Resources.Load<Sprite>(path);

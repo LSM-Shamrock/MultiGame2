@@ -54,12 +54,12 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (_isDeck)
         {
             int cardId = deckCardIds[_index];
-            CardData cardData = StaticDB.Instance.CardData.Dictionary.GetValueOrDefault(cardId);
+            CardData cardData = RemoteConfigManager.Instance.GameData.CardData.Dictionary.GetValueOrDefault(cardId);
             SetCardData(cardData);
         }
         else
         {
-            var collection = StaticDB.Instance.CardData.List;
+            var collection = RemoteConfigManager.Instance.GameData.CardData.List;
 
             if (_index >= collection.Count)
             {

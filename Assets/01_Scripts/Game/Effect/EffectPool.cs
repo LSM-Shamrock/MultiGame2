@@ -51,7 +51,7 @@ public class EffectPool : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     public void ShowHitEffectRpc(int attackHitId, Vector2 postion)
     {
-        var data = StaticDB.Instance.AttackHitData.Dictionary[attackHitId];
+        var data = RemoteConfigManager.Instance.GameData.AttackHitData.Dictionary[attackHitId];
 
         if (_hitEffects.TryDequeue(out var hitEffect) == false)
             hitEffect = CreateHitEffect();
@@ -65,7 +65,7 @@ public class EffectPool : NetworkBehaviour
         {
             var target = targetNetworkObject.GetComponent<FieldObject>();
 
-            var data = StaticDB.Instance.DotEffectData.Dictionary[dotEffectId];
+            var data = RemoteConfigManager.Instance.GameData.DotEffectData.Dictionary[dotEffectId];
 
             if (_dotEffects.TryDequeue(out var effect) == false)
                 effect = CreateDotEffect();

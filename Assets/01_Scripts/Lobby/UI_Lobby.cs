@@ -10,12 +10,10 @@ public class UI_Lobby : MonoBehaviour
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
     [ChildField] public Button SettingButton;
-    [ChildField] public TMP_InputField JoinCodeInput;
+    [ChildField] public TMP_InputField LobbyIdInput;
     [ChildField] public TMP_InputField PlayerNameInput;
     [ChildField] public TextMeshProUGUI DeckInvalidText;
-    [SceneComponentField] public UI_Matchmaking MatchmakingUI;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
-    [AssetField("Sfx_Lobby_MatchingSuccess")] public AudioClip Sfx_MatchingSuccess;
 
     private bool _isDeckValide = true;
 
@@ -25,14 +23,12 @@ public class UI_Lobby : MonoBehaviour
         CreateButton.onClick.AddListener(OnClick_CreateButton);
         JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
-        MatchmakingUI.CancleButton.onClick.AddListener(OnClick_MatchmaingUI_CancleButton);
-
+        
         SettingButton.onClick.AddListener(OnClick_SettingButton);
 
         if (GameManager.Instance)
         {
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
-            GameManager.Instance.State.OnValueChanged += OnGameManagerStateChanged;
         }
 
         SoundManager.Instance.PlayBgm(Bgm);
@@ -43,19 +39,17 @@ public class UI_Lobby : MonoBehaviour
         JoinButton.onClick.RemoveAllListeners();
         PlayButton.onClick.RemoveAllListeners();
         PlayerNameInput.onValueChanged.RemoveAllListeners();
-        MatchmakingUI.CancleButton.onClick.RemoveAllListeners();
 
         SettingButton.onClick.RemoveAllListeners();
 
         if (GameManager.Instance)
         {
             GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
-            GameManager.Instance.State.OnValueChanged -= OnGameManagerStateChanged;
         }
     }
     private void Update()
     {
-        JoinButton.interactable = !string.IsNullOrEmpty(JoinCodeInput.text) && _isDeckValide;
+        JoinButton.interactable = !string.IsNullOrEmpty(LobbyIdInput.text) && _isDeckValide;
     }
 
     private void OnPlayerNameInputChanged(string value)
@@ -80,53 +74,18 @@ public class UI_Lobby : MonoBehaviour
         JoinButton.interactable = _isDeckValide;
         DeckInvalidText.gameObject.SetActive(!_isDeckValide);
     }
-    private void OnGameManagerStateChanged(GameManagerState value)
-    {
-        switch (value)
-        {
-            case GameManagerState.Lobby: MatchmakingUI.gameObject.SetActive(false); break;
-            case GameManagerState.FindingMatching: MatchmakingUI.gameObject.SetActive(true); break;
-            case GameManagerState.CreateingMatching: MatchmakingUI.gameObject.SetActive(true); break;
-            case GameManagerState.JoiningMatching: MatchmakingUI.gameObject.SetActive(true); break;
-
-            case GameManagerState.StartingGame:
-                MatchmakingUI.JoinCodeField.text = "";
-                SoundManager.Instance.PlaySfx(Sfx_MatchingSuccess);
-                break;
-        }
-
-        MatchmakingUI.CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
-        MatchmakingUI.StateText.text = value switch
-        {
-            GameManagerState.FindingMatching => "매칭 찾는 중",
-            GameManagerState.CreateingMatching => "매칭 생성 중",
-            GameManagerState.JoiningMatching => "매칭 입장 중",
-            GameManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
-            GameManagerState.CancellingMatching => "매칭 취소 중",
-            GameManagerState.StartingGame => "게임 시작 중",
-            _ => "",
-        };
-    }
 
     private async void OnClick_CreateButton()
     {
-        MatchmakingUI.JoinCodeField.text = "코드 생성 중";
-        await GameManager.Instance.CreateMatchingAsync();
-        MatchmakingUI.JoinCodeField.text = GameManager.Instance.LobbyId;
+        await GameManager.Instance.CreateLobbyIdAsync();
     }
     private async void OnClick_JoinButton()
     {
-        MatchmakingUI.JoinCodeField.text = "";
-        await GameManager.Instance.JoinMatchingAsync(JoinCodeInput.text);
+        await GameManager.Instance.JoinWithLobbyIdAsync(LobbyIdInput.text);
     }
     private async void OnClick_AutoMatching()
     {
-        MatchmakingUI.JoinCodeField.text = "";
         await GameManager.Instance.AutoMatchingAsync();
-    }
-    private async void OnClick_MatchmaingUI_CancleButton()
-    {
-        await GameManager.Instance.CancelMatcingAsync();
     }
 
     private void OnClick_SettingButton()

@@ -12,10 +12,10 @@ public class UI_NextCard : MonoBehaviour
     {
         CardImage.gameObject.SetActive(cardId != -1);
 
-        if (!StaticDB.Instance.CardData.Dictionary.ContainsKey(cardId))
+        if (!RemoteConfigManager.Instance.GameData.CardData.Dictionary.ContainsKey(cardId))
             return;
 
-        CardData cardData = StaticDB.Instance.CardData.Dictionary[cardId];
+        CardData cardData = RemoteConfigManager.Instance.GameData.CardData.Dictionary[cardId];
 
         string path = $"CardSprite/{cardData.CodeName}";
         Sprite sprite = Resources.Load<Sprite>(path);

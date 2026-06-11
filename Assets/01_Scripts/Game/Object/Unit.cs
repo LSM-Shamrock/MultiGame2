@@ -40,7 +40,7 @@ public class Unit : FieldObject
         _opponent = opponent;
 
         _unitId = unitId;
-        _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
+        _unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[_unitId];
         _collider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
         _collider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
@@ -65,7 +65,7 @@ public class Unit : FieldObject
         else
         {
             _unitId = UnitId.Value;
-            _unitData = StaticDB.Instance.UnitData.Dictionary[_unitId];
+            _unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[_unitId];
         }
 
         transform.localScale = Vector3.one * _unitData.Scale;
@@ -179,8 +179,8 @@ public class Unit : FieldObject
             {
                 var enumerator = _unitData.AttackType switch
                 {
-                    AttackType.Motion => Attack_Motion(target, StaticDB.Instance.Attack_MotionData.Dictionary[_unitData.AttackId]),
-                    AttackType.Projectile => Attack_Projectile(target, StaticDB.Instance.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
+                    AttackType.Motion => Attack_Motion(target, RemoteConfigManager.Instance.GameData.Attack_MotionData.Dictionary[_unitData.AttackId]),
+                    AttackType.Projectile => Attack_Projectile(target, RemoteConfigManager.Instance.GameData.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
                     _ => null
                 };
                 if (enumerator != null)
@@ -194,8 +194,8 @@ public class Unit : FieldObject
         {
             var enumerator = _unitData.VerticalMoveType switch
             {
-                VerticalMoveType.Fall => VerticalMove_Fall(StaticDB.Instance.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
-                VerticalMoveType.UpDown => VerticalMove_UpDown(StaticDB.Instance.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.Fall => VerticalMove_Fall(RemoteConfigManager.Instance.GameData.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.UpDown => VerticalMove_UpDown(RemoteConfigManager.Instance.GameData.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
                 _ => null
             };
             if (enumerator != null)
@@ -217,7 +217,7 @@ public class Unit : FieldObject
         yield return new WaitForSeconds(data.MotionTime * data.HitNomalizedTime);
 
         if (target)
-            ApplyHit(target, this, StaticDB.Instance.AttackHitData.Dictionary[data.AttackHitId], dir);
+            ApplyHit(target, this, RemoteConfigManager.Instance.GameData.AttackHitData.Dictionary[data.AttackHitId], dir);
 
         yield return new WaitForSeconds(data.MotionTime * (1 - data.HitNomalizedTime));
 
@@ -234,7 +234,7 @@ public class Unit : FieldObject
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
 
         if (target)
-            SummonProjectile(target, StaticDB.Instance.ProjectileData.Dictionary[data.ProjectileId]);
+            SummonProjectile(target, RemoteConfigManager.Instance.GameData.ProjectileData.Dictionary[data.ProjectileId]);
 
         yield return new WaitForSeconds(clip.length);
 

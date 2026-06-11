@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -151,6 +152,7 @@ public abstract class TableData
 {
     public abstract int Key { get; }
 }
+
 public class Table<T> where T : TableData
 {
     public IReadOnlyList<T> List { get; }
@@ -161,21 +163,19 @@ public class Table<T> where T : TableData
         Dictionary = datas.ToDictionary(e => e.Key);
     }
 }
-[ExcelAsset]
-public class StaticDB : ScriptableObject
-{
-    private static StaticDB s_instance;
-    public static StaticDB Instance => s_instance ?? (s_instance = Resources.Load<StaticDB>(nameof(StaticDB)));
 
-    [SerializeField] private List<CardData> Card;
-    [SerializeField] private List<UnitData> Unit;
-    [SerializeField] private List<VerticalMove_FallData> VerticalMove_Fall;
-    [SerializeField] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
-    [SerializeField] private List<Attack_MotionData> Attack_Motion;
-    [SerializeField] private List<Attack_ProjectileData> Attack_Projectile;
-    [SerializeField] private List<ProjectileData> Projectile;
-    [SerializeField] private List<AttackHitData> AttackHit;
-    [SerializeField] private List<DotEffectData> DotEffect;
+[Serializable]
+public class GameData
+{
+    [JsonProperty] private List<CardData> Card;
+    [JsonProperty] private List<UnitData> Unit;
+    [JsonProperty] private List<VerticalMove_FallData> VerticalMove_Fall;
+    [JsonProperty] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
+    [JsonProperty] private List<Attack_MotionData> Attack_Motion;
+    [JsonProperty] private List<Attack_ProjectileData> Attack_Projectile;
+    [JsonProperty] private List<ProjectileData> Projectile;
+    [JsonProperty] private List<AttackHitData> AttackHit;
+    [JsonProperty] private List<DotEffectData> DotEffect;
 
     private Dictionary<Type, object> _tables = new();
 
