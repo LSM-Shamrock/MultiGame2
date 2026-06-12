@@ -35,8 +35,8 @@ public class CameraController : MonoBehaviour, ISceneInstance<CameraController>
 
     public void CoreDamageEffect(float damageRatio)
     {
-        float duration = shakeDurationMax * Mathf.Pow(damageRatio, 0.5f);
-        float amplitude = shakeAmplitudeMax * damageRatio * damageRatio;
+        float duration = shakeDurationMax * damageRatio;
+        float amplitude = shakeAmplitudeMax * damageRatio;
         float frequency = shakeFrequency;
 
         StartCoroutine(ShakeRoutine(duration , amplitude, frequency));

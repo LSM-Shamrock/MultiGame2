@@ -61,12 +61,13 @@ public class UI_GameResult : MonoBehaviour
 
     private IEnumerator ShowRoutine()
     {
-        var fadeTime = 0.5f;
-        var t = 0f;
+        yield return new WaitForSeconds(1f);
 
         OkButton.interactable = false;
         MainPanel.gameObject.SetActive(true);
 
+        float fadeTime = 0.5f;
+        float t = 0f;
         while (t < 1f)
         {
             var colorA = new Color(0.0f, 0.0f, 0.0f, 0.4f);
