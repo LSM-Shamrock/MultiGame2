@@ -51,7 +51,6 @@ public class Player : NetworkBehaviour
 
         if (IsOwner)
         {
-            Camera.main.transform.rotation = transform.rotation;
             ISceneInstance<GameScene>.SceneInstance.LocalPlayer.Value = this;
             ISceneInstance<UI_Game>.SceneInstance.SetLocalPlayer(this);
         }

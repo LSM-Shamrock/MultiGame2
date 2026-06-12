@@ -8,6 +8,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     [SerializeField, AssetField("Player")]
     private GameObject _playerPrefab;
 
+    [SerializeField, ChildField("RotationRoot")]
+    private Transform RotationRoot;
+
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
 
@@ -25,6 +28,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
             SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
         }
+
+        if (IsHost == false)
+            RotationRoot.rotation = Quaternion.Euler(0, 180, 0);
     }
     private void Update()
     {

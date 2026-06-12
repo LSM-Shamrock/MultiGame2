@@ -15,6 +15,7 @@ public class CoreUI : FieldObjectUI
     [SerializeField, ChildField] private TextMeshProUGUI _healthText;
     [SerializeField, AssetField("Sfx_Game_Unit_Hit")] private AudioClip _sfx_hit;
 
+
     protected override void LateUpdate()
     {
         base.LateUpdate();
@@ -28,6 +29,9 @@ public class CoreUI : FieldObjectUI
 
         if (newValue < prevValue)
         {
+            if (IsOwner)
+                ISceneInstance<CameraController>.SceneInstance.CoreDamageEffect((prevValue - newValue) / (float)_maxHealth);
+
             SoundManager.Instance.PlaySfx(_sfx_hit);
         }
     }
