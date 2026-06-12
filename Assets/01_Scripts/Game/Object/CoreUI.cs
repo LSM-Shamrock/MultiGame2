@@ -30,7 +30,7 @@ public class CoreUI : FieldObjectUI
         if (newValue < prevValue)
         {
             if (IsOwner)
-                ISceneInstance<CameraController>.SceneInstance.CoreDamageEffect((prevValue - newValue) / (float)_maxHealth);
+                ISceneInstance<CameraController>.SceneInstance.DamageEffect((prevValue - newValue) / (float)_maxHealth);
 
             SoundManager.Instance.PlaySfx(_sfx_hit);
         }
