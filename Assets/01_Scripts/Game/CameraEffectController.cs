@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class CameraController : MonoBehaviour, ISceneInstance<CameraController>
+public class CameraEffectController : MonoBehaviour, ISceneInstance<CameraEffectController>
 {
     [SerializeField, ChildField]
     private Image DamageEffectImage;
@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour, ISceneInstance<CameraController>
 
     private void Start()
     {
-        ((ISceneInstance<CameraController>)this).InitSceneInstance();
+        ((ISceneInstance<CameraEffectController>)this).InitSceneInstance();
     }
 
     private IEnumerator DamageEffectRoutine(float duration, float shakeAmplitude, float shakeFrequency, float imageAlpha)
