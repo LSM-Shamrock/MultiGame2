@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,8 +12,10 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     [SerializeField, ComponentField] private Canvas Canvas;
     [SerializeField, ChildField] private PointerEventBinder BackPanel;
     [SerializeField, ChildField] private Button CloseButton;
-    [SerializeField, ChildField] private Slider BgmVolumeSlider;
-    [SerializeField, ChildField] private Slider SfxVolumeSlider;
+    [SerializeField, ChildField] private Slider BgmSlider;
+    [SerializeField, ChildField] private Slider SfxSlider;
+    [SerializeField, ChildField] private TextMeshProUGUI BgmText;
+    [SerializeField, ChildField] private TextMeshProUGUI SfxText;
     [SerializeField, ChildField] private TextMeshProUGUI GameDataVersionText;
 
     private void Start()
@@ -20,11 +23,10 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         CloseButton.onClick.AddListener(Hide);
         BackPanel.AddEvent(PointerEventType.PointerClick, Hide);
 
-        BgmVolumeSlider.onValueChanged.AddListener(OnBgmVolumeSliderChanged);
-        SfxVolumeSlider.onValueChanged.AddListener(OnSfxVolumeSliderChanged);
-
-        BgmVolumeSlider.value = SoundManager.Instance.BgmVolume.Value;
-        SfxVolumeSlider.value = SoundManager.Instance.SfxVolume.Value;
+        BgmSlider.onValueChanged.AddListener(OnBgmSliderChanged);
+        SfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
+        BgmSlider.value = SoundManager.Instance.BgmVolume.Value;
+        SfxSlider.value = SoundManager.Instance.SfxVolume.Value;
 
         GameDataVersionText.text = $"게임 데이터 버전: v{RemoteConfigManager.Instance.GameDataVersion}";
     }
@@ -33,8 +35,8 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         CloseButton.onClick.RemoveAllListeners();
         BackPanel.RemvoeEvent(PointerEventType.PointerClick, Hide);
 
-        BgmVolumeSlider.onValueChanged.RemoveAllListeners();
-        SfxVolumeSlider.onValueChanged.RemoveAllListeners();
+        BgmSlider.onValueChanged.RemoveAllListeners();
+        SfxSlider.onValueChanged.RemoveAllListeners();
     }
 
     private void Hide()
@@ -42,12 +44,22 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         PopupManager.Instance.ClosePopup(this);
     }
 
-    private void OnBgmVolumeSliderChanged(float value)
+    private void OnBgmSliderChanged(float value)
     {
-        SoundManager.Instance.BgmVolume.Value = value;
+        int pct = Mathf.RoundToInt(value * 20f) * 5;
+        float v = pct / 100f;
+
+        BgmText.text = $"{pct}%";
+        BgmSlider.value = v;
+        SoundManager.Instance.BgmVolume.Value = v;
     }
-    private void OnSfxVolumeSliderChanged(float value)
+    private void OnSfxSliderChanged(float value)
     {
-        SoundManager.Instance.SfxVolume.Value = value;
+        int pct = Mathf.RoundToInt(value * 20f) * 5;
+        float v = pct / 100f;
+
+        SfxText.text = $"{pct}%";
+        SfxSlider.value = v;
+        SoundManager.Instance.SfxVolume.Value = v;
     }
 }

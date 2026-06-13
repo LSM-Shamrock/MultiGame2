@@ -3,8 +3,8 @@
 [AutoInjectionTarget]
 public class SoundManager : SingletonBehaviour<SoundManager>
 {
-    public ObservableValue<float> BgmVolume { get; } = new(1f, Mathf.Clamp01);
-    public ObservableValue<float> SfxVolume { get; } = new(1f, Mathf.Clamp01);
+    public ObservableValue<float> BgmVolume { get; } = new(0.5f, Mathf.Clamp01);
+    public ObservableValue<float> SfxVolume { get; } = new(0.5f, Mathf.Clamp01);
 
     [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
     [SerializeField, ChildField("SfxPlayer")] private AudioSource _sfxPlayer;
