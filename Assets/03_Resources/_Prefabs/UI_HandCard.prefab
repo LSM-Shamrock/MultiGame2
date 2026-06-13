@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1020503489053598405}
   - component: {fileID: 4010181978389721543}
   - component: {fileID: 8108806720304463969}
+  - component: {fileID: 1665189717735128695}
   m_Layer: 5
   m_Name: CardImage
   m_TagString: Untagged
@@ -77,6 +78,28 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &1665189717735128695
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1707620948063960421}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c53f9c76651bb46478c14b82fc160d1f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1709975495458835595
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,6 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CardImage: {fileID: 8108806720304463969}
+  Animator: {fileID: 1665189717735128695}
   FadeImage: {fileID: 3191919400693267235}
   MpText: {fileID: 8820825245720854102}
 --- !u!1 &3238351338735771162

@@ -5,8 +5,9 @@ using UnityEngine.UI;
 [AutoInjectionTarget]
 public class UI_MpBar : MonoBehaviour
 {
-    [SerializeField, ChildField] private TextMeshProUGUI MpText;
-    [SerializeField, ChildrenArrayField] private Image[] FillImages;
+    [SerializeField, ChildField("MpText")] private TextMeshProUGUI MpText;
+    [SerializeField, ChildField("MpMaxEffect")] private Animator MpMaxEffectAnimator;
+    [SerializeField, ChildrenArrayField("FillImages")] private Image[] FillImages;
 
 
     public void SetMP(float Value)
@@ -37,5 +38,7 @@ public class UI_MpBar : MonoBehaviour
             image.color = color;
             image.fillAmount = fill;
         }
+
+        MpMaxEffectAnimator.SetBool("IsMpMax", Value == FillImages.Length);
     }
 }

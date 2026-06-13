@@ -7,9 +7,10 @@ using UnityEngine.UI;
 [AutoInjectionTarget]
 public class UI_HandCard : MonoBehaviour, IPointerDownHandler
 {
-    [SerializeField, ChildField] private Image CardImage;
-    [SerializeField, ChildField] private Image FadeImage;
-    [SerializeField, ChildField] private TextMeshProUGUI MpText;
+    [SerializeField, ChildField("CardImage")] private Image CardImage;
+    [SerializeField, ChildField("CardImage")] private Animator Animator;
+    [SerializeField, ChildField("FadeImage")] private Image FadeImage;
+    [SerializeField, ChildField("MpText")] private TextMeshProUGUI MpText;
 
     private CardData _cardData;
 
@@ -50,6 +51,8 @@ public class UI_HandCard : MonoBehaviour, IPointerDownHandler
             CardImage.color = Color.gray;
             MpText.color = Color.red;
         }
+
+        Animator.SetBool("IsMpMax", playerMP == 10);
     }
     public void SetSelected(bool isSelected)
     {
