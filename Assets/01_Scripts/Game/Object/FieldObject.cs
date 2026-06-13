@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,6 +12,24 @@ public abstract class FieldObject : NetworkBehaviour
     public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
     public NetworkVariable<int> CurrentHealth { get; } = new();
+
+    protected Queue<(Vector2 direction, float distance, float speed)> KnockbackQueue = new();
+    protected Queue<int> DamageQueue = new();
+    protected Queue<int> HealQueue = new();
+
+    protected virtual void Update()
+    {
+        while (KnockbackQueue.TryDequeue(out var knockback))
+            OnKnockback(knockback.direction, knockback.distance, knockback.speed);
+
+        while (DamageQueue.TryDequeue(out int damage))
+            OnDamage(damage);
+    }
+    protected virtual void LateUpdate()
+    {
+        while (HealQueue.TryDequeue(out int amount))
+            OnHeal(amount);
+    }
 
     public float GetColliderDistance(Collider2D targetCollider)
     {
@@ -55,10 +74,10 @@ public abstract class FieldObject : NetworkBehaviour
         if (target.IsDead.Value)
             return;
 
-        target.OnDamage(data.Damage);
-        target.OnKnockback(hitDirection.normalized, data.KnockbackDistance, data.KnockbackSpeed);
+        target.DamageQueue.Enqueue(data.Damage);
+        target.KnockbackQueue.Enqueue((hitDirection.normalized, data.KnockbackDistance, data.KnockbackSpeed));
 
-        attacker.OnHeal((int)(data.Damage * data.DrainRatio));
+        attacker.HealQueue.Enqueue((int)(data.Damage * data.DrainRatio));
 
         if (string.IsNullOrEmpty(data.EffectAnimation) == false)
         {

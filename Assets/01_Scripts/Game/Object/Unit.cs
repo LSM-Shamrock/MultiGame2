@@ -81,8 +81,10 @@ public class Unit : FieldObject
             _owner.AllObjects.Remove(this);
         }
     }
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsServer)
         {
             FindTarget(out _target, out float horizontalDistance);
@@ -98,8 +100,10 @@ public class Unit : FieldObject
             UpdateVerticalMove();
         }
     }
-    private void LateUpdate()
+    protected override void LateUpdate()
     {
+        base.LateUpdate();
+
         if (IsServer)
         {
             if (transform.position.x > X_MAX)
