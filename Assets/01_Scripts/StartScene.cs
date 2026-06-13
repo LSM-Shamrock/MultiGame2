@@ -15,7 +15,12 @@ public class StartScene : MonoBehaviour
     }
     private async void Start()
     {
-        await UnityServices.InitializeAsync();
+        InitializationOptions options = new InitializationOptions();
+        string profileName = "P_" + System.Diagnostics.Process.GetCurrentProcess().Id;
+        profileName = profileName.Length > 30 ? profileName.Substring(0, 30) : profileName;
+        options.SetProfile(profileName);
+
+        await UnityServices.InitializeAsync(options);
 
         if (AuthenticationService.Instance.IsSignedIn == false)
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
