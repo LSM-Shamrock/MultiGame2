@@ -89,7 +89,7 @@ public class GameManager : SingletonBehaviour<GameManager>
                 _currentDeck = new ObservableArray<int>(8);
 
                 for (int i = 0; i < 8; i++)
-                    _currentDeck[i] = RemoteConfigManager.Instance.GameData.CardData.List[i].CardId;
+                    _currentDeck[i] = RemoteConfigManager.Instance.GameData.Value.CardData.List[i].CardId;
             }
             return _currentDeck;
         }
@@ -128,7 +128,7 @@ public class GameManager : SingletonBehaviour<GameManager>
 
         MatchingFilterData filterData = new MatchingFilterData
         {
-            MatchingVersion = RemoteConfigManager.Instance.GameDataVersion,
+            MatchingVersion = RemoteConfigManager.Instance.GameDataVersion.Value,
             IsAutoMatching = matchingType == MatchingType.AutoMatching,
         };
         MatchingFilter = JsonConvert.SerializeObject(filterData);

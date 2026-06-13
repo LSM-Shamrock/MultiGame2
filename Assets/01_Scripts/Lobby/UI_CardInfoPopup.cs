@@ -36,13 +36,13 @@ public class UI_CardInfoPopup : MonoBehaviour, IPopupUI
     public void SetCardData(CardData cardData)
     {
         _cardData = cardData;
-        _unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[_cardData.UnitId];
+        _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_cardData.UnitId];
 
         switch (_unitData.AttackType)
         {
 
-            case AttackType.Motion: _attack_MotionData = RemoteConfigManager.Instance.GameData.Attack_MotionData.Dictionary[_unitData.AttackId]; break;
-            case AttackType.Projectile: _attack_ProjectileData = RemoteConfigManager.Instance.GameData.Attack_ProjectileData.Dictionary[_unitData.AttackId]; break;
+            case AttackType.Motion: _attack_MotionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId]; break;
+            case AttackType.Projectile: _attack_ProjectileData = RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId]; break;
         }
 
         CardImage.sprite = Resources.Load<Sprite>($"CardSprite/{_cardData.CodeName}");

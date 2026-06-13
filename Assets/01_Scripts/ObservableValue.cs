@@ -6,6 +6,10 @@ public interface IObservOnlyValue<T>
     event Action<T> OnValueChanged;
 
     T Value { get; }
+
+    void RemoveListener(Action<T> action);
+    void AddListener(Action<T> action);
+    void AddListenerAndCall(Action<T> action);
 }
 public class ObservableValue<T> : IObservOnlyValue<T>
 {
@@ -35,14 +39,27 @@ public class ObservableValue<T> : IObservOnlyValue<T>
         _value = value;
         _changeProcessor = changeProcessor;
     }
+
+    public void RemoveListener(Action<T> action) => OnValueChanged -= action;
+    public void AddListener(Action<T> action) => OnValueChanged += action;
+    public void AddListenerAndCall(Action<T> action) { OnValueChanged += action; action?.Invoke(_value); }
 }
 
 public interface IObservOnlyArray<T>
 {
-    public event Action<IReadOnlyList<T>> OnAnyValueChanged;
-    public event Action<int, T> OnValueChanged;
-    public IReadOnlyList<T> Values { get; }
-    public T this[int index] { get; }
+    event Action<IReadOnlyList<T>> OnAnyValueChanged;
+    event Action<int, T> OnValueChanged;
+
+    IReadOnlyList<T> Values { get; }
+    T this[int index] { get; }
+
+    void RemoveListener(Action<int, T> action);
+    void AddListener(Action<int, T> action);
+    void AddListenerAndCall(Action<int, T> action);
+
+    void RemoveListener(Action<IReadOnlyList<T>> action);
+    void AddListener(Action<IReadOnlyList<T>> action);
+    void AddListenerAndCall(Action<IReadOnlyList<T>> action);
 }
 public class ObservableArray<T> : IObservOnlyArray<T>
 {
@@ -51,6 +68,7 @@ public class ObservableArray<T> : IObservOnlyArray<T>
 
     public event Action<IReadOnlyList<T>> OnAnyValueChanged;
     public event Action<int, T> OnValueChanged;
+
     public int Length => _array.Length;
     public IReadOnlyList<T> Values => _array;
     public T this[int index]
@@ -83,5 +101,22 @@ public class ObservableArray<T> : IObservOnlyArray<T>
     {
         _array = values;
         _changeProcessor = changeProcessor;
+    }
+
+    public void RemoveListener(Action<int, T> action) => OnValueChanged += action;
+    public void AddListener(Action<int, T> action) => OnValueChanged -= action;
+    public void AddListenerAndCall(Action<int, T> action) 
+    { 
+        OnValueChanged += action;  
+        for (int i = 0; i < _array.Length; i++)
+            action?.Invoke(i, _array[i]);
+    }
+
+    public void RemoveListener(Action<IReadOnlyList<T>> action) => OnAnyValueChanged -= action;
+    public void AddListener(Action<IReadOnlyList<T>> action) => OnAnyValueChanged += action;
+    public void AddListenerAndCall(Action<IReadOnlyList<T>> action) 
+    { 
+        OnAnyValueChanged += action; 
+        OnAnyValueChanged?.Invoke(_array); 
     }
 }

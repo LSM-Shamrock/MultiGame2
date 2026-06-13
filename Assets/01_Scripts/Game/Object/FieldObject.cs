@@ -84,7 +84,7 @@ public abstract class FieldObject : NetworkBehaviour
             ISceneInstance<EffectPool>.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
         }
 
-        if (RemoteConfigManager.Instance.GameData.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
+        if (RemoteConfigManager.Instance.GameData.Value.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
         {
             target.OnDotEffect(dotEffectData);
         }

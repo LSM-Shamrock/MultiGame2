@@ -22,7 +22,7 @@ public class UnitUI : FieldObjectUI
         base.OnNetworkSpawn();
 
         _unitId = _unit.UnitId.Value;
-        _unitData = RemoteConfigManager.Instance.GameData.UnitData.Dictionary[_unitId];
+        _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_unitId];
 
         transform.localPosition = new Vector3(0f, _unitData.ColliderHeight + 0.5f);
 

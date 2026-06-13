@@ -28,7 +28,7 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         BgmSlider.value = SoundManager.Instance.BgmVolume.Value;
         SfxSlider.value = SoundManager.Instance.SfxVolume.Value;
 
-        GameDataVersionText.text = $"게임 데이터 버전: v{RemoteConfigManager.Instance.GameDataVersion}";
+        RemoteConfigManager.Instance.GameDataVersion.AddListenerAndCall(OnGameDataVersionChanged);
     }
     private void OnDestroy()
     {
@@ -61,5 +61,9 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         SfxText.text = $"{pct}%";
         SfxSlider.value = v;
         SoundManager.Instance.SfxVolume.Value = v;
+    }
+    private void OnGameDataVersionChanged(string value)
+    {
+        GameDataVersionText.text = $"게임 데이터 버전: v{value}";
     }
 }
