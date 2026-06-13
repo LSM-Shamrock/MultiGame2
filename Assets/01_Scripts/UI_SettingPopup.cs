@@ -1,5 +1,6 @@
 ﻿using System;
 using TMPro;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,7 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     [SerializeField, ChildField] private TextMeshProUGUI BgmText;
     [SerializeField, ChildField] private TextMeshProUGUI SfxText;
     [SerializeField, ChildField] private TextMeshProUGUI GameDataVersionText;
+    [SerializeField, ChildField] private TextMeshProUGUI ProfileText;
 
     private void Start()
     {
@@ -29,6 +31,8 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
         SfxSlider.value = SoundManager.Instance.SfxVolume.Value;
 
         RemoteConfigManager.Instance.GameDataVersion.AddListenerAndCall(OnGameDataVersionChanged);
+
+        ProfileText.text = AuthenticationService.Instance.Profile;
     }
     private void OnDestroy()
     {
