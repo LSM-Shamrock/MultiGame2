@@ -72,6 +72,7 @@ public interface IObservOnlyArray<T>
     void AddListener(Action<IReadOnlyList<T>> action);
     void AddListenerAndCall(Action<IReadOnlyList<T>> action);
 }
+
 public class ObservableArray<T> : IObservOnlyArray<T>
 {
     private T[] _array;
@@ -114,8 +115,14 @@ public class ObservableArray<T> : IObservOnlyArray<T>
         _changeProcessor = changeProcessor;
     }
 
-    public void RemoveListener(Action<int, T> action) => OnValueChanged += action;
-    public void AddListener(Action<int, T> action) => OnValueChanged -= action;
+    public void RemoveListener(Action<int, T> action)
+    {
+        OnValueChanged += action;
+    }
+    public void AddListener(Action<int, T> action)
+    {
+        OnValueChanged -= action;
+    }
     public void AddListenerAndCall(Action<int, T> action) 
     { 
         OnValueChanged += action;  
@@ -123,8 +130,14 @@ public class ObservableArray<T> : IObservOnlyArray<T>
             action?.Invoke(i, _array[i]);
     }
 
-    public void RemoveListener(Action<IReadOnlyList<T>> action) => OnAnyValueChanged -= action;
-    public void AddListener(Action<IReadOnlyList<T>> action) => OnAnyValueChanged += action;
+    public void RemoveListener(Action<IReadOnlyList<T>> action)
+    {
+        OnAnyValueChanged -= action;
+    }
+    public void AddListener(Action<IReadOnlyList<T>> action)
+    {
+        OnAnyValueChanged += action;
+    }
     public void AddListenerAndCall(Action<IReadOnlyList<T>> action) 
     { 
         OnAnyValueChanged += action; 
