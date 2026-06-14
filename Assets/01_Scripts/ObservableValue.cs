@@ -11,7 +11,6 @@ public interface IObservOnlyValue<T>
     void AddListener(Action<T> action);
     void AddListenerAndCall(Action<T> action);
 }
-
 public class ObservableValue<T> : IObservOnlyValue<T>
 {
     private T _value;
@@ -72,7 +71,6 @@ public interface IObservOnlyArray<T>
     void AddListener(Action<IReadOnlyList<T>> action);
     void AddListenerAndCall(Action<IReadOnlyList<T>> action);
 }
-
 public class ObservableArray<T> : IObservOnlyArray<T>
 {
     private T[] _array;
