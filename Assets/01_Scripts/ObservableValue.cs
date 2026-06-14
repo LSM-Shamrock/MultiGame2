@@ -11,6 +11,7 @@ public interface IObservOnlyValue<T>
     void AddListener(Action<T> action);
     void AddListenerAndCall(Action<T> action);
 }
+
 public class ObservableValue<T> : IObservOnlyValue<T>
 {
     private T _value;
@@ -40,9 +41,19 @@ public class ObservableValue<T> : IObservOnlyValue<T>
         _changeProcessor = changeProcessor;
     }
 
-    public void RemoveListener(Action<T> action) => OnValueChanged -= action;
-    public void AddListener(Action<T> action) => OnValueChanged += action;
-    public void AddListenerAndCall(Action<T> action) { OnValueChanged += action; action?.Invoke(_value); }
+    public void RemoveListener(Action<T> action)
+    {
+        OnValueChanged -= action;
+    }
+    public void AddListener(Action<T> action)
+    {
+        OnValueChanged += action;
+    }
+    public void AddListenerAndCall(Action<T> action) 
+    { 
+        OnValueChanged += action; 
+        action?.Invoke(_value); 
+    }
 }
 
 public interface IObservOnlyArray<T>
