@@ -181,12 +181,20 @@ public class Unit : FieldObject
 
             if (distance <= _unitData.AttackRange)
             {
-                var enumerator = _unitData.AttackType switch
+                IEnumerator enumerator = null;
+
+                switch (_unitData.AttackType)
                 {
-                    AttackType.Motion => Attack_Motion(target, RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId]),
-                    AttackType.Projectile => Attack_Projectile(target, RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId]),
-                    _ => null
-                };
+                    case AttackType.Motion:
+                        Attack_MotionData attack_MotionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId];
+                        enumerator = Attack_Motion(target, attack_MotionData);
+                        break;
+                    case AttackType.Projectile:
+                        Attack_ProjectileData attack_projectileData = RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId];
+                        enumerator = Attack_Projectile(target, attack_projectileData);
+                        break;
+                }
+
                 if (enumerator != null)
                     _attackCoroutine = StartCoroutine(enumerator);
             }
