@@ -186,8 +186,8 @@ public class Unit : FieldObject
                 switch (_unitData.AttackType)
                 {
                     case AttackType.Motion:
-                        Attack_MotionData attack_MotionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId];
-                        enumerator = Attack_Motion(target, attack_MotionData);
+                        Attack_MotionData attack_motionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId];
+                        enumerator = Attack_Motion(target, attack_motionData);
                         break;
                     case AttackType.Projectile:
                         Attack_ProjectileData attack_projectileData = RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId];
