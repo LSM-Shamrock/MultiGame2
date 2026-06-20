@@ -17,8 +17,7 @@ public enum ProjectileMoveType { Directional, Horizontal }
 #endregion
 
 #region Data
-[Serializable]
-public class CardData : TableData
+[Serializable] public class CardData : TableData
 {
     public override int Key => CardId;
     public int CardId;
@@ -28,8 +27,7 @@ public class CardData : TableData
     public int CostMP;
     public int UnitId;
 }
-[Serializable]
-public class UnitData : TableData
+[Serializable] public class UnitData : TableData
 {
     public override int Key => UnitId;
     public int UnitId;
@@ -59,15 +57,13 @@ public class UnitData : TableData
     public AttackType AttackType;
     public int AttackId;
 }
-[Serializable]
-public class VerticalMove_FallData : TableData
+[Serializable] public class VerticalMove_FallData : TableData
 {
     public override int Key => VerticalMoveId;
     public int VerticalMoveId;
     public float FallSpeed;
 }
-[Serializable]
-public class VerticalMove_UpDownData : TableData
+[Serializable] public class VerticalMove_UpDownData : TableData
 {
     public override int Key => VerticalMoveId;
     public int VerticalMoveId;
@@ -76,8 +72,7 @@ public class VerticalMove_UpDownData : TableData
     public float UpSpeed;
     public float DownSpeed;
 }
-[Serializable]
-public class AttackData : TableData
+[Serializable] public class AttackData : TableData
 {
     public override int Key => AttackId;
     public int AttackId;
@@ -85,22 +80,19 @@ public class AttackData : TableData
     public string DisplayName;
     public float Cooltime;
 }
-[Serializable]
-public class Attack_MotionData : AttackData
+[Serializable] public class Attack_MotionData : AttackData
 {
     public float MotionTime;
     public string MotionAnimation;
     public float HitNomalizedTime;
     public int AttackHitId;
 }
-[Serializable]
-public class Attack_ProjectileData : AttackData
+[Serializable] public class Attack_ProjectileData : AttackData
 {
     public string MotionAnimation;
     public int ProjectileId;
 }
-[Serializable]
-public class ProjectileData : TableData
+[Serializable] public class ProjectileData : TableData
 {
     public override int Key => ProjectileId;
     public int ProjectileId;
@@ -120,8 +112,7 @@ public class ProjectileData : TableData
     public float PierceHitInterval;
     public int AttackHitId;
 }
-[Serializable]
-public class AttackHitData : TableData
+[Serializable] public class AttackHitData : TableData
 {
     public override int Key => AttackHitId;
     public int AttackHitId;
@@ -134,8 +125,7 @@ public class AttackHitData : TableData
     public float EffectTime;
     public int DotEffectId;
 }
-[Serializable]
-public class DotEffectData : TableData
+[Serializable] public class DotEffectData : TableData
 {
     public override int Key => DotEffectId;
     public int DotEffectId;
