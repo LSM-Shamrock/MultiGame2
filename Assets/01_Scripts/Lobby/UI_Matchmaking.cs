@@ -16,18 +16,18 @@ public class UI_Matchmaking : MonoBehaviour
     {
         CancleButton.onClick.AddListener(OnClick_MatchmaingUI_CancleButton);
 
-        if (GameManager.Instance)
+        if (MatchingManager.Instance)
         {
-            GameManager.Instance.State.OnValueChanged += OnGameManagerStateChanged;
+            MatchingManager.Instance.State.OnValueChanged += OnGameManagerStateChanged;
         }
     }
     private void OnDestroy()
     {
         CancleButton.onClick.RemoveAllListeners();
        
-        if (GameManager.Instance)
+        if (MatchingManager.Instance)
         {
-            GameManager.Instance.State.OnValueChanged -= OnGameManagerStateChanged;
+            MatchingManager.Instance.State.OnValueChanged -= OnGameManagerStateChanged;
         }
     }
 
@@ -42,44 +42,44 @@ public class UI_Matchmaking : MonoBehaviour
 
     private async void OnClick_MatchmaingUI_CancleButton()
     {
-        await GameManager.Instance.CancelMatcingAsync();
+        await MatchingManager.Instance.CancelMatcingAsync();
     }
-    private void OnGameManagerStateChanged(GameManagerState value)
+    private void OnGameManagerStateChanged(MatchingManagerState value)
     {
-        var creatingType = GameManager.Instance.MatchingType;
+        var creatingType = MatchingManager.Instance.MatchingType;
 
-        MatchingFilterText.text = GameManager.Instance.MatchingFilter;
+        MatchingFilterText.text = MatchingManager.Instance.MatchingFilter;
         LobbyIdField.text = "";
         switch (value)
         {
-            case GameManagerState.Lobby: Hide(); break;
-            case GameManagerState.FindingMatching: Show(); break;
-            case GameManagerState.JoiningMatching: Show(); break;
+            case MatchingManagerState.Lobby: Hide(); break;
+            case MatchingManagerState.FindingMatching: Show(); break;
+            case MatchingManagerState.JoiningMatching: Show(); break;
 
-            case GameManagerState.CreateingMatching:
+            case MatchingManagerState.CreateingMatching:
                 Debug.Log(creatingType);
                 LobbyIdField.text = creatingType == MatchingType.LobbyIdMatching ? "방 아이디 생성 중" : "";
                 Show();
                 break;
-            case GameManagerState.WaitingForPalyers:
+            case MatchingManagerState.WaitingForPalyers:
                 Debug.Log(creatingType);
-                LobbyIdField.text = creatingType == MatchingType.LobbyIdMatching ? GameManager.Instance.LobbyId : "";
+                LobbyIdField.text = creatingType == MatchingType.LobbyIdMatching ? MatchingManager.Instance.LobbyId : "";
                 break;
 
-            case GameManagerState.StartingGame:
+            case MatchingManagerState.StartingGame:
                 SoundManager.Instance.PlaySfx(Sfx_MatchingSuccess);
                 break;
         }
 
-        CancleButton.interactable = value == GameManagerState.WaitingForPalyers;
+        CancleButton.interactable = value == MatchingManagerState.WaitingForPalyers;
         StateText.text = value switch
         {
-            GameManagerState.FindingMatching => "매칭 찾는 중",
-            GameManagerState.CreateingMatching => "매칭 생성 중",
-            GameManagerState.JoiningMatching => "매칭 입장 중",
-            GameManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
-            GameManagerState.CancellingMatching => "매칭 취소 중",
-            GameManagerState.StartingGame => "게임 시작 중",
+            MatchingManagerState.FindingMatching => "매칭 찾는 중",
+            MatchingManagerState.CreateingMatching => "매칭 생성 중",
+            MatchingManagerState.JoiningMatching => "매칭 입장 중",
+            MatchingManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
+            MatchingManagerState.CancellingMatching => "매칭 취소 중",
+            MatchingManagerState.StartingGame => "게임 시작 중",
             _ => "",
         };
     }

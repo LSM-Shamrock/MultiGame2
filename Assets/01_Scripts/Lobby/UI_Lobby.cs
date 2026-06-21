@@ -29,9 +29,9 @@ public class UI_Lobby : MonoBehaviour
         
         SettingButton.onClick.AddListener(OnClick_SettingButton);
 
-        if (GameManager.Instance)
+        if (MatchingManager.Instance)
         {
-            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
+            MatchingManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
         }
 
         SoundManager.Instance.PlayBgm(Bgm);
@@ -47,9 +47,9 @@ public class UI_Lobby : MonoBehaviour
         
         SettingButton.onClick.RemoveAllListeners();
 
-        if (GameManager.Instance)
+        if (MatchingManager.Instance)
         {
-            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
+            MatchingManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
         }
     }
     private void Update()
@@ -59,7 +59,7 @@ public class UI_Lobby : MonoBehaviour
 
     private void OnPlayerNameInputChanged(string value)
     {
-        GameManager.Instance.PlayerName = value;
+        MatchingManager.Instance.PlayerName = value;
     }
     private void OnDeckCardIdsChanged(IReadOnlyList<int> deckCardIds)
     {
@@ -82,19 +82,19 @@ public class UI_Lobby : MonoBehaviour
 
     private async void OnClick_Create()
     {
-        await GameManager.Instance.CreateLobbyIdAsync();
+        await MatchingManager.Instance.CreateLobbyIdAsync();
     }
     private async void OnClick_Join()
     {
-        await GameManager.Instance.JoinWithLobbyIdAsync(LobbyIdInput.text);
+        await MatchingManager.Instance.JoinWithLobbyIdAsync(LobbyIdInput.text);
     }
     private async void OnClick_AutoMatching()
     {
-        await GameManager.Instance.AutoMatchingAsync();
+        await MatchingManager.Instance.AutoMatchingAsync();
     }
     private async void OnClick_PvE()
     {
-        await GameManager.Instance.PvEAsync();
+        await MatchingManager.Instance.PvEAsync();
     }
 
     private void OnClick_SettingButton()

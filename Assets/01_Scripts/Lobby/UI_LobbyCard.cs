@@ -32,16 +32,16 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         AppendButton.onClick.AddListener(OnAppendButtonClick);
         RemoveButton.onClick.AddListener(OnRemoveButtonClick);
 
-        if (GameManager.Instance != null)
+        if (MatchingManager.Instance != null)
         {
-            OnChangeDeck(GameManager.Instance.CurrentDeckCardIds.Values);
-            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
+            OnChangeDeck(MatchingManager.Instance.CurrentDeckCardIds.Values);
+            MatchingManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
         }
     }
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
-            GameManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
+        if (MatchingManager.Instance != null)
+            MatchingManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
     }
     private void Update()
     {
@@ -109,11 +109,11 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         SelectMenuDisplay.SetActive(false);
 
-        for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
+        for (int i = 0; i < MatchingManager.Instance.CurrentDeckCardIds.Length; i++)
         {
-            if (GameManager.Instance.CurrentDeckCardIds[i] == -1)
+            if (MatchingManager.Instance.CurrentDeckCardIds[i] == -1)
             {
-                GameManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
+                MatchingManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
                 break;
             }
         }
@@ -122,11 +122,11 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         SelectMenuDisplay.SetActive(false);
 
-        for (int i = 0; i < GameManager.Instance.CurrentDeckCardIds.Length; i++)
+        for (int i = 0; i < MatchingManager.Instance.CurrentDeckCardIds.Length; i++)
         {
-            if (GameManager.Instance.CurrentDeckCardIds[i] == _cardData.CardId)
+            if (MatchingManager.Instance.CurrentDeckCardIds[i] == _cardData.CardId)
             {
-                GameManager.Instance.CurrentDeckCardIds[i] = -1;
+                MatchingManager.Instance.CurrentDeckCardIds[i] = -1;
                 break;
             }
         }

@@ -39,7 +39,7 @@ public struct MatchingFilterData
     public bool IsAutoMatching;
 }
 
-public enum GameManagerState
+public enum MatchingManagerState
 {
     Lobby,
     FindingMatching,
@@ -59,22 +59,22 @@ public enum MatchingType
 }
 
 [AutoInjectionTarget]
-public class GameManager : SingletonBehaviour<GameManager>
+public class MatchingManager : SingletonBehaviour<MatchingManager>
 {
     private const int MAXPLAYERS = 2;
     private const string SCENE_GAME = "GameScene";
     private const string SCENE_LOBBY = "LobbyScene";
 
-    public IObservOnlyValue<GameManagerState> State => _state;
-    private ObservableValue<GameManagerState> _state = new (GameManagerState.Lobby);
+    public IObservOnlyValue<MatchingManagerState> State => _state;
+    private ObservableValue<MatchingManagerState> _state = new (MatchingManagerState.Lobby);
     public MatchingType MatchingType
     {
         get
         {
             return _state.Value switch
             {
-                GameManagerState.CreateingMatching => _matchingType,
-                GameManagerState.WaitingForPalyers => _matchingType,
+                MatchingManagerState.CreateingMatching => _matchingType,
+                MatchingManagerState.WaitingForPalyers => _matchingType,
                 _ => MatchingType.None,
             };
         }
@@ -146,7 +146,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     }
     private async Task CreateMatchingAsync()
     {
-        _state.Value = GameManagerState.CreateingMatching;
+        _state.Value = MatchingManagerState.CreateingMatching;
         
         LocalPlayerSessionData = null;
         OpponentPlayerSessionData = null;
@@ -175,17 +175,17 @@ public class GameManager : SingletonBehaviour<GameManager>
         });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
-        _state.Value = GameManagerState.WaitingForPalyers;
+        _state.Value = MatchingManagerState.WaitingForPalyers;
     }
     private async Task<bool> JoinMatchingAsync(string lobbyId)
     {
-        _state.Value = GameManagerState.JoiningMatching;
+        _state.Value = MatchingManagerState.JoiningMatching;
 
         var lobby = await LobbyService.Instance.GetLobbyAsync(lobbyId);
         if (lobby != null && lobby.Data[LOBBY_DATA_MATCHINGFILTER].Value.Equals(MatchingFilter) == false)
         {
             Debug.LogWarning("입장하려는 방과 필터가 달라서 입장 실패함");
-            _state.Value = GameManagerState.Lobby;
+            _state.Value = MatchingManagerState.Lobby;
             return false;
         }
 
@@ -197,7 +197,7 @@ public class GameManager : SingletonBehaviour<GameManager>
         catch (LobbyServiceException ex)
         {
             Debug.Log(ex);
-            _state.Value = GameManagerState.Lobby;
+            _state.Value = MatchingManagerState.Lobby;
             return false;
         }
 
@@ -252,22 +252,22 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         await ShutdownClientAsync();
 
-        _state.Value = GameManagerState.Lobby;
+        _state.Value = MatchingManagerState.Lobby;
 
         await SceneManager.LoadSceneAsync(SCENE_LOBBY);
     }
 
     public async Task CancelMatcingAsync()
     {
-        if (_state.Value != GameManagerState.WaitingForPalyers)
+        if (_state.Value != MatchingManagerState.WaitingForPalyers)
             return;
 
-        _state.Value = GameManagerState.CancellingMatching;
+        _state.Value = MatchingManagerState.CancellingMatching;
 
         await DeleteLobbyAsync();
         await ShutdownClientAsync();
 
-        _state.Value = GameManagerState.Lobby;
+        _state.Value = MatchingManagerState.Lobby;
     }
     public async Task CreateLobbyIdAsync()
     {
@@ -285,7 +285,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         SetMatchingInfo(MatchingType.AutoMatching);
 
-        _state.Value = GameManagerState.FindingMatching;
+        _state.Value = MatchingManagerState.FindingMatching;
 
         QueryResponse query = await LobbyService.Instance.QueryLobbiesAsync(new QueryLobbiesOptions
         {
@@ -384,7 +384,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
         {
-            _state.Value = GameManagerState.StartingGame;
+            _state.Value = MatchingManagerState.StartingGame;
             await UploadLobbyPlayerDataAsync();
         }
     }
@@ -395,7 +395,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
 
-            _state.Value = GameManagerState.Lobby;
+            _state.Value = MatchingManagerState.Lobby;
         }
     }
 }

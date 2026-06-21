@@ -21,10 +21,10 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     {
         ((ISceneInstance<GameScene>)this).InitSceneInstance();
 
-        if (NetworkManager.Singleton.IsHost && GameManager.Instance)
+        if (NetworkManager.Singleton.IsHost && MatchingManager.Instance)
         {
-            var local = GameManager.Instance.LocalPlayerSessionData;
-            var opponent = GameManager.Instance.OpponentPlayerSessionData;
+            var local = MatchingManager.Instance.LocalPlayerSessionData;
+            var opponent = MatchingManager.Instance.OpponentPlayerSessionData;
             SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
             SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
         }

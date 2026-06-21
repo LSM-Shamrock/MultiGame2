@@ -23,7 +23,7 @@ public class UI_GameResult : MonoBehaviour
 
     private async void OnOkButtonClick()
     {
-        await GameManager.Instance.ExitGameToLobbyAsync();
+        await MatchingManager.Instance.ExitGameToLobbyAsync();
     }
 
     private void OnGameFinished(ulong? winnerClientId)
