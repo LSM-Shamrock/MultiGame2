@@ -81,22 +81,6 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     }
     private MatchingType _matchingType;
 
-    public ObservableArray<int> CurrentDeckCardIds
-    {
-        get
-        {
-            if (_currentDeck == null)
-            {
-                _currentDeck = new ObservableArray<int>(8);
-
-                for (int i = 0; i < 8; i++)
-                    _currentDeck[i] = RemoteConfigManager.Instance.GameData.Value.CardData.List[i].CardId;
-            }
-            return _currentDeck;
-        }
-    }
-    private ObservableArray<int> _currentDeck;
-    public string PlayerName { get; set; }
     public PlayerSessionData LocalPlayerSessionData { get; private set; }
     public PlayerSessionData OpponentPlayerSessionData { get; private set; }
 
@@ -117,8 +101,8 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         PlayerSessionData data = new PlayerSessionData(
             _lobby.Id,
             NetworkManager.Singleton.LocalClientId,
-            PlayerName,
-            CurrentDeckCardIds.Values.ToArray());
+            LobbyManager.Instance.PlayerName,
+            LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
 
         string json = JsonConvert.SerializeObject(data);
 
