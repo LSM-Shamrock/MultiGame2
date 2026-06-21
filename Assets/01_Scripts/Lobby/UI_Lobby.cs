@@ -9,6 +9,7 @@ public class UI_Lobby : MonoBehaviour
     [ChildField] public Button PlayButton;
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
+    [ChildField] public Button PvEButton;
     [ChildField] public Button SettingButton;
     [ChildField] public TMP_InputField LobbyIdInput;
     [ChildField] public TMP_InputField PlayerNameInput;
@@ -19,10 +20,12 @@ public class UI_Lobby : MonoBehaviour
 
     private void Start()
     {
-        PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
-        CreateButton.onClick.AddListener(OnClick_CreateButton);
-        JoinButton.onClick.AddListener(OnClick_JoinButton);
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
+        CreateButton.onClick.AddListener(OnClick_Create);
+        JoinButton.onClick.AddListener(OnClick_Join);
+        PvEButton.onClick.AddListener(OnClick_PvE);
+        
+        PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
         
         SettingButton.onClick.AddListener(OnClick_SettingButton);
 
@@ -35,11 +38,13 @@ public class UI_Lobby : MonoBehaviour
     }
     private void OnDestroy()
     {
+        PlayButton.onClick.RemoveAllListeners();
         CreateButton.onClick.RemoveAllListeners();
         JoinButton.onClick.RemoveAllListeners();
-        PlayButton.onClick.RemoveAllListeners();
-        PlayerNameInput.onValueChanged.RemoveAllListeners();
+        PvEButton.onClick.RemoveAllListeners();
 
+        PlayerNameInput.onValueChanged.RemoveAllListeners();
+        
         SettingButton.onClick.RemoveAllListeners();
 
         if (GameManager.Instance)
@@ -75,17 +80,21 @@ public class UI_Lobby : MonoBehaviour
         DeckInvalidText.gameObject.SetActive(!_isDeckValide);
     }
 
-    private async void OnClick_CreateButton()
+    private async void OnClick_Create()
     {
         await GameManager.Instance.CreateLobbyIdAsync();
     }
-    private async void OnClick_JoinButton()
+    private async void OnClick_Join()
     {
         await GameManager.Instance.JoinWithLobbyIdAsync(LobbyIdInput.text);
     }
     private async void OnClick_AutoMatching()
     {
         await GameManager.Instance.AutoMatchingAsync();
+    }
+    private async void OnClick_PvE()
+    {
+        await GameManager.Instance.PvEAsync();
     }
 
     private void OnClick_SettingButton()
