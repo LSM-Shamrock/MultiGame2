@@ -9,7 +9,6 @@ public class UI_Lobby : MonoBehaviour
     [ChildField] public Button PlayButton;
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
-    [ChildField] public Button PvEButton;
     [ChildField] public Button SettingButton;
     [ChildField] public TMP_InputField LobbyIdInput;
     [ChildField] public TMP_InputField PlayerNameInput;
@@ -23,7 +22,6 @@ public class UI_Lobby : MonoBehaviour
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
         CreateButton.onClick.AddListener(OnClick_Create);
         JoinButton.onClick.AddListener(OnClick_Join);
-        PvEButton.onClick.AddListener(OnClick_PvE);
         
         PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
         
@@ -41,7 +39,6 @@ public class UI_Lobby : MonoBehaviour
         PlayButton.onClick.RemoveAllListeners();
         CreateButton.onClick.RemoveAllListeners();
         JoinButton.onClick.RemoveAllListeners();
-        PvEButton.onClick.RemoveAllListeners();
 
         PlayerNameInput.onValueChanged.RemoveAllListeners();
         
@@ -91,10 +88,6 @@ public class UI_Lobby : MonoBehaviour
     private async void OnClick_AutoMatching()
     {
         await MatchingManager.Instance.AutoMatchingAsync();
-    }
-    private async void OnClick_PvE()
-    {
-        await MatchingManager.Instance.PvEAsync();
     }
 
     private void OnClick_SettingButton()

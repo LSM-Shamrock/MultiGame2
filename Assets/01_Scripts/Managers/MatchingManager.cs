@@ -55,7 +55,6 @@ public enum MatchingType
     None,
     AutoMatching,
     LobbyIdMatching,
-    PvE,
 }
 
 [AutoInjectionTarget]
@@ -296,12 +295,6 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
             Debug.Log("로비 새로 생성함");
         }
     }
-    public async Task PvEAsync()
-    {
-        SetMatchingInfo(MatchingType.PvE);
-
-        await CreateMatchingAsync();
-    }    
 
     private IEnumerator HeartbeatRoutine()
     {
