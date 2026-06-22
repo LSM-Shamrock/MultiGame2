@@ -9,8 +9,8 @@ using UnityEngine;
 public class Unit : FieldObject
 {
     private const float GROUND_Y = -2.5f;
-    private const float X_MIN = -11.5f;
-    private const float X_MAX = 11.5f;
+    private const float X_MIN = -18f;
+    private const float X_MAX = 18f;
 
     public override Collider2D Collider => _collider;
     public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
