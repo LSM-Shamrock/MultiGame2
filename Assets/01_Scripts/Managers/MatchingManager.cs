@@ -271,6 +271,8 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         LocalPlayerSessionData = null;
         OpponentPlayerSessionData = null;
 
+        // Relay 없이 로컬 호스트로 시작, 포트 0 = OS가 빈 포트 자동 할당
+        NetworkManager.Singleton.GetComponent<UnityTransport>() .SetConnectionData("127.0.0.1", 0);
         NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 

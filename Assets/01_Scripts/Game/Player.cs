@@ -17,7 +17,6 @@ public class Player : NetworkBehaviour
     private string _playerName;
     private int[] _deckCardIds;
     private Queue<int> _nextCardIds = new();
-    private Player _opponent;
 
     [SerializeField, ChildField] private Transform CorePos;
     [SerializeField, ChildrenArrayField] private Transform[] SummonGrid;
@@ -29,6 +28,7 @@ public class Player : NetworkBehaviour
     public HashSet<Unit> AllUnits { get; } = new();
     public HashSet<FieldObject> AllObjects { get; } = new();
     public bool IsDead { get; set; } = false;
+    public bool IsBot { get; set; } = false;
 
     public void Init(string playerName, int[] deckCardIds)
     {
@@ -60,6 +60,7 @@ public class Player : NetworkBehaviour
             ISceneInstance<UI_Game>.SceneInstance.SetOpponentPlayer(this);
         }
     }
+
     private void SetupHandAndNextCards(int[] deck)
     {
         int[] shuffled = new int[deck.Length];
@@ -115,7 +116,11 @@ public class Player : NetworkBehaviour
     public void SummonCardServerRpc(int handIndex, int gridIndex)
     {
         Debug.Log("카드 소환 요청 RPC호출됨");
-
+        SummonCard(handIndex, gridIndex);
+    }
+    public void SummonCard(int handIndex, int gridIndex)
+    {
+        if (!IsServer) return;
         if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
         if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
 

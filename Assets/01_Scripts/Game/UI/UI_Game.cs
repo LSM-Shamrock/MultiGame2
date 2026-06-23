@@ -45,10 +45,8 @@ public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
         if (_player == null)
             return;
 
-        if (_displayMP < 10)
-            RefreshMP(_displayMP += Time.deltaTime / 2f);
-        if (_displayMP > 10)
-            RefreshMP(_displayMP = 10);
+        if (_displayMP < 10) RefreshMP(_displayMP += Time.deltaTime / 2f);
+        if (_displayMP > 10) RefreshMP(_displayMP = 10);
 
         if (_selectedCardData != null)
         {

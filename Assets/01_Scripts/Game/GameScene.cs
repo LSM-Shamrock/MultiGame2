@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [AutoInjectionTarget]
@@ -24,9 +25,12 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         if (NetworkManager.Singleton.IsHost && MatchingManager.Instance)
         {
             var local = MatchingManager.Instance.LocalPlayerSessionData;
+            var localPlayer = SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
+            
             var opponent = MatchingManager.Instance.OpponentPlayerSessionData;
-            SpawnPlayer(local.ClientId, local.PlayerName, local.DeckCardIds, false);
-            SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
+            var opponentPlayer = SpawnPlayer(opponent.ClientId, opponent.PlayerName, opponent.DeckCardIds, true);
+            if (MatchingManager.Instance.MatchingType == MatchingType.PvE)
+                opponentPlayer.IsBot = true;
         }
 
         if (IsHost == false)
@@ -45,13 +49,15 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         }
     }
 
-    private void SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
+    private Player SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
     {
         GameObject go = Instantiate(_playerPrefab, Vector2.zero, isRotate ? Quaternion.Euler(0, 180, 0) : Quaternion.identity);
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Player player = go.GetComponent<Player>();
         player.Init(playerName, deckCardIds);
         obj.SpawnAsPlayerObject(clientId);
+        
+        return player;
     }
 
     [Rpc(SendTo.ClientsAndHost)]
