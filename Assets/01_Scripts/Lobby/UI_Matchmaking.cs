@@ -42,7 +42,7 @@ public class UI_Matchmaking : MonoBehaviour
 
     private async void OnClick_MatchmaingUI_CancleButton()
     {
-        await MatchingManager.Instance.CancelMatcingAsync();
+        await MatchingManager.Instance.CancelMatchingAsync();
     }
     private void OnGameManagerStateChanged(MatchingManagerState value)
     {
@@ -56,12 +56,12 @@ public class UI_Matchmaking : MonoBehaviour
             case MatchingManagerState.FindingMatching: Show(); break;
             case MatchingManagerState.JoiningMatching: Show(); break;
 
-            case MatchingManagerState.CreateingMatching:
+            case MatchingManagerState.CreatingMatching:
                 Debug.Log(creatingType);
                 LobbyIdField.text = creatingType == MatchingType.LobbyIdMatching ? "방 아이디 생성 중" : "";
                 Show();
                 break;
-            case MatchingManagerState.WaitingForPalyers:
+            case MatchingManagerState.WaitingForPlayers:
                 Debug.Log(creatingType);
                 LobbyIdField.text = creatingType == MatchingType.LobbyIdMatching ? MatchingManager.Instance.LobbyId : "";
                 break;
@@ -71,13 +71,13 @@ public class UI_Matchmaking : MonoBehaviour
                 break;
         }
 
-        CancleButton.interactable = value == MatchingManagerState.WaitingForPalyers;
+        CancleButton.interactable = value == MatchingManagerState.WaitingForPlayers;
         StateText.text = value switch
         {
             MatchingManagerState.FindingMatching => "매칭 찾는 중",
-            MatchingManagerState.CreateingMatching => "매칭 생성 중",
+            MatchingManagerState.CreatingMatching => "매칭 생성 중",
             MatchingManagerState.JoiningMatching => "매칭 입장 중",
-            MatchingManagerState.WaitingForPalyers => "다른 플레이어 입장 대기 중",
+            MatchingManagerState.WaitingForPlayers => "다른 플레이어 입장 대기 중",
             MatchingManagerState.CancellingMatching => "매칭 취소 중",
             MatchingManagerState.StartingGame => "게임 시작 중",
             _ => "",

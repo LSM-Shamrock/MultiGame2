@@ -17,15 +17,15 @@ using UnityEngine.SceneManagement;
 [Serializable]
 public class PlayerSessionData
 {
-    public readonly string LobbyPlayerId;
+    public readonly string AuthenticationPlayerId;
     public readonly ulong ClientId;
     public readonly string PlayerName;
     public readonly int[] DeckCardIds;
 
     [JsonConstructor]
-    public PlayerSessionData(string lobbyPlayerId, ulong clientId, string playerName, int[] deckCardIds)
+    public PlayerSessionData(string authenticationPlayerId, ulong clientId, string playerName, int[] deckCardIds)
     {
-        LobbyPlayerId = lobbyPlayerId;
+        AuthenticationPlayerId = authenticationPlayerId;
         ClientId = clientId;
         PlayerName = playerName;
         DeckCardIds = deckCardIds;
@@ -42,10 +42,11 @@ public struct MatchingFilterData
 public enum MatchingManagerState
 {
     Lobby,
+    Error,
     FindingMatching,
-    CreateingMatching,
+    CreatingMatching,
     JoiningMatching,
-    WaitingForPalyers,
+    WaitingForPlayers,
     CancellingMatching,
     StartingGame,
 }
@@ -67,36 +68,26 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
 
     public IObservOnlyValue<MatchingManagerState> State => _state;
     private ObservableValue<MatchingManagerState> _state = new (MatchingManagerState.Lobby);
-    public MatchingType MatchingType
-    {
-        get
-        {
-            return _state.Value switch
-            {
-                MatchingManagerState.CreateingMatching => _matchingType,
-                MatchingManagerState.WaitingForPalyers => _matchingType,
-                _ => MatchingType.None,
-            };
-        }
-    }
+    public MatchingType MatchingType => _state.Value == MatchingManagerState.Lobby ? MatchingType.None : _matchingType;
     private MatchingType _matchingType;
 
     public PlayerSessionData LocalPlayerSessionData { get; private set; }
     public PlayerSessionData OpponentPlayerSessionData { get; private set; }
 
     public string MatchingFilter { get; private set; }
-    public string LobbyId => _lobby.Id;
+    public string LobbyId => _lobby?.Id;
     private Lobby _lobby;
     private ILobbyEvents _lobbyEvents;
     private LobbyEventCallbacks _lobbyEventCallbacks = new();
     private const float                     LOBBY_HEARTBEAT_INTERVAL = 15f;
     private const string                    LOBBY_NAME = "Lobby";
     private const string                    LOBBY_DATA_JOINCODE = "JoinCode";
-    private const string                    LOBBY_DATA_MATCHINGFILTER = "FilterData";
+    private const string                    LOBBY_DATA_MATCHINGFILTER = "MatchingFilter";
     private const DataObject.IndexOptions   LOBBY_DATA_MATCHINGFILTER_INDEX = DataObject.IndexOptions.S1;
     private const QueryFilter.FieldOptions  LOBBY_DATA_MATCHINGFILTER_FILTER = QueryFilter.FieldOptions.S1;
+    private const string                    LOBBY_PLAYERDATA_SESSIONDATA = "PlayerSessionData";
 
-    private void SetMatchingFilter(MatchingType matchingType)
+    private void SetMatchingInfo(MatchingType matchingType)
     {
         _matchingType = matchingType;
 
@@ -109,7 +100,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     }
     private async Task CreateMatchingAsync()
     {
-        _state.Value = MatchingManagerState.CreateingMatching;
+        _state.Value = MatchingManagerState.CreatingMatching;
         
         LocalPlayerSessionData = null;
         OpponentPlayerSessionData = null;
@@ -138,7 +129,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
-        _state.Value = MatchingManagerState.WaitingForPalyers;
+        _state.Value = MatchingManagerState.WaitingForPlayers;
     }
     private async Task<bool> JoinMatchingAsync(string lobbyId)
     {
@@ -180,8 +171,8 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     
     private async Task DeleteLobbyAsync()
     {
-        if (_lobby.HostId != AuthenticationService.Instance.PlayerId)
-            return;
+        if (_lobby == null) return;
+        if (_lobby.HostId != AuthenticationService.Instance.PlayerId) return;
 
         await _lobbyEvents?.UnsubscribeAsync();
         await LobbyService.Instance.DeleteLobbyAsync(_lobby.Id);
@@ -219,9 +210,10 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         await SceneManager.LoadSceneAsync(SCENE_LOBBY);
     }
 
-    public async Task CancelMatcingAsync()
+    public async Task CancelMatchingAsync()
     {
-        if (_state.Value != MatchingManagerState.WaitingForPalyers)
+        if (_state.Value != MatchingManagerState.WaitingForPlayers &&
+            _state.Value != MatchingManagerState.Error)
             return;
 
         _state.Value = MatchingManagerState.CancellingMatching;
@@ -233,19 +225,19 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     }
     public async Task CreateLobbyIdAsync()
     {
-        SetMatchingFilter(MatchingType.LobbyIdMatching);
+        SetMatchingInfo(MatchingType.LobbyIdMatching);
 
         await CreateMatchingAsync();
     }
     public async Task JoinWithLobbyIdAsync(string lobbyId)
     {
-        SetMatchingFilter(MatchingType.LobbyIdMatching);
+        SetMatchingInfo(MatchingType.LobbyIdMatching);
 
         await JoinMatchingAsync(lobbyId);
     }
     public async Task AutoMatchingAsync()
     {
-        SetMatchingFilter(MatchingType.AutoMatching);
+        SetMatchingInfo(MatchingType.AutoMatching);
 
         _state.Value = MatchingManagerState.FindingMatching;
 
@@ -282,10 +274,12 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     private async Task UploadPlayerSessionDataAsync()
     {
         PlayerSessionData data = new PlayerSessionData(
-            lobbyPlayerId: _lobby.Id,
+            authenticationPlayerId: AuthenticationService.Instance.PlayerId,
             clientId: NetworkManager.Singleton.LocalClientId,
             playerName: LobbyManager.Instance.PlayerName,
             deckCardIds: LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
+
+        LocalPlayerSessionData = data;
 
         string json = JsonConvert.SerializeObject(data);
 
@@ -295,7 +289,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         {
             Data = new Dictionary<string, PlayerDataObject>
             {
-                { "PlayerSessionData", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
+                { LOBBY_PLAYERDATA_SESSIONDATA, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
             }
         });
     }
@@ -323,14 +317,6 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
 
         StartCoroutine(HeartbeatRoutine());
     }
-    private async void OnClientConnected(ulong clientId)
-    {
-        if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
-        {
-            _state.Value = MatchingManagerState.StartingGame;
-            await UploadPlayerSessionDataAsync();
-        }
-    }
     private void OnClientDisconnected(ulong clientId)
     {
         if (clientId == NetworkManager.Singleton.LocalClientId)
@@ -341,42 +327,56 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
             _state.Value = MatchingManagerState.Lobby;
         }
     }
-    private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    private async void OnClientConnected(ulong clientId)
     {
-        foreach (var (playerIndex, playerData) in playerDatas)
+        try { await OnClientConnectedAsync(clientId); }
+        catch (Exception ex) 
+        { 
+            Debug.LogError(ex);
+            _state.Value = MatchingManagerState.Error;
+        }
+    }
+    private async Task OnClientConnectedAsync(ulong clientId)
+    {
+        if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
         {
-            foreach (var (dataKey, dataValue) in playerData)
-            {
-                string dataString = dataValue.Value.Value;
-
-                switch (dataKey)
-                {
-                    case "PlayerSessionData":
-                        if (NetworkManager.Singleton.IsHost)
-                        {
-                            PlayerSessionData obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
-
-                            if (obj.ClientId != NetworkManager.Singleton.LocalClientId)
-                            {
-                                OpponentPlayerSessionData = obj;
-                                Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
-                            }
-                            else
-                            {
-                                LocalPlayerSessionData = obj;
-                                Debug.Log($"로컬 플레이어 세션 데이터 할당됨. \n{dataString}");
-                            }
-
-                            await TryStartGameAsync();
-                        }
-                        break;
-                }
-            }
+            _state.Value = MatchingManagerState.StartingGame;
+            await UploadPlayerSessionDataAsync();
         }
     }
     private void OnLobbyDeleted()
     {
         _lobbyEvents = null;
         _lobby = null;
+    }
+    private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    {
+        try { await OnLobbyPlayerDataAddedAsync(playerDatas); }
+        catch (Exception ex) 
+        { 
+            Debug.LogError(ex);
+            _state.Value = MatchingManagerState.Error;
+        }
+    }
+    private async Task OnLobbyPlayerDataAddedAsync(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
+    {
+        foreach (var (playerIndex, playerData) in playerDatas)
+        {
+            foreach (var (dataKey, dataValue) in playerData)
+            {
+                string dataString = dataValue.Value.Value;
+                switch (dataKey)
+                {
+                    case LOBBY_PLAYERDATA_SESSIONDATA:
+                        if (!NetworkManager.Singleton.IsHost) break;
+                        var obj = JsonConvert.DeserializeObject<PlayerSessionData>(dataString);
+                        if (obj.ClientId == NetworkManager.Singleton.LocalClientId) break;
+                        OpponentPlayerSessionData = obj;
+                        Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
+                        await TryStartGameAsync();
+                        break;
+                }
+            }
+        }
     }
 }
