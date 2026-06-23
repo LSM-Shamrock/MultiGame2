@@ -61,12 +61,12 @@ public class UI_GameResult : MonoBehaviour
 
     private IEnumerator ShowRoutine()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
 
         OkButton.interactable = false;
         MainPanel.gameObject.SetActive(true);
 
-        float fadeTime = 0.5f;
+        float fadeTime = 1f;
         float t = 0f;
         while (t < 1f)
         {
