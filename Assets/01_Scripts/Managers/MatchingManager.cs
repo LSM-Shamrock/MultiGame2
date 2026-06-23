@@ -55,6 +55,7 @@ public enum MatchingType
     None,
     AutoMatching,
     LobbyIdMatching,
+    PvE,
 }
 
 [AutoInjectionTarget]
@@ -95,28 +96,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     private const DataObject.IndexOptions   LOBBY_DATA_MATCHINGFILTER_INDEX = DataObject.IndexOptions.S1;
     private const QueryFilter.FieldOptions  LOBBY_DATA_MATCHINGFILTER_FILTER = QueryFilter.FieldOptions.S1;
 
-    private async Task UploadLobbyPlayerDataAsync()
-    {
-        PlayerSessionData data = new PlayerSessionData(
-            _lobby.Id,
-            NetworkManager.Singleton.LocalClientId,
-            LobbyManager.Instance.PlayerName,
-            LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
-
-        string json = JsonConvert.SerializeObject(data);
-
-        Debug.Log("자신의 데이터 업로드");
-
-        await LobbyService.Instance.UpdatePlayerAsync(_lobby.Id, AuthenticationService.Instance.PlayerId, new UpdatePlayerOptions
-        {
-            Data = new Dictionary<string, PlayerDataObject>
-            {
-                { "PlayerSessionData", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
-            }
-        });
-    }
-
-    private void SetMatchingInfo(MatchingType matchingType)
+    private void SetMatchingFilter(MatchingType matchingType)
     {
         _matchingType = matchingType;
 
@@ -154,7 +134,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
             {
                 { LOBBY_DATA_JOINCODE, new(DataObject.VisibilityOptions.Member, joinCode) },
                 { LOBBY_DATA_MATCHINGFILTER, new(DataObject.VisibilityOptions.Public, MatchingFilter, LOBBY_DATA_MATCHINGFILTER_INDEX) },
-            }
+            },
         });
         _lobbyEvents = await LobbyService.Instance.SubscribeToLobbyEventsAsync(_lobby.Id, _lobbyEventCallbacks);
 
@@ -218,7 +198,6 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         while (NetworkManager.Singleton.IsListening)
             await Task.Yield();
     }
-
     private async Task<bool> TryStartGameAsync()
     {
         if (!NetworkManager.Singleton.IsHost) return false;
@@ -254,19 +233,19 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     }
     public async Task CreateLobbyIdAsync()
     {
-        SetMatchingInfo(MatchingType.LobbyIdMatching);
+        SetMatchingFilter(MatchingType.LobbyIdMatching);
 
         await CreateMatchingAsync();
     }
     public async Task JoinWithLobbyIdAsync(string lobbyId)
     {
-        SetMatchingInfo(MatchingType.LobbyIdMatching);
+        SetMatchingFilter(MatchingType.LobbyIdMatching);
 
         await JoinMatchingAsync(lobbyId);
     }
     public async Task AutoMatchingAsync()
     {
-        SetMatchingInfo(MatchingType.AutoMatching);
+        SetMatchingFilter(MatchingType.AutoMatching);
 
         _state.Value = MatchingManagerState.FindingMatching;
 
@@ -295,6 +274,31 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
             Debug.Log("로비 새로 생성함");
         }
     }
+    public async Task PvEAsync()
+    {
+
+    }
+
+    private async Task UploadPlayerSessionDataAsync()
+    {
+        PlayerSessionData data = new PlayerSessionData(
+            lobbyPlayerId: _lobby.Id,
+            clientId: NetworkManager.Singleton.LocalClientId,
+            playerName: LobbyManager.Instance.PlayerName,
+            deckCardIds: LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
+
+        string json = JsonConvert.SerializeObject(data);
+
+        Debug.Log("자신의 데이터 업로드");
+
+        await LobbyService.Instance.UpdatePlayerAsync(_lobby.Id, AuthenticationService.Instance.PlayerId, new UpdatePlayerOptions
+        {
+            Data = new Dictionary<string, PlayerDataObject>
+            {
+                { "PlayerSessionData", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
+            }
+        });
+    }
 
     private IEnumerator HeartbeatRoutine()
     {
@@ -318,6 +322,24 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         _lobbyEventCallbacks.LobbyDeleted += OnLobbyDeleted;
 
         StartCoroutine(HeartbeatRoutine());
+    }
+    private async void OnClientConnected(ulong clientId)
+    {
+        if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
+        {
+            _state.Value = MatchingManagerState.StartingGame;
+            await UploadPlayerSessionDataAsync();
+        }
+    }
+    private void OnClientDisconnected(ulong clientId)
+    {
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+
+            _state.Value = MatchingManagerState.Lobby;
+        }
     }
     private async void OnLobbyPlayerDataAdded(Dictionary<int, Dictionary<string, ChangedOrRemovedLobbyValue<PlayerDataObject>>> playerDatas)
     {
@@ -356,23 +378,5 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     {
         _lobbyEvents = null;
         _lobby = null;
-    }
-    private async void OnClientConnected(ulong clientId)
-    {
-        if (NetworkManager.Singleton.ConnectedClients.Count == MAXPLAYERS)
-        {
-            _state.Value = MatchingManagerState.StartingGame;
-            await UploadLobbyPlayerDataAsync();
-        }
-    }
-    private void OnClientDisconnected(ulong clientId)
-    {
-        if (clientId == NetworkManager.Singleton.LocalClientId)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-
-            _state.Value = MatchingManagerState.Lobby;
-        }
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class UI_Lobby : MonoBehaviour
 {
     [ChildField] public Button PlayButton;
+    [ChildField] public Button PvEButton;
     [ChildField] public Button CreateButton;
     [ChildField] public Button JoinButton;
     [ChildField] public Button SettingButton;
@@ -20,6 +21,7 @@ public class UI_Lobby : MonoBehaviour
     private void Start()
     {
         PlayButton.onClick.AddListener(OnClick_AutoMatching);
+        PvEButton.onClick.AddListener(OnClick_PvE);
         CreateButton.onClick.AddListener(OnClick_Create);
         JoinButton.onClick.AddListener(OnClick_Join);
         
@@ -37,6 +39,7 @@ public class UI_Lobby : MonoBehaviour
     private void OnDestroy()
     {
         PlayButton.onClick.RemoveAllListeners();
+        PvEButton.onClick.RemoveAllListeners();
         CreateButton.onClick.RemoveAllListeners();
         JoinButton.onClick.RemoveAllListeners();
 
@@ -72,6 +75,7 @@ public class UI_Lobby : MonoBehaviour
         _isDeckValide = valid;
 
         PlayButton.interactable = _isDeckValide;
+        PvEButton.interactable = _isDeckValide;
         CreateButton.interactable = _isDeckValide;
         JoinButton.interactable = _isDeckValide;
         DeckInvalidText.gameObject.SetActive(!_isDeckValide);
@@ -88,6 +92,10 @@ public class UI_Lobby : MonoBehaviour
     private async void OnClick_AutoMatching()
     {
         await MatchingManager.Instance.AutoMatchingAsync();
+    }
+    private async void OnClick_PvE()
+    {
+        await MatchingManager.Instance.PvEAsync();
     }
 
     private void OnClick_SettingButton()
