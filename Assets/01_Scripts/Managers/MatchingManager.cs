@@ -265,7 +265,28 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
     }
     public async Task PvEAsync()
     {
+        SetMatchingInfo(MatchingType.PvE);
+        _state.Value = MatchingManagerState.StartingGame;
 
+        LocalPlayerSessionData = null;
+        OpponentPlayerSessionData = null;
+
+        NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+        LocalPlayerSessionData = new PlayerSessionData(
+            authenticationPlayerId: AuthenticationService.Instance.PlayerId,
+            clientId: NetworkManager.Singleton.LocalClientId,
+            playerName: LobbyManager.Instance.PlayerName,
+            deckCardIds: LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
+
+        OpponentPlayerSessionData = new PlayerSessionData(
+            authenticationPlayerId: null,
+            clientId: ulong.MaxValue,       // 봇 sentinel, 실제 NGO clientId로 쓰지 않음
+            playerName: "Bot",
+            deckCardIds: GetBotDeckCardIds());
+
+        await StartGameAsync();
     }
 
     private async Task UploadPlayerSessionDataAsync()
@@ -289,6 +310,10 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
                 { LOBBY_PLAYERDATA_SESSIONDATA, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, json) }
             }
         });
+    }
+    private int[] GetBotDeckCardIds()
+    {
+        return RemoteConfigManager.Instance.GameData.Value.CardData.Dictionary.Keys.Take(8).ToArray();
     }
 
     private IEnumerator HeartbeatRoutine()
