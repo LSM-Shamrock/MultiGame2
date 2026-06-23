@@ -189,17 +189,14 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         while (NetworkManager.Singleton.IsListening)
             await Task.Yield();
     }
-    private async Task<bool> TryStartGameAsync()
+    private async Task StartGameAsync()
     {
-        if (!NetworkManager.Singleton.IsHost) return false;
-        if (NetworkManager.Singleton.ConnectedClients.Count != MAXPLAYERS) return false;
-        if (LocalPlayerSessionData == null || OpponentPlayerSessionData == null) return false;
+        if (!NetworkManager.Singleton.IsHost) return;
+        if (LocalPlayerSessionData == null || OpponentPlayerSessionData == null) return;
 
         await DeleteLobbyAsync();
 
         NetworkManager.Singleton.SceneManager.LoadScene(SCENE_GAME, LoadSceneMode.Single);
-
-        return true;
     }
     public async Task ExitGameToLobbyAsync()
     {
@@ -373,7 +370,7 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
                         if (obj.ClientId == NetworkManager.Singleton.LocalClientId) break;
                         OpponentPlayerSessionData = obj;
                         Debug.Log($"상대 플레이어 세션 데이터 할당됨. \n{dataString}");
-                        await TryStartGameAsync();
+                        await StartGameAsync();
                         break;
                 }
             }
