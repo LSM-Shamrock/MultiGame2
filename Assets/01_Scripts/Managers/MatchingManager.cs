@@ -268,14 +268,6 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         SetMatchingInfo(MatchingType.PvE);
         _state.Value = MatchingManagerState.StartingGame;
 
-        LocalPlayerSessionData = null;
-        OpponentPlayerSessionData = null;
-
-        // Relay 없이 로컬 호스트로 시작, 포트 0 = OS가 빈 포트 자동 할당
-        NetworkManager.Singleton.GetComponent<UnityTransport>() .SetConnectionData("127.0.0.1", 0);
-        NetworkManager.Singleton.StartHost();
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-
         LocalPlayerSessionData = new PlayerSessionData(
             authenticationPlayerId: AuthenticationService.Instance.PlayerId,
             clientId: NetworkManager.Singleton.LocalClientId,
@@ -284,9 +276,14 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
 
         OpponentPlayerSessionData = new PlayerSessionData(
             authenticationPlayerId: null,
-            clientId: ulong.MaxValue,       // 봇 sentinel, 실제 NGO clientId로 쓰지 않음
+            clientId: ulong.MaxValue,       
             playerName: "Bot",
             deckCardIds: GetBotDeckCardIds());
+
+        // Relay 없이 로컬 호스트로 시작, 포트 0 -> OS가 빈 포트 자동 할당
+        NetworkManager.Singleton.GetComponent<UnityTransport>() .SetConnectionData("127.0.0.1", 0);
+        NetworkManager.Singleton.StartHost();
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
         await StartGameAsync();
     }
