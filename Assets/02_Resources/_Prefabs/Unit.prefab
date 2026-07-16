@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 439770826025989042}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -270,7 +270,6 @@ Transform:
   - {fileID: 4580960891633172316}
   - {fileID: 1479337208778780363}
   - {fileID: 3991467076792880822}
-  - {fileID: 7279915135498808884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6958633026498596999
@@ -357,7 +356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _animationPoint: {fileID: 3991467076792880822}
+  _spritePoint: {fileID: 3991467076792880822}
   _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
   _collider: {fileID: 1835200029809010581}
@@ -563,7 +562,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9095766256791538992}
-  m_Father: {fileID: 168701379678017959}
+  m_Father: {fileID: 3991467076792880822}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -814,7 +813,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3991467076792880822}
   m_Layer: 0
-  m_Name: AnimationPoint
+  m_Name: SpritePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -834,5 +833,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7565206435303009596}
+  - {fileID: 7279915135498808884}
   m_Father: {fileID: 168701379678017959}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
