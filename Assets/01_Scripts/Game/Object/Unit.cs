@@ -19,6 +19,7 @@ public class Unit : FieldObject
 
     public NetworkVariable<int> UnitId { get; } = new();
 
+    [SerializeField, ChildField("HeightPoint")] private Transform _heightPoint;
     [SerializeField, ChildField("MotionDirection")] private Transform _motionDirection;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
