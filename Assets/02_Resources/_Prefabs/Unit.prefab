@@ -388,7 +388,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _heightPoint: {fileID: 3991467076792880822}
   _motionDirection: {fileID: 4934149782440701176}
   _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
@@ -846,7 +845,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3991467076792880822}
   m_Layer: 0
-  m_Name: HeightPoint
+  m_Name: SpritePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
