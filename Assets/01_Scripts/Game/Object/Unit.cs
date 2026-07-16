@@ -19,7 +19,7 @@ public class Unit : FieldObject
 
     public NetworkVariable<int> UnitId { get; } = new();
 
-    [SerializeField, ChildField("SpritePoint")] private Transform _spritePoint;
+    [SerializeField, ChildField("MotionDirection")] private Transform _motionDirection;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
@@ -221,7 +221,7 @@ public class Unit : FieldObject
 
         var dir = (target.transform.position - transform.position).normalized;
 
-        _spritePoint.right = dir;
+        _motionDirection.right = dir;
         _unitSpriteRenderer.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / data.MotionTime);
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
