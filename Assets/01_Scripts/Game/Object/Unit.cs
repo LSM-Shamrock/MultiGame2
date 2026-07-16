@@ -31,6 +31,7 @@ public class Unit : FieldObject
     private UnitData _unitData;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
+    private Coroutine _verticalMoveCoroutine;
     private float _attackCooltime;
 
     public void Init(int unitId, Player owner, Player opponent)
@@ -96,6 +97,7 @@ public class Unit : FieldObject
             };
             UpdateMove(_target, attackDistance);
             UpdateAttack(_target, attackDistance);
+            UpdateVerticalMove();
         }
     }
     protected override void LateUpdate()
@@ -198,6 +200,20 @@ public class Unit : FieldObject
             }
         }
     }
+    private void UpdateVerticalMove()
+    {
+        if (_verticalMoveCoroutine == null)
+        {
+            var enumerator = _unitData.VerticalMoveType switch
+            {
+                VerticalMoveType.Fall => VerticalMove_Fall(RemoteConfigManager.Instance.GameData.Value.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.UpDown => VerticalMove_UpDown(RemoteConfigManager.Instance.GameData.Value.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
+                _ => null
+            };
+            if (enumerator != null)
+                _verticalMoveCoroutine = StartCoroutine(enumerator);
+        }
+    }
 
     private IEnumerator Attack_Motion(FieldObject target, Attack_MotionData data)
     {
@@ -237,6 +253,37 @@ public class Unit : FieldObject
         _attackCooltime = data.Cooltime;
         _attackCoroutine = null;
         _unitAnimator.Play(_unitData.CodeName, 0, 0f);
+    }
+
+    private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
+    {
+        float amount = Time.deltaTime * data.FallSpeed;
+
+        if (transform.position.y - amount > GROUND_Y)
+            transform.position += Vector3.down * amount;
+        else
+            transform.position = new Vector3(transform.position.x, GROUND_Y);
+
+        _verticalMoveCoroutine = null;
+        yield break;
+    }
+    private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
+    {
+        while (transform.position.y < GROUND_Y + data.UpHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                transform.position += Vector3.up * Time.deltaTime * data.UpSpeed;
+        }
+        while (transform.position.y > GROUND_Y + data.DownHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                transform.position += Vector3.down * Time.deltaTime * data.DownSpeed;
+        }
+        _verticalMoveCoroutine = null;
     }
 
     private void SummonProjectile(FieldObject target, ProjectileData data)
