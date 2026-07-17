@@ -5,9 +5,6 @@ using System.Linq;
 
 public class LobbyData : SaveData
 {
-    public const string FILE_NAME = "LobbyData.json";
-    public override string SavePath => Path.Combine(Application.persistentDataPath, FILE_NAME);
-    
     [JsonProperty] public string PlayerName;
     [JsonProperty] public int[] DeckCardIds;
 }

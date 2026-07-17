@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
+using UnityEngine;
 
 public abstract class SaveData
 {
-    [JsonIgnore]
-    public abstract string SavePath { get; }
+    public virtual string FileName => $"{GetType().Name}.json";
+    public virtual string FolderPath => Application.persistentDataPath;
+    public string SavePath => Path.Combine(FolderPath, FileName);
 
     public void Save()
     {
