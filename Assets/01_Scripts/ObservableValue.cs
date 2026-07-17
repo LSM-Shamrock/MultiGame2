@@ -106,11 +106,11 @@ public class ObservableArray<T> : IObservOnlyArray<T>
 
     public void RemoveListener(Action<int, T> action)
     {
-        OnValueChanged += action;
+        OnValueChanged -= action;
     }
     public void AddListener(Action<int, T> action)
     {
-        OnValueChanged -= action;
+        OnValueChanged += action;
     }
     public void AddListenerAndCall(Action<int, T> action) 
     { 
