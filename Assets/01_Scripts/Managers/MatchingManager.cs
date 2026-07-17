@@ -328,11 +328,11 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
 
             LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
         }
-    }    
-    protected override void Awake()
+    }
+    protected override void Initialize()
     {
-        base.Awake();
-
+        base.Initialize();
+    
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
         _lobbyEventCallbacks.LobbyDeleted += OnLobbyDeleted;
 

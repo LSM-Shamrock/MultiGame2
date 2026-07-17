@@ -14,10 +14,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
                 return null;
 
             if (_instance._isInitialize == false)
-            {
                 _instance.Initialize();
-                _instance._isInitialize = true;
-            }
 
             return _instance;
         }
@@ -25,19 +22,21 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
 
     protected bool _isInitialize;
 
-    protected virtual void Awake()
+    protected void Awake()
     {
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
+
         _instance = (T)this;
-        DontDestroyOnLoad(gameObject);
+        _instance.Initialize();
     }
 
     protected virtual void Initialize()
     {
-
+        _instance._isInitialize = true;
+        DontDestroyOnLoad(gameObject);
     }
 }
