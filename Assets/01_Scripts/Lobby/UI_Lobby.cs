@@ -16,7 +16,20 @@ public class UI_Lobby : MonoBehaviour
     [ChildField] public TextMeshProUGUI DeckInvalidText;
     [AssetField("Bgm_Lobby")] public AudioClip Bgm;
 
-    private bool _isDeckValide = true;
+    private bool _isDeckValid = true;
+    private bool IsDeckValid
+    {
+        get => _isDeckValid;
+        set
+        {
+            _isDeckValid = value;
+            PlayButton.interactable = _isDeckValid;
+            PvEButton.interactable = _isDeckValid;
+            CreateButton.interactable = _isDeckValid;
+            JoinButton.interactable = _isDeckValid;
+            DeckInvalidText.gameObject.SetActive(!_isDeckValid);
+        }
+    }
 
     private void Start()
     {
@@ -30,10 +43,8 @@ public class UI_Lobby : MonoBehaviour
         SettingButton.onClick.AddListener(OnClick_SettingButton);
 
         if (LobbyManager.Instance)
-        {
-            LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnDeckCardIdsChanged;
-        }
-
+            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged += OnDeckCardIdChanged;
+        
         SoundManager.Instance.PlayBgm(Bgm);
     }
     private void OnDestroy()
@@ -48,18 +59,21 @@ public class UI_Lobby : MonoBehaviour
         SettingButton.onClick.RemoveAllListeners();
 
         if (LobbyManager.Instance)
-        {
-            LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnDeckCardIdsChanged;
-        }
+            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged -= OnDeckCardIdChanged;
     }
     private void Update()
     {
-        JoinButton.interactable = !string.IsNullOrEmpty(LobbyIdInput.text) && _isDeckValide;
+        JoinButton.interactable = !string.IsNullOrEmpty(LobbyIdInput.text) && IsDeckValid;
     }
 
     private void OnPlayerNameInputChanged(string value)
     {
         LobbyManager.Instance.PlayerName = value;
+    }
+
+    private void OnDeckCardIdChanged(int index, int deckCardId)
+    {
+        OnDeckCardIdsChanged(LobbyManager.Instance.CurrentDeckCardIds.Values);
     }
     private void OnDeckCardIdsChanged(IReadOnlyList<int> deckCardIds)
     {
@@ -72,13 +86,7 @@ public class UI_Lobby : MonoBehaviour
                 break;
             }
         }
-        _isDeckValide = valid;
-
-        PlayButton.interactable = _isDeckValide;
-        PvEButton.interactable = _isDeckValide;
-        CreateButton.interactable = _isDeckValide;
-        JoinButton.interactable = _isDeckValide;
-        DeckInvalidText.gameObject.SetActive(!_isDeckValide);
+        IsDeckValid = valid;
     }
 
     private async void OnClick_Create()

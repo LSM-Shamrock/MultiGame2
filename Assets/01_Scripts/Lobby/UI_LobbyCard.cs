@@ -35,13 +35,13 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (LobbyManager.Instance != null)
         {
             OnChangeDeck(LobbyManager.Instance.CurrentDeckCardIds.Values);
-            LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged += OnChangeDeck;
+            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged += OnChangeDeckCardId;
         }
     }
     private void OnDestroy()
     {
         if (LobbyManager.Instance != null)
-            LobbyManager.Instance.CurrentDeckCardIds.OnAnyValueChanged -= OnChangeDeck;
+            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged -= OnChangeDeckCardId;
     }
     private void Update()
     {
@@ -49,6 +49,10 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             SelectMenuDisplay.SetActive(_isOnPointer);
     }
 
+    private void OnChangeDeckCardId(int index, int deckCardId)
+    {
+        OnChangeDeck(LobbyManager.Instance.CurrentDeckCardIds.Values);
+    }
     private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
     {
         if (_isDeck)

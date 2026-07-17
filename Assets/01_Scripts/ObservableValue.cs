@@ -57,7 +57,6 @@ public class ObservableValue<T> : IObservOnlyValue<T>
 
 public interface IObservOnlyArray<T>
 {
-    event Action<IReadOnlyList<T>> OnAnyValueChanged;
     event Action<int, T> OnValueChanged;
 
     IReadOnlyList<T> Values { get; }
@@ -66,17 +65,12 @@ public interface IObservOnlyArray<T>
     void RemoveListener(Action<int, T> action);
     void AddListener(Action<int, T> action);
     void AddListenerAndCall(Action<int, T> action);
-
-    void RemoveListener(Action<IReadOnlyList<T>> action);
-    void AddListener(Action<IReadOnlyList<T>> action);
-    void AddListenerAndCall(Action<IReadOnlyList<T>> action);
 }
 public class ObservableArray<T> : IObservOnlyArray<T>
 {
     private T[] _array;
     private Func<int, T, T> _changeProcessor;
 
-    public event Action<IReadOnlyList<T>> OnAnyValueChanged;
     public event Action<int, T> OnValueChanged;
 
     public int Length => _array.Length;
@@ -95,10 +89,7 @@ public class ObservableArray<T> : IObservOnlyArray<T>
                 changedValue = _array[index] = _changeProcessor(index, value);
 
             if (!EqualityComparer<T>.Default.Equals(prevValue, changedValue))
-            {
                 OnValueChanged?.Invoke(index, changedValue);
-                OnAnyValueChanged?.Invoke(Values);
-            }
         }
     }
 
@@ -126,19 +117,5 @@ public class ObservableArray<T> : IObservOnlyArray<T>
         OnValueChanged += action;  
         for (int i = 0; i < _array.Length; i++)
             action?.Invoke(i, _array[i]);
-    }
-
-    public void RemoveListener(Action<IReadOnlyList<T>> action)
-    {
-        OnAnyValueChanged -= action;
-    }
-    public void AddListener(Action<IReadOnlyList<T>> action)
-    {
-        OnAnyValueChanged += action;
-    }
-    public void AddListenerAndCall(Action<IReadOnlyList<T>> action) 
-    { 
-        OnAnyValueChanged += action; 
-        OnAnyValueChanged?.Invoke(_array); 
     }
 }
