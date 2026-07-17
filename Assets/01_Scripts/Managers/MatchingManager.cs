@@ -271,8 +271,8 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         LocalPlayerSessionData = new PlayerSessionData(
             authenticationPlayerId: AuthenticationService.Instance.PlayerId,
             clientId: NetworkManager.Singleton.LocalClientId,
-            playerName: LobbyManager.Instance.PlayerName,
-            deckCardIds: LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
+            playerName: LobbyManager.Instance.PlayerName.Value,
+            deckCardIds: LobbyManager.Instance.DeckCardIds.Values.ToArray());
 
         OpponentPlayerSessionData = new PlayerSessionData(
             authenticationPlayerId: null,
@@ -293,8 +293,8 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
         PlayerSessionData data = new PlayerSessionData(
             authenticationPlayerId: AuthenticationService.Instance.PlayerId,
             clientId: NetworkManager.Singleton.LocalClientId,
-            playerName: LobbyManager.Instance.PlayerName,
-            deckCardIds: LobbyManager.Instance.CurrentDeckCardIds.Values.ToArray());
+            playerName: LobbyManager.Instance.PlayerName.Value,
+            deckCardIds: LobbyManager.Instance.DeckCardIds.Values.ToArray());
 
         LocalPlayerSessionData = data;
 
@@ -329,9 +329,9 @@ public class MatchingManager : SingletonBehaviour<MatchingManager>
             LobbyService.Instance.SendHeartbeatPingAsync(_lobby.Id);
         }
     }    
-    private void Awake()
+    protected override void Awake()
     {
-        InitSingleton();
+        base.Awake();
 
         _lobbyEventCallbacks.PlayerDataAdded += OnLobbyPlayerDataAdded;
         _lobbyEventCallbacks.LobbyDeleted += OnLobbyDeleted;

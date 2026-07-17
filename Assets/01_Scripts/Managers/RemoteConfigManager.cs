@@ -18,11 +18,6 @@ public class RemoteConfigManager : SingletonBehaviour<RemoteConfigManager>
     private ObservableValue<string> _gameDataVersion = new();
     private ObservableValue<GameData> _gameData = new();
 
-    private void Awake()
-    {
-        InitSingleton();
-    }
-
     public void FetchConfigs()
     {
         RemoteConfigService.Instance.FetchCompleted -= OnFetchCompleted;

@@ -1,26 +1,51 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using System.IO;
+using UnityEngine;
+using System.Linq;
+
+public class LobbyData : SaveData
+{
+    public const string FILE_NAME = "LobbyData.json";
+    public override string SavePath => Path.Combine(Application.persistentDataPath, FILE_NAME);
+    
+    [JsonProperty] public string PlayerName;
+    [JsonProperty] public int[] DeckCardIds;
+}
 
 public class LobbyManager : SingletonBehaviour<LobbyManager>
 {
-    public ObservableArray<int> CurrentDeckCardIds
+    private readonly LobbyData _data = new();
+
+    public ObservableArray<int> DeckCardIds { get; } = new(8);
+    public ObservableValue<string> PlayerName { get; } = new();
+
+    protected override void Initialize()
     {
-        get
+        base.Initialize();
+
+        DeckCardIds.AddListener(OnDeckCardIdsChanged);
+        PlayerName.AddListener(OnPlayerNameChanged);
+
+        if (_data.TryLoad() == false)
         {
-            if (_currentDeck == null)
-            {
-                _currentDeck = new ObservableArray<int>(8);
-
-                for (int i = 0; i < 8; i++)
-                    _currentDeck[i] = RemoteConfigManager.Instance.GameData.Value.CardData.List[i].CardId;
-            }
-            return _currentDeck;
+            _data.DeckCardIds = new int[8];
+            for (int i = 0; i < 8; i++)
+                _data.DeckCardIds[i] = RemoteConfigManager.Instance.GameData.Value.CardData.List[i].CardId;
+            _data.Save();
         }
+        PlayerName.Value = _data.PlayerName;
+        for (int i = 0; i < 8;i++)
+            DeckCardIds[i] = _data.DeckCardIds[i];
     }
-    private ObservableArray<int> _currentDeck;
-    public string PlayerName { get; set; }
 
-    private void Awake()
+    private void OnDeckCardIdsChanged(int index, int cardId)
     {
-        InitSingleton();
+        _data.DeckCardIds[index] = DeckCardIds[index];
+        _data.Save();
+    }
+    private void OnPlayerNameChanged(string playerName)
+    {
+        _data.PlayerName = PlayerName.Value;
+        _data.Save();
     }
 }

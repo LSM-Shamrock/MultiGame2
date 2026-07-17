@@ -57,10 +57,6 @@ public class PopupManager : SingletonBehaviour<PopupManager>
             ClosePopup();
     }
 
-    private void Awake()
-    {
-        InitSingleton();
-    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))

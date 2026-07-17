@@ -34,14 +34,14 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         if (LobbyManager.Instance != null)
         {
-            OnChangeDeck(LobbyManager.Instance.CurrentDeckCardIds.Values);
-            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged += OnChangeDeckCardId;
+            OnChangeDeck(LobbyManager.Instance.DeckCardIds.Values);
+            LobbyManager.Instance.DeckCardIds.OnValueChanged += OnChangeDeckCardId;
         }
     }
     private void OnDestroy()
     {
         if (LobbyManager.Instance != null)
-            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged -= OnChangeDeckCardId;
+            LobbyManager.Instance.DeckCardIds.OnValueChanged -= OnChangeDeckCardId;
     }
     private void Update()
     {
@@ -51,7 +51,7 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void OnChangeDeckCardId(int index, int deckCardId)
     {
-        OnChangeDeck(LobbyManager.Instance.CurrentDeckCardIds.Values);
+        OnChangeDeck(LobbyManager.Instance.DeckCardIds.Values);
     }
     private void OnChangeDeck(IReadOnlyList<int> deckCardIds)
     {
@@ -113,11 +113,11 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         SelectMenuDisplay.SetActive(false);
 
-        for (int i = 0; i < LobbyManager.Instance.CurrentDeckCardIds.Length; i++)
+        for (int i = 0; i < LobbyManager.Instance.DeckCardIds.Length; i++)
         {
-            if (LobbyManager.Instance.CurrentDeckCardIds[i] == -1)
+            if (LobbyManager.Instance.DeckCardIds[i] == -1)
             {
-                LobbyManager.Instance.CurrentDeckCardIds[i] = _cardData.CardId;
+                LobbyManager.Instance.DeckCardIds[i] = _cardData.CardId;
                 break;
             }
         }
@@ -126,11 +126,11 @@ public class UI_LobbyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         SelectMenuDisplay.SetActive(false);
 
-        for (int i = 0; i < LobbyManager.Instance.CurrentDeckCardIds.Length; i++)
+        for (int i = 0; i < LobbyManager.Instance.DeckCardIds.Length; i++)
         {
-            if (LobbyManager.Instance.CurrentDeckCardIds[i] == _cardData.CardId)
+            if (LobbyManager.Instance.DeckCardIds[i] == _cardData.CardId)
             {
-                LobbyManager.Instance.CurrentDeckCardIds[i] = -1;
+                LobbyManager.Instance.DeckCardIds[i] = -1;
                 break;
             }
         }

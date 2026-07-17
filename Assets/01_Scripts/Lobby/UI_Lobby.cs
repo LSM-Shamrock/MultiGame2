@@ -39,11 +39,12 @@ public class UI_Lobby : MonoBehaviour
         JoinButton.onClick.AddListener(OnClick_Join);
         
         PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
-        
+        PlayerNameInput.text = LobbyManager.Instance.PlayerName.Value;
+
         SettingButton.onClick.AddListener(OnClick_SettingButton);
 
         if (LobbyManager.Instance)
-            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged += OnDeckCardIdChanged;
+            LobbyManager.Instance.DeckCardIds.OnValueChanged += OnDeckCardIdChanged;
         
         SoundManager.Instance.PlayBgm(Bgm);
     }
@@ -59,7 +60,7 @@ public class UI_Lobby : MonoBehaviour
         SettingButton.onClick.RemoveAllListeners();
 
         if (LobbyManager.Instance)
-            LobbyManager.Instance.CurrentDeckCardIds.OnValueChanged -= OnDeckCardIdChanged;
+            LobbyManager.Instance.DeckCardIds.OnValueChanged -= OnDeckCardIdChanged;
     }
     private void Update()
     {
@@ -68,12 +69,12 @@ public class UI_Lobby : MonoBehaviour
 
     private void OnPlayerNameInputChanged(string value)
     {
-        LobbyManager.Instance.PlayerName = value;
+        LobbyManager.Instance.PlayerName.Value = value;
     }
 
     private void OnDeckCardIdChanged(int index, int deckCardId)
     {
-        OnDeckCardIdsChanged(LobbyManager.Instance.CurrentDeckCardIds.Values);
+        OnDeckCardIdsChanged(LobbyManager.Instance.DeckCardIds.Values);
     }
     private void OnDeckCardIdsChanged(IReadOnlyList<int> deckCardIds)
     {
