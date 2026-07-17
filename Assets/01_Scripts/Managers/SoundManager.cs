@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using UnityEngine;
+
+public class SoundOptionData : SaveData
+{
+    [JsonProperty] public float BgmVolume;
+    [JsonProperty] public float SfxVolume;
+}
 
 [AutoInjectionTarget]
 public class SoundManager : SingletonBehaviour<SoundManager>
@@ -6,6 +13,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     public ObservableValue<float> BgmVolume { get; } = new(0.5f, Mathf.Clamp01);
     public ObservableValue<float> SfxVolume { get; } = new(0.5f, Mathf.Clamp01);
 
+    private SoundOptionData _soundOptionData = new();
     [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
     [SerializeField, ChildField("SfxPlayer")] private AudioSource _sfxPlayer;
 
@@ -15,15 +23,28 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     
         BgmVolume.OnValueChanged += OnBgmVolumeChanged;
         SfxVolume.OnValueChanged += OnSfxVolumeChanged;
+
+        if (_soundOptionData.TryLoad() == false)
+        {
+            _soundOptionData.BgmVolume = BgmVolume.Value;
+            _soundOptionData.SfxVolume = SfxVolume.Value;
+            _soundOptionData.Save();
+        }
+        BgmVolume.Value = _soundOptionData.BgmVolume;
+        SfxVolume.Value = _soundOptionData.SfxVolume;
     }
 
     private void OnBgmVolumeChanged(float value)
     {
         _bgmPlayer.volume = value;
+        _soundOptionData.BgmVolume = value;
+        _soundOptionData.Save();
     }
     private void OnSfxVolumeChanged(float value)
     {
         _sfxPlayer.volume = value;
+        _soundOptionData.SfxVolume = value;
+        _soundOptionData.Save();
     }
 
     public void PlayBgm(AudioClip clip)
