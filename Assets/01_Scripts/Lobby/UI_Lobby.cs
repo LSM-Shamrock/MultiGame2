@@ -6,6 +6,7 @@ using UnityEngine.UI;
 [AutoInjectionTarget]
 public class UI_Lobby : MonoBehaviour
 {
+    [AssetField("Bgm_Lobby")] public AudioClip Bgm;
     [ChildField] public Button PlayButton;
     [ChildField] public Button PvEButton;
     [ChildField] public Button CreateButton;
@@ -14,7 +15,8 @@ public class UI_Lobby : MonoBehaviour
     [ChildField] public TMP_InputField LobbyIdInput;
     [ChildField] public TMP_InputField PlayerNameInput;
     [ChildField] public TextMeshProUGUI DeckInvalidText;
-    [AssetField("Bgm_Lobby")] public AudioClip Bgm;
+    [ChildrenArrayField] public Image[] DeckCardImages;
+    [ChildField] public Button DeckEditButton;
 
     private bool _isDeckValid = true;
     private bool IsDeckValid
@@ -37,14 +39,16 @@ public class UI_Lobby : MonoBehaviour
         PvEButton.onClick.AddListener(OnClick_PvE);
         CreateButton.onClick.AddListener(OnClick_Create);
         JoinButton.onClick.AddListener(OnClick_Join);
+        SettingButton.onClick.AddListener(OnClick_SettingButton);
+        DeckEditButton.onClick.AddListener(OnClick_DeckEditButton);
         
         PlayerNameInput.onValueChanged.AddListener(OnPlayerNameInputChanged);
         PlayerNameInput.text = LobbyManager.Instance.PlayerName.Value;
 
-        SettingButton.onClick.AddListener(OnClick_SettingButton);
-
         if (LobbyManager.Instance)
-            LobbyManager.Instance.DeckCardIds.OnValueChanged += OnDeckCardIdChanged;
+        {
+            LobbyManager.Instance.DeckCardIds.AddListenerAndCall(OnDeckCardIdChanged);
+        }
         
         SoundManager.Instance.PlayBgm(Bgm);
     }
@@ -60,7 +64,7 @@ public class UI_Lobby : MonoBehaviour
         SettingButton.onClick.RemoveAllListeners();
 
         if (LobbyManager.Instance)
-            LobbyManager.Instance.DeckCardIds.OnValueChanged -= OnDeckCardIdChanged;
+            LobbyManager.Instance.DeckCardIds.RemoveListener(OnDeckCardIdChanged);
     }
     private void Update()
     {
@@ -71,13 +75,29 @@ public class UI_Lobby : MonoBehaviour
     {
         LobbyManager.Instance.PlayerName.Value = value;
     }
-
     private void OnDeckCardIdChanged(int index, int deckCardId)
     {
-        OnDeckCardIdsChanged(LobbyManager.Instance.DeckCardIds.Values);
+        OnDeckCardIdsChanged();
+
+        var dict = RemoteConfigManager.Instance.GameData.Value.CardData.Dictionary;
+        if (dict.ContainsKey(deckCardId))
+        {
+            var cardData = dict[deckCardId];
+            var path = $"CardSprite/{cardData.CodeName}";
+            var sprite = Resources.Load<Sprite>(path);
+            DeckCardImages[index].sprite = sprite;
+            DeckCardImages[index].enabled = true;
+        }
+        else
+        {
+            DeckCardImages[index].sprite = null;
+            DeckCardImages[index].enabled = false;
+        }
     }
-    private void OnDeckCardIdsChanged(IReadOnlyList<int> deckCardIds)
+    private void OnDeckCardIdsChanged()
     {
+        IReadOnlyList<int> deckCardIds = LobbyManager.Instance.DeckCardIds.Values;
+
         bool valid = true;
         foreach (int cardId in deckCardIds)
         {
@@ -110,6 +130,10 @@ public class UI_Lobby : MonoBehaviour
     private void OnClick_SettingButton()
     {
         PopupManager.Instance.ShowPopup<UI_SettingPopup>();
+    }
+    private void OnClick_DeckEditButton()
+    {
+        ISceneInstance<UI_DeckEdit>.SceneInstance.Show();
     }
 }
 
