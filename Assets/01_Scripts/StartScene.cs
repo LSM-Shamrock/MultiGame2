@@ -3,8 +3,16 @@ using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[AutoInjectionTarget]
 public class StartScene : MonoBehaviour
 {
+    [SerializeField, SceneComponentField] private RemoteConfigManager RemoteConfigManager;
+    [SerializeField, SceneComponentField] private LobbyManager LobbyManager;
+    [SerializeField, SceneComponentField] private MatchingManager MatchingManager;
+    [SerializeField, SceneComponentField] private PopupManager PopupManager;
+    [SerializeField, SceneComponentField] private SoundManager SoundManager;
+    [SerializeField, SceneComponentField] private ScreenManager ScreenManager;
+
     private void Awake()
     {
         RemoteConfigManager.Instance.OnConfigsFetchCompleted += OnConfigsFetchCompleted;
@@ -25,11 +33,18 @@ public class StartScene : MonoBehaviour
         if (AuthenticationService.Instance.IsSignedIn == false)
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-        RemoteConfigManager.Instance.FetchConfigs();
+        RemoteConfigManager.Initialize();
+        RemoteConfigManager.FetchConfigs();
     }
 
     private void OnConfigsFetchCompleted()
     {
         SceneManager.LoadScene("LobbyScene");
+
+        LobbyManager.Initialize();
+        MatchingManager.Initialize();
+        PopupManager.Initialize();
+        SoundManager.Initialize();
+        ScreenManager.Initialize();
     }
 }

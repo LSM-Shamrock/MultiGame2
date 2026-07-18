@@ -649,6 +649,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a68b955eb3ef1d4f98e7acc42e3cdf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RemoteConfigManager: {fileID: 769039285}
+  LobbyManager: {fileID: 766530912}
+  MatchingManager: {fileID: 464305832}
+  PopupManager: {fileID: 1517395598}
+  SoundManager: {fileID: 213623362}
+  ScreenManager: {fileID: 1231835212}
 --- !u!1 &1201369060
 GameObject:
   m_ObjectHideFlags: 0
@@ -1430,8 +1436,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 1668253722}
-  - {fileID: 861040143}
   - {fileID: 1201369061}
+  - {fileID: 861040143}
   - {fileID: 1572457319}
   - {fileID: 769039284}
   - {fileID: 766530911}

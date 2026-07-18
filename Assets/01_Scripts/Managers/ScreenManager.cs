@@ -1,23 +1,9 @@
 ﻿using UnityEngine;
 
-public class ScreenManager : MonoBehaviour
+public class ScreenManager : SingletonBehaviour<ScreenManager>
 {
-    public static ScreenManager Instance => _instance != null ? _instance : (_instance = FindAnyObjectByType<ScreenManager>());
-    private static ScreenManager _instance;
-
     private int DEFAULT_WINDOW_WIDTH = 960;
     private int DEFAULT_WINDOW_HEIGHT = 640;
-
-    private void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        _instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
     private void Update()
     {

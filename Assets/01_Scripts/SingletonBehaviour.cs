@@ -13,14 +13,9 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
             if (_instance == null)
                 return null;
 
-            if (_instance._isInitialize == false)
-                _instance.Initialize();
-
             return _instance;
         }
     }
-
-    protected bool _isInitialize;
 
     protected void Awake()
     {
@@ -31,12 +26,11 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
         }
 
         _instance = (T)this;
-        _instance.Initialize();
+        DontDestroyOnLoad(gameObject);
     }
 
-    protected virtual void Initialize()
+    public virtual void Initialize()
     {
-        _instance._isInitialize = true;
-        DontDestroyOnLoad(gameObject);
+
     }
 }

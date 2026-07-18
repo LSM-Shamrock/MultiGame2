@@ -17,7 +17,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
     [SerializeField, ChildField("SfxPlayer")] private AudioSource _sfxPlayer;
 
-    protected override void Initialize()
+    public override void Initialize()
     {
         base.Initialize();
     
