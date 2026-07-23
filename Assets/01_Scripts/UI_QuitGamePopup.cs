@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 [AutoInjectionTarget]
-public class UII_QuitGamePopup : MonoBehaviour, IPopupUI
+public class UI_QuitGamePopup : MonoBehaviour, IPopupUI
 {
     Canvas IPopupUI.Canvas => Canvas;
     GameObject IPopupUI.GameObject => gameObject;

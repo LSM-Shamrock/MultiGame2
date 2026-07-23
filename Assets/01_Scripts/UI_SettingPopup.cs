@@ -75,6 +75,6 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     
     private void OnClickQuitButton()
     {
-        Application.Quit();
+        PopupManager.Instance.ShowPopup<UI_QuitGamePopup>();
     }
 }
