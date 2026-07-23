@@ -19,11 +19,13 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     [SerializeField, ChildField] private TextMeshProUGUI SfxText;
     [SerializeField, ChildField] private TextMeshProUGUI GameDataVersionText;
     [SerializeField, ChildField] private TextMeshProUGUI ProfileText;
+    [SerializeField, ChildField] private Button QuitButton;
 
     private void Start()
     {
         CloseButton.onClick.AddListener(Hide);
         BackPanel.AddEvent(PointerEventType.PointerClick, Hide);
+        QuitButton.onClick.AddListener(OnClickQuitButton);
 
         BgmSlider.onValueChanged.AddListener(OnBgmSliderChanged);
         SfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
@@ -69,5 +71,10 @@ public class UI_SettingPopup : MonoBehaviour, IPopupUI
     private void OnGameDataVersionChanged(string value)
     {
         GameDataVersionText.text = $"게임 데이터 버전: v{value}";
+    }
+    
+    private void OnClickQuitButton()
+    {
+        Application.Quit();
     }
 }

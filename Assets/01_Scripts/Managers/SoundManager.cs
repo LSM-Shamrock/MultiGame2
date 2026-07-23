@@ -37,14 +37,22 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     private void OnBgmVolumeChanged(float value)
     {
         _bgmPlayer.volume = value;
-        _soundOptionData.BgmVolume = value;
-        _soundOptionData.Save();
+        
+        if (_soundOptionData.BgmVolume != value)
+        {
+            _soundOptionData.BgmVolume = value;
+            _soundOptionData.Save();
+        }
     }
     private void OnSfxVolumeChanged(float value)
     {
         _sfxPlayer.volume = value;
-        _soundOptionData.SfxVolume = value;
-        _soundOptionData.Save();
+
+        if (_soundOptionData.SfxVolume != value)
+        {
+            _soundOptionData.SfxVolume = value;
+            _soundOptionData.Save();
+        }
     }
 
     public void PlayBgm(AudioClip clip)

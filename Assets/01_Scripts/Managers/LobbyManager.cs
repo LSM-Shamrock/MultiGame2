@@ -37,12 +37,18 @@ public class LobbyManager : SingletonBehaviour<LobbyManager>
 
     private void OnDeckCardIdsChanged(int index, int cardId)
     {
-        _data.DeckCardIds[index] = DeckCardIds[index];
-        _data.Save();
+        if (_data.DeckCardIds[index] != cardId)
+        {
+            _data.DeckCardIds[index] = cardId;
+            _data.Save();
+        }
     }
     private void OnPlayerNameChanged(string playerName)
     {
-        _data.PlayerName = PlayerName.Value;
-        _data.Save();
+        if (_data.PlayerName != playerName)
+        {
+            _data.PlayerName = playerName;
+            _data.Save();
+        }
     }
 }
