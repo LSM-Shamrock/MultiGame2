@@ -899,6 +899,7 @@ GameObject:
   - component: {fileID: 4963243459388947337}
   - component: {fileID: 6847292472388478223}
   - component: {fileID: 7067624873478501464}
+  - component: {fileID: 5391844471137187413}
   m_Layer: 5
   m_Name: UI_QuitGamePopup
   m_TagString: Untagged
@@ -990,6 +991,22 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &5391844471137187413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7147840595048760866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3577ba5473500b4429ea5ebb3f0022dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Canvas: {fileID: 4963243459388947337}
+  BackPanel: {fileID: 7033435068687090181}
+  QuitButton: {fileID: 7233662218900873211}
+  CancleButton: {fileID: 2872915938602849535}
 --- !u!1 &8967579628496363052
 GameObject:
   m_ObjectHideFlags: 0
