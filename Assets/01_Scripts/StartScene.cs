@@ -12,6 +12,7 @@ public class StartScene : MonoBehaviour
     [SerializeField, SceneComponentField] private PopupManager PopupManager;
     [SerializeField, SceneComponentField] private SoundManager SoundManager;
     [SerializeField, SceneComponentField] private ScreenManager ScreenManager;
+    [SerializeField, SceneComponentField] private SaveManager SaveManager;
 
     private void Awake()
     {
@@ -39,12 +40,13 @@ public class StartScene : MonoBehaviour
 
     private void OnConfigsFetchCompleted()
     {
-        SceneManager.LoadScene("LobbyScene");
-
         LobbyManager.Initialize();
         MatchingManager.Initialize();
         PopupManager.Initialize();
         SoundManager.Initialize();
         ScreenManager.Initialize();
+        SaveManager.Initialize();
+
+        SceneManager.LoadScene("LobbyScene");
     }
 }

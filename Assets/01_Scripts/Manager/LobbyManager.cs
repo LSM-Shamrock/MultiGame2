@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using System.Linq;
 
-public class LobbyData : SaveData
+public class LobbyData : ISaveData
 {
     [JsonProperty] public string PlayerName;
     [JsonProperty] public int[] DeckCardIds;
@@ -23,12 +23,12 @@ public class LobbyManager : SingletonBehaviour<LobbyManager>
         DeckCardIds.AddListener(OnDeckCardIdsChanged);
         PlayerName.AddListener(OnPlayerNameChanged);
 
-        if (_data.TryLoad() == false)
+        if (SaveManager.Instance.TryLoad(_data) == false)
         {
             _data.DeckCardIds = new int[8];
             for (int i = 0; i < 8; i++)
                 _data.DeckCardIds[i] = RemoteConfigManager.Instance.GameData.Value.CardData.List[i].CardId;
-            _data.Save();
+            SaveManager.Instance.Save(_data);
         }
         PlayerName.Value = _data.PlayerName;
         for (int i = 0; i < 8;i++)
@@ -40,7 +40,7 @@ public class LobbyManager : SingletonBehaviour<LobbyManager>
         if (_data.DeckCardIds[index] != cardId)
         {
             _data.DeckCardIds[index] = cardId;
-            _data.Save();
+            SaveManager.Instance.Save(_data);
         }
     }
     private void OnPlayerNameChanged(string playerName)
@@ -48,7 +48,7 @@ public class LobbyManager : SingletonBehaviour<LobbyManager>
         if (_data.PlayerName != playerName)
         {
             _data.PlayerName = playerName;
-            _data.Save();
+            SaveManager.Instance.Save(_data);
         }
     }
 }

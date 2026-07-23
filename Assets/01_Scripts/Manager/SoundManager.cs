@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using UnityEngine;
 
-public class SoundOptionData : SaveData
+public class SoundOptionData : ISaveData
 {
     [JsonProperty] public float BgmVolume;
     [JsonProperty] public float SfxVolume;
@@ -24,11 +24,11 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         BgmVolume.OnValueChanged += OnBgmVolumeChanged;
         SfxVolume.OnValueChanged += OnSfxVolumeChanged;
 
-        if (_soundOptionData.TryLoad() == false)
+        if (SaveManager.Instance.TryLoad(_soundOptionData) == false)
         {
             _soundOptionData.BgmVolume = BgmVolume.Value;
             _soundOptionData.SfxVolume = SfxVolume.Value;
-            _soundOptionData.Save();
+            SaveManager.Instance.Save(_soundOptionData);
         }
         BgmVolume.Value = _soundOptionData.BgmVolume;
         SfxVolume.Value = _soundOptionData.SfxVolume;
@@ -41,7 +41,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         if (_soundOptionData.BgmVolume != value)
         {
             _soundOptionData.BgmVolume = value;
-            _soundOptionData.Save();
+            SaveManager.Instance.Save(_soundOptionData);
         }
     }
     private void OnSfxVolumeChanged(float value)
@@ -51,7 +51,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         if (_soundOptionData.SfxVolume != value)
         {
             _soundOptionData.SfxVolume = value;
-            _soundOptionData.Save();
+            SaveManager.Instance.Save(_soundOptionData);
         }
     }
 
