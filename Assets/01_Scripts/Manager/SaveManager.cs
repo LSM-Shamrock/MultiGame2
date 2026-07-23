@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 
@@ -53,5 +52,11 @@ public class SaveManager : SingletonBehaviour<SaveManager>
 
         Load(data);
         return true;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E))
+            System.Diagnostics.Process.Start($"\"{SavePathRoot}\"");
     }
 }
