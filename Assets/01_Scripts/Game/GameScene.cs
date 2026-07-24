@@ -1,7 +1,38 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+
+public enum GameFinishType
+{
+    CoreDestroyed,
+    ClientDisconected,
+}
+
+public struct GameFinishData : INetworkSerializable
+{
+    private GameFinishType _gameFinishType;
+    private bool _isDraw;
+    private ulong _winnerClientId;
+
+    public GameFinishType GameFinishType => _gameFinishType;
+    public ulong? WinnerClientId => _isDraw ? null : _winnerClientId;
+
+    public GameFinishData(GameFinishType gameFinishType, ulong? winnerClientId)
+    {
+        _gameFinishType = gameFinishType;
+        _isDraw = winnerClientId == null;
+        _winnerClientId = winnerClientId ?? 0;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref _gameFinishType);
+        serializer.SerializeValue(ref _isDraw);
+        serializer.SerializeValue(ref _winnerClientId);
+    }
+}
 
 [AutoInjectionTarget]
 public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
@@ -16,7 +47,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
 
     public bool IsGameFinished { get; private set; } = false;
-    public event Action<ulong?> OnGameFinished;
+    public event Action<GameFinishData> OnGameFinished;
 
     private void Awake()
     {
@@ -60,9 +91,24 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         {
             if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
             {
-                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead) FinishGameRpc(isDraw: true);
-                else if (LocalPlayer.Value.IsDead) FinishGameRpc(isDraw: false, OpponentPlayer.Value.OwnerClientId);
-                else if (OpponentPlayer.Value.IsDead) FinishGameRpc(isDraw: false, LocalPlayer.Value.OwnerClientId);
+                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: null));
+                }
+                else if (LocalPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: OpponentPlayer.Value.OwnerClientId));
+                }
+                else if (OpponentPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: LocalPlayer.Value.OwnerClientId));
+                }
             }
         }
     }
@@ -79,17 +125,17 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void FinishGameRpc(bool isDraw, ulong winnerClientId = 0)
+    private void FinishGameRpc(GameFinishData data)
     {
-        FinishGameLocal(isDraw, winnerClientId);
+        FinishGameLocal(data);
     }
-    private void FinishGameLocal(bool isDraw, ulong winnerClientId = 0)
+    private void FinishGameLocal(GameFinishData data)
     {
         if (IsGameFinished)
             return;
 
         IsGameFinished = true;
-        OnGameFinished?.Invoke(isDraw ? null : winnerClientId);
+        OnGameFinished?.Invoke(data);
     }
 
     private void OnClientDisconect(ulong clientId)
@@ -101,7 +147,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
                 if (clientId == _opponentPlayerSessionData.ClientId)
                 {
                     Debug.Log("상대 클라이언트의 접속이 끊어져 자신의 승리로 처리함.");
-                    FinishGameLocal(false, NetworkManager.LocalClientId);
+                    FinishGameLocal(new GameFinishData(
+                        gameFinishType: GameFinishType.ClientDisconected, 
+                        winnerClientId: NetworkManager.LocalClientId));
                 }
             }
             else
@@ -124,7 +172,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
                     if (serverDown)
                     {
                         Debug.Log("서버의 연결이 끊어져 자신의 승리로 처리함.");
-                        FinishGameLocal(false, NetworkManager.LocalClientId);
+                        FinishGameLocal(new GameFinishData(
+                            gameFinishType: GameFinishType.ClientDisconected,
+                            winnerClientId: NetworkManager.LocalClientId));
                     }
                 }
             }
