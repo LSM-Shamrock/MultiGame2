@@ -14,6 +14,8 @@ public class PopupManager : SingletonBehaviour<PopupManager>
     private Stack<IPopupUI> _showingPopupStack = new();
     private int _nextSortingOrder = 10;
 
+    public IPopupUI CurrentPopup => _showingPopupStack.TryPeek(out var result) ? result : null;
+
     public T ShowPopup<T>() where T : IPopupUI
     {
         if (_closedPopupPools.TryGetValue(typeof(T), out var pool) == false)
@@ -56,7 +58,7 @@ public class PopupManager : SingletonBehaviour<PopupManager>
         if (_showingPopupStack.Peek() == target)
             ClosePopup();
     }
-
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
