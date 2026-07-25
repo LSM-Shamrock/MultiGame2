@@ -651,11 +651,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RemoteConfigManager: {fileID: 769039285}
   LobbyManager: {fileID: 766530912}
-  MatchingManager: {fileID: 464305832}
-  PopupManager: {fileID: 1517395598}
-  SoundManager: {fileID: 213623362}
-  ScreenManager: {fileID: 1231835212}
-  SaveManager: {fileID: 1391107476}
 --- !u!1 &1201369060
 GameObject:
   m_ObjectHideFlags: 0

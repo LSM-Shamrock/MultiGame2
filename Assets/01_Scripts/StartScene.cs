@@ -8,16 +8,14 @@ public class StartScene : MonoBehaviour
 {
     [SerializeField, SceneComponentField] private RemoteConfigManager RemoteConfigManager;
     [SerializeField, SceneComponentField] private LobbyManager LobbyManager;
-    [SerializeField, SceneComponentField] private MatchingManager MatchingManager;
-    [SerializeField, SceneComponentField] private SoundManager SoundManager;
 
     private void Awake()
     {
-        RemoteConfigManager.Instance.OnConfigsFetchCompleted += OnConfigsFetchCompleted;
+        RemoteConfigManager.OnConfigsFetchCompleted += OnConfigsFetchCompleted;
     }
     private void OnDestroy()
     {
-        RemoteConfigManager.Instance.OnConfigsFetchCompleted -= OnConfigsFetchCompleted;
+        RemoteConfigManager.OnConfigsFetchCompleted -= OnConfigsFetchCompleted;
     }
     private async void Start()
     {
