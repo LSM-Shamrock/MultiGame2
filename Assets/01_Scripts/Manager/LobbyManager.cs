@@ -16,10 +16,8 @@ public class LobbyManager : SingletonBehaviour<LobbyManager>
     public ObservableArray<int> DeckCardIds { get; } = new(8);
     public ObservableValue<string> PlayerName { get; } = new();
 
-    public override void Initialize()
+    public void Initialize()
     {
-        base.Initialize();
-
         DeckCardIds.AddListener(OnDeckCardIdsChanged);
         PlayerName.AddListener(OnPlayerNameChanged);
 

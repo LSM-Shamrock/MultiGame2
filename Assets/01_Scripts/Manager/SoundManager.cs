@@ -17,10 +17,10 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
     [SerializeField, ChildField("SfxPlayer")] private AudioSource _sfxPlayer;
 
-    public override void Initialize()
+    protected override void Awake()
     {
-        base.Initialize();
-    
+        base.Awake();   
+
         BgmVolume.OnValueChanged += OnBgmVolumeChanged;
         SfxVolume.OnValueChanged += OnSfxVolumeChanged;
 

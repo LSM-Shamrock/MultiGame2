@@ -17,7 +17,7 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
         }
     }
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         if (_instance != null && _instance != this)
         {
@@ -27,10 +27,5 @@ public abstract class SingletonBehaviour<T> : MonoBehaviour where T : SingletonB
 
         _instance = (T)this;
         DontDestroyOnLoad(gameObject);
-    }
-
-    public virtual void Initialize()
-    {
-
     }
 }
