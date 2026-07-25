@@ -768,7 +768,7 @@ GameObject:
   - component: {fileID: 1231835213}
   - component: {fileID: 1231835212}
   m_Layer: 0
-  m_Name: ScreenManager
+  m_Name: ApplicationController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1478,11 +1478,11 @@ SceneRoots:
   - {fileID: 1668253722}
   - {fileID: 1201369061}
   - {fileID: 861040143}
+  - {fileID: 1231835213}
   - {fileID: 1572457319}
   - {fileID: 769039284}
   - {fileID: 766530911}
   - {fileID: 464305831}
   - {fileID: 1517395597}
   - {fileID: 213623363}
-  - {fileID: 1231835213}
   - {fileID: 1391107477}

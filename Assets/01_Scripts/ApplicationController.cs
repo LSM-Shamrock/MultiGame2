@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 
-public class ScreenManager : SingletonBehaviour<ScreenManager>
+public class ApplicationController : MonoBehaviour
 {
     private int DEFAULT_WINDOW_WIDTH = 960;
     private int DEFAULT_WINDOW_HEIGHT = 640;
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F11))
