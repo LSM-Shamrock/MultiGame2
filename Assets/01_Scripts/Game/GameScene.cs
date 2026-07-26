@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -32,13 +33,6 @@ public struct GameFinishData : INetworkSerializable
         serializer.SerializeValue(ref _isDraw);
         serializer.SerializeValue(ref _winnerClientId);
     }
-}
-
-public enum GamePhase
-{
-    Normal,
-    Overtime,
-    Tiebreaker,
 }
 
 [AutoInjectionTarget]
@@ -122,7 +116,6 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         IsGameFinished = true;
         OnGameFinished?.Invoke(data);
     }
-
     private void OnClientDisconect(ulong clientId)
     {
         if (!IsGameFinished)
@@ -165,7 +158,6 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             }
         }
     }
-
     private void CheckCoreDead()
     {
         if (IsServer)
@@ -193,4 +185,5 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             }
         }
     }
+
 }
