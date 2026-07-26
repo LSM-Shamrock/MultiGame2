@@ -46,7 +46,6 @@ public class Player : NetworkBehaviour
 
             SummonCore();
             SetupHandAndNextCards(_deckCardIds);
-            StartCoroutine(MpUpdateRoutine());
         }
 
         if (IsOwner)
@@ -87,29 +86,6 @@ public class Player : NetworkBehaviour
 
         Debug.Log("패, 다음 카드들 셋업 완료");
         Debug.Log("다음 카드 Id : " + NextCardId.Value);
-    }
-    private IEnumerator MpUpdateRoutine()
-    {
-        if (!IsServer)
-            yield break;
-
-        WaitForSeconds wait = new WaitForSeconds(2f);
-
-        while (true)
-        {
-            if (MP.Value < 10)
-            {
-                yield return wait;
-                MP.Value++;
-            }
-            else
-            {
-                if (MP.Value > 10)
-                    MP.Value = 10;
-
-                yield return null;
-            }
-        }
     }
 
     [ServerRpc]

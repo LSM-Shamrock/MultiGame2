@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,7 +11,6 @@ public enum GameFinishType
     CoreDestroyed,
     ClientDisconected,
 }
-
 public struct GameFinishData : INetworkSerializable
 {
     private GameFinishType _gameFinishType;
@@ -48,11 +48,17 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
     private PlayerSessionData _localPlayerSessionData;
     private PlayerSessionData _opponentPlayerSessionData;
+    private List<Player> _players = new();  
 
-    private void Awake()
+    private void Start()
     {
+        ((ISceneInstance<GameScene>)this).InitSceneInstance();
+
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconect;
+
+        SetupPlayer();
+        StartCoroutine(MpUpdateRoutine());
     }
     public override void OnDestroy()
     {
@@ -61,42 +67,33 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconect;
     }
-    private void Start()
-    {
-        ((ISceneInstance<GameScene>)this).InitSceneInstance();
-        SetupGame();
-    }
     private void Update()
     {
         CheckCoreDead();
     }
 
-    private Player SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
+    private Player SpawnPlayer(PlayerSessionData data, bool isRotate)
     {
         GameObject go = Instantiate(_playerPrefab, Vector2.zero, isRotate ? Quaternion.Euler(0, 180, 0) : Quaternion.identity);
         NetworkObject obj = go.GetComponent<NetworkObject>();
         Player player = go.GetComponent<Player>();
-        player.Init(playerName, deckCardIds);
-        obj.SpawnAsPlayerObject(clientId);
+        player.Init(data.PlayerName, data.DeckCardIds);
+        obj.SpawnAsPlayerObject(data.ClientId);
         
         return player;
     }
-    private void SetupGame()
+    private void SetupPlayer()
     {
         if (NetworkManager.Singleton.IsHost && MatchingManager.Instance)
         {
             _localPlayerSessionData = MatchingManager.Instance.LocalPlayerSessionData;
-            var localPlayer = SpawnPlayer(
-                _localPlayerSessionData.ClientId, 
-                _localPlayerSessionData.PlayerName, 
-                _localPlayerSessionData.DeckCardIds, false);
-            
             _opponentPlayerSessionData = MatchingManager.Instance.OpponentPlayerSessionData;
-            var opponentPlayer = SpawnPlayer(
-                _opponentPlayerSessionData.ClientId,
-                _opponentPlayerSessionData.PlayerName,
-                _opponentPlayerSessionData.DeckCardIds, true);
+            var localPlayer = SpawnPlayer(_localPlayerSessionData, false);
+            var opponentPlayer = SpawnPlayer(_opponentPlayerSessionData, true);
             opponentPlayer.IsBot = MatchingManager.Instance.MatchingType == MatchingType.PvE;
+
+            _players.Add(localPlayer);
+            _players.Add(opponentPlayer);
         }
 
         if (IsHost == false)
@@ -186,4 +183,22 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         }
     }
 
+    private IEnumerator MpUpdateRoutine()
+    {
+        if (!IsServer)
+            yield break;
+
+        WaitForSeconds wait = new WaitForSeconds(2f);
+
+        while (true)
+        {
+            yield return wait;
+
+            foreach (var player in _players)
+            {
+                if (player.MP.Value < 10) 
+                    player.MP.Value++;
+            }
+        }
+    }
 }
