@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-
 
 #region Enum
 public enum AltitudeType { Ground, Air, }
@@ -142,7 +140,6 @@ public abstract class TableData
 {
     public abstract int Key { get; }
 }
-
 public class Table<T> where T : TableData
 {
     public IReadOnlyList<T> List { get; }
@@ -178,7 +175,6 @@ public class GameData
     public Table<Attack_ProjectileData> Attack_ProjectileData => GetOrCreateTable(Attack_Projectile);
     public Table<ProjectileData> ProjectileData => GetOrCreateTable(Projectile);
     public Table<DotEffectData> DotEffectData => GetOrCreateTable(DotEffect);
-
 
     private Table<T> GetOrCreateTable<T>(IReadOnlyList<T> datas) where T : TableData
     {

@@ -34,20 +34,26 @@ public struct GameFinishData : INetworkSerializable
     }
 }
 
+public enum GamePhase
+{
+    Normal,
+    Overtime,
+    Tiebreaker,
+}
+
 [AutoInjectionTarget]
 public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 {
     [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
     [SerializeField, ChildField("RotationRoot")] private Transform RotationRoot;
 
-    private PlayerSessionData _localPlayerSessionData;
-    private PlayerSessionData _opponentPlayerSessionData;
-
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
-
     public bool IsGameFinished { get; private set; } = false;
     public event Action<GameFinishData> OnGameFinished;
+
+    private PlayerSessionData _localPlayerSessionData;
+    private PlayerSessionData _opponentPlayerSessionData;
 
     private void Awake()
     {
@@ -61,11 +67,28 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconect;
     }
-
     private void Start()
     {
         ((ISceneInstance<GameScene>)this).InitSceneInstance();
+        SetupGame();
+    }
+    private void Update()
+    {
+        CheckCoreDead();
+    }
 
+    private Player SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
+    {
+        GameObject go = Instantiate(_playerPrefab, Vector2.zero, isRotate ? Quaternion.Euler(0, 180, 0) : Quaternion.identity);
+        NetworkObject obj = go.GetComponent<NetworkObject>();
+        Player player = go.GetComponent<Player>();
+        player.Init(playerName, deckCardIds);
+        obj.SpawnAsPlayerObject(clientId);
+        
+        return player;
+    }
+    private void SetupGame()
+    {
         if (NetworkManager.Singleton.IsHost && MatchingManager.Instance)
         {
             _localPlayerSessionData = MatchingManager.Instance.LocalPlayerSessionData;
@@ -84,44 +107,6 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
         if (IsHost == false)
             RotationRoot.rotation = Quaternion.Euler(0, 180, 0);
-    }
-    private void Update()
-    {
-        if (IsServer)
-        {
-            if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
-            {
-                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: null));
-                }
-                else if (LocalPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: OpponentPlayer.Value.OwnerClientId));
-                }
-                else if (OpponentPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: LocalPlayer.Value.OwnerClientId));
-                }
-            }
-        }
-    }
-
-    private Player SpawnPlayer(ulong clientId, string playerName, int[] deckCardIds, bool isRotate)
-    {
-        GameObject go = Instantiate(_playerPrefab, Vector2.zero, isRotate ? Quaternion.Euler(0, 180, 0) : Quaternion.identity);
-        NetworkObject obj = go.GetComponent<NetworkObject>();
-        Player player = go.GetComponent<Player>();
-        player.Init(playerName, deckCardIds);
-        obj.SpawnAsPlayerObject(clientId);
-        
-        return player;
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -176,6 +161,34 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
                             gameFinishType: GameFinishType.ClientDisconected,
                             winnerClientId: NetworkManager.LocalClientId));
                     }
+                }
+            }
+        }
+    }
+
+    private void CheckCoreDead()
+    {
+        if (IsServer)
+        {
+            if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
+            {
+                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: null));
+                }
+                else if (LocalPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: OpponentPlayer.Value.OwnerClientId));
+                }
+                else if (OpponentPlayer.Value.IsDead)
+                {
+                    FinishGameRpc(new GameFinishData(
+                        gameFinishType: GameFinishType.CoreDestroyed,
+                        winnerClientId: LocalPlayer.Value.OwnerClientId));
                 }
             }
         }
