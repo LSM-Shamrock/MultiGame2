@@ -9,6 +9,7 @@ using UnityEngine;
 public enum GameFinishType
 {
     CoreDestroyed,
+    Timeout,
     ClientDisconected,
 }
 public struct GameFinishData : INetworkSerializable
@@ -45,10 +46,11 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
     public bool IsGameFinished { get; private set; } = false;
     public event Action<GameFinishData> OnGameFinished;
+    public float RemainingTime { get; private set; } = 60 * 3f;
 
     private PlayerSessionData _localPlayerSessionData;
     private PlayerSessionData _opponentPlayerSessionData;
-    private List<Player> _players = new();  
+    private List<Player> _players = new();
 
     private void Start()
     {
@@ -70,6 +72,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     private void Update()
     {
         CheckCoreDead();
+        UpdateRemainingTime();
     }
 
     private Player SpawnPlayer(PlayerSessionData data, bool isRotate)
@@ -199,6 +202,19 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
                 if (player.MP.Value < 10) 
                     player.MP.Value++;
             }
+        }
+    }
+
+    private void UpdateRemainingTime()
+    {
+        if (IsGameFinished)
+            return;
+
+        RemainingTime -= Time.deltaTime;
+
+        if (IsServer && RemainingTime <= 0)
+        {
+            FinishGameRpc(new GameFinishData(GameFinishType.Timeout, null));
         }
     }
 }

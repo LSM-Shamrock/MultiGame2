@@ -11,6 +11,7 @@ public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
     [SerializeField, ChildField] private UI_CardSummonPos CardSummonPos;
     [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
     [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
+    [SerializeField, ChildField] private TextMeshProUGUI RemainingTimeText;
     [SerializeField, ChildField] private UI_MpBar MpBar;
     [SerializeField, ChildField] private UI_NextCard NextCard;
     [SerializeField, ChildrenArrayField] private UI_HandCard[] HandCards;
@@ -47,7 +48,15 @@ public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
 
         if (_displayMP < 10) RefreshMP(_displayMP += Time.deltaTime / 2f);
         if (_displayMP > 10) RefreshMP(_displayMP = 10);
+        UpdateCardInput();
 
+        float remainingTime = ISceneInstance<GameScene>.SceneInstance.RemainingTime;
+        int m = (int)remainingTime / 60;
+        int s = (int)remainingTime % 60;
+        RemainingTimeText.text = $"{m} : {s:D2}";
+    }
+    private void UpdateCardInput()
+    {
         if (_selectedCardData != null)
         {
             if (_isPointerDragArea && Input.GetMouseButton(0))

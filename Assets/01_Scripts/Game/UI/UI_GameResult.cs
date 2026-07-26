@@ -30,15 +30,21 @@ public class UI_GameResult : MonoBehaviour
     {
         SoundManager.Instance.StopBgm();
 
+        Debug.Log(data.WinnerClientId);
         if (data.WinnerClientId == null)
         {
             ResultText.text = "무승부";
             ResultText.color = Color.gray;
             SoundManager.Instance.PlaySfx(_sfx_draw);
 
-            SubText.text = "양쪽 코어 파괴됨";
+            SubText.text = data.GameFinishType switch
+            {
+                GameFinishType.CoreDestroyed => "양쪽 코어 파괴됨",
+                GameFinishType.Timeout => "시간 초과",
+                _ => ""
+            };
         }
-        if (data.WinnerClientId == NetworkManager.Singleton.LocalClientId)
+        else if (data.WinnerClientId == NetworkManager.Singleton.LocalClientId)
         {
             ResultText.text = "승리";
             ResultText.color = new Color(0.0f, 0.2f, 1.0f);
@@ -48,7 +54,7 @@ public class UI_GameResult : MonoBehaviour
             {
                 GameFinishType.CoreDestroyed => "적 코어 파괴 성공",
                 GameFinishType.ClientDisconected => "적 연결 끊김",
-                _ => default
+                _ => ""
             };
         }
         else
@@ -61,7 +67,7 @@ public class UI_GameResult : MonoBehaviour
             {
                 GameFinishType.CoreDestroyed => "내 코어 파괴됨",
                 GameFinishType.ClientDisconected => "내 연결 끊김",
-                _ => default
+                _ => ""
             };
         }
 

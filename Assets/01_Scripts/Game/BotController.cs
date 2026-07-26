@@ -1,4 +1,4 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 [AutoInjectionTarget]
@@ -24,8 +24,6 @@ public class BotController : MonoBehaviour
     {
         if (!Player.IsSpawned) return;
         if (!Player.IsBot) return;
-
-        Debug.Log("!", Player);
 
         if (_selectedIndex < 0 || _selectedIndex >= _handCardIds.Length)
         {

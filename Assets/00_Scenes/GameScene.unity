@@ -820,6 +820,7 @@ MonoBehaviour:
   CardSummonPos: {fileID: 476126614}
   LocalPlayerNameText: {fileID: 1512036607}
   OpponentPlayerNameText: {fileID: 969583355}
+  RemainingTimeText: {fileID: 351145334}
   MpBar: {fileID: 1914606294}
   NextCard: {fileID: 2014692272}
   HandCards:
@@ -1520,7 +1521,7 @@ GameObject:
   - component: {fileID: 351145335}
   - component: {fileID: 351145334}
   m_Layer: 5
-  m_Name: RemainingTimeText1
+  m_Name: RemainingTimeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
