@@ -2,9 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Timers;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public enum GameFinishType
 {
@@ -36,6 +38,13 @@ public struct GameFinishData : INetworkSerializable
     }
 }
 
+public class GameConfig
+{
+    public const float DEFAULT_MP_REGEN_SPEED = 0.5f;
+    public const float GAME_DURATION = 60 * 3;
+    public const float MP_DOUBLE_START_TIME = 60 * 1;
+}
+
 [AutoInjectionTarget]
 public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 {
@@ -44,13 +53,21 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
-    public bool IsGameFinished { get; private set; } = false;
-    public event Action<GameFinishData> OnGameFinished;
-    public float RemainingTime { get; private set; } = 60 * 3f;
-
     private PlayerSessionData _localPlayerSessionData;
     private PlayerSessionData _opponentPlayerSessionData;
     private List<Player> _players = new();
+
+    public bool IsGameFinished { get; private set; } = false;
+    public event Action<GameFinishData> OnGameFinished;
+    
+    private Stopwatch _timer = new();
+    private float _lastMpRegenTime;
+    public float GameDuration => GameConfig.GAME_DURATION;
+    public float ElapsedTime => (float)_timer.Elapsed.TotalSeconds;
+    public float RemainingTime => ElapsedTime < GameDuration ? GameDuration - ElapsedTime : 0f;
+    public float MpRegenScale { get; private set; } = 1f;
+    public float MpRegenSpeed => GameConfig.DEFAULT_MP_REGEN_SPEED * MpRegenScale;
+    public float MpRegenInterval => 1f / MpRegenSpeed;
 
     private void Start()
     {
@@ -60,7 +77,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconect;
 
         SetupPlayer();
-        StartCoroutine(MpUpdateRoutine());
+        
+        _timer.Start();
+        _lastMpRegenTime = ElapsedTime;
     }
     public override void OnDestroy()
     {
@@ -72,7 +91,8 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     private void Update()
     {
         CheckCoreDead();
-        UpdateRemainingTime();
+        CheckTimeout();
+        UpdateMpRegen();
     }
 
     private Player SpawnPlayer(PlayerSessionData data, bool isRotate)
@@ -185,36 +205,35 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             }
         }
     }
-
-    private IEnumerator MpUpdateRoutine()
+    private void CheckTimeout()
     {
-        if (!IsServer)
-            yield break;
+        if (IsGameFinished)
+            return;
 
-        WaitForSeconds wait = new WaitForSeconds(2f);
-
-        while (true)
+        if (IsServer && RemainingTime <= 0)
         {
-            yield return wait;
+            FinishGameRpc(new GameFinishData(GameFinishType.Timeout, null));
+        }
+    }
+    private void UpdateMpRegen()
+    {
+        if (IsGameFinished)
+            return;
+
+        if (MpRegenScale < 2f && ElapsedTime > GameConfig.MP_DOUBLE_START_TIME)
+        {
+            MpRegenScale = 2f;
+        }
+
+        if (ElapsedTime - _lastMpRegenTime > MpRegenInterval)
+        {
+            _lastMpRegenTime = ElapsedTime;
 
             foreach (var player in _players)
             {
                 if (player.MP.Value < 10) 
                     player.MP.Value++;
             }
-        }
-    }
-
-    private void UpdateRemainingTime()
-    {
-        if (IsGameFinished)
-            return;
-
-        RemainingTime -= Time.deltaTime;
-
-        if (IsServer && RemainingTime <= 0)
-        {
-            FinishGameRpc(new GameFinishData(GameFinishType.Timeout, null));
         }
     }
 }

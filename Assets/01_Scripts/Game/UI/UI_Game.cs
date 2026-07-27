@@ -7,16 +7,21 @@ using UnityEngine;
 [AutoInjectionTarget]
 public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
 {
+    [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
+    
     [SerializeField, ChildField] private GameObject CardSummonArea;
     [SerializeField, ChildField] private UI_CardSummonPos CardSummonPos;
-    [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
-    [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
-    [SerializeField, ChildField] private TextMeshProUGUI RemainingTimeText;
+    [SerializeField, ChildField] private PointerEventBinder DragArea;
+
     [SerializeField, ChildField] private UI_MpBar MpBar;
     [SerializeField, ChildField] private UI_NextCard NextCard;
     [SerializeField, ChildrenArrayField] private UI_HandCard[] HandCards;
-    [SerializeField, ChildField] private PointerEventBinder DragArea;
-    [SerializeField, AssetField("Bgm_Game")] private AudioClip _gameBgm;
+
+    [SerializeField, ChildField] private TextMeshProUGUI LocalPlayerNameText;
+    [SerializeField, ChildField] private TextMeshProUGUI OpponentPlayerNameText;
+    [SerializeField, ChildField] private TextMeshProUGUI RemainingTimeText;
+    [SerializeField, ChildField] private GameObject MpScaleDisplay;
+    [SerializeField, ChildField] private TextMeshProUGUI MpScaleText;
 
     private Camera _camera;
     private Player _player;
@@ -46,14 +51,36 @@ public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
         if (_player == null)
             return;
 
-        if (_displayMP < 10) RefreshMP(_displayMP += Time.deltaTime / 2f);
-        if (_displayMP > 10) RefreshMP(_displayMP = 10);
+        UpdateMP();
+        UpdateRemainingTime();
+        UpdateMpScale();
         UpdateCardInput();
-
+    }
+    private void UpdateMP()
+    {
+        float mpRegenSpeed = ISceneInstance<GameScene>.SceneInstance.MpRegenSpeed;
+        if (_displayMP < 10) RefreshMP(_displayMP += Time.deltaTime * mpRegenSpeed);
+        if (_displayMP > 10) RefreshMP(_displayMP = 10);
+    }
+    private void UpdateRemainingTime()
+    {
         float remainingTime = ISceneInstance<GameScene>.SceneInstance.RemainingTime;
         int m = (int)remainingTime / 60;
         int s = (int)remainingTime % 60;
         RemainingTimeText.text = $"{m} : {s:D2}";
+    }
+    private void UpdateMpScale()
+    {
+        float mpScale = ISceneInstance<GameScene>.SceneInstance.MpRegenScale;
+        if (mpScale == 1)
+        {
+            MpScaleDisplay.SetActive(false);
+        }
+        else
+        {
+            MpScaleDisplay.SetActive(true);
+            MpScaleText.text = $"x{mpScale}";
+        }
     }
     private void UpdateCardInput()
     {
