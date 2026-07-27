@@ -28,6 +28,7 @@ public class UI_GameResult : MonoBehaviour
 
     private void OnGameFinished(GameFinishData data)
     {
+        SoundManager.Instance.BgmPitch.Value = 1f;
         SoundManager.Instance.StopBgm();
 
         Debug.Log(data.WinnerClientId);

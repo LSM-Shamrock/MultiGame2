@@ -10,8 +10,9 @@ public class SoundOptionData : ISaveData
 [AutoInjectionTarget]
 public class SoundManager : SingletonBehaviour<SoundManager>
 {
-    public ObservableValue<float> BgmVolume { get; } = new(0.5f, Mathf.Clamp01);
     public ObservableValue<float> SfxVolume { get; } = new(0.5f, Mathf.Clamp01);
+    public ObservableValue<float> BgmVolume { get; } = new(0.5f, Mathf.Clamp01);
+    public ObservableValue<float> BgmPitch { get; } = new(1f);
 
     private SoundOptionData _soundOptionData = new();
     [SerializeField, ChildField("BgmPlayer")] private AudioSource _bgmPlayer;
@@ -21,8 +22,9 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     {
         base.Awake();   
 
-        BgmVolume.OnValueChanged += OnBgmVolumeChanged;
         SfxVolume.OnValueChanged += OnSfxVolumeChanged;
+        BgmVolume.OnValueChanged += OnBgmVolumeChanged;
+        BgmPitch.OnValueChanged += OnBgmSpeedChanged;
 
         if (SaveManager.Instance.TryLoad(_soundOptionData) == false)
         {
@@ -34,6 +36,16 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         SfxVolume.Value = _soundOptionData.SfxVolume;
     }
 
+    private void OnSfxVolumeChanged(float value)
+    {
+        _sfxPlayer.volume = value;
+
+        if (_soundOptionData.SfxVolume != value)
+        {
+            _soundOptionData.SfxVolume = value;
+            SaveManager.Instance.Save(_soundOptionData);
+        }
+    }
     private void OnBgmVolumeChanged(float value)
     {
         _bgmPlayer.volume = value;
@@ -44,15 +56,9 @@ public class SoundManager : SingletonBehaviour<SoundManager>
             SaveManager.Instance.Save(_soundOptionData);
         }
     }
-    private void OnSfxVolumeChanged(float value)
+    private void OnBgmSpeedChanged(float value)
     {
-        _sfxPlayer.volume = value;
-
-        if (_soundOptionData.SfxVolume != value)
-        {
-            _soundOptionData.SfxVolume = value;
-            SaveManager.Instance.Save(_soundOptionData);
-        }
+        _bgmPlayer.pitch = value;
     }
 
     public void PlayBgm(AudioClip clip)

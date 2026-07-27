@@ -223,6 +223,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         if (MpRegenScale < 2f && ElapsedTime > GameConfig.MP_DOUBLE_START_TIME)
         {
             MpRegenScale = 2f;
+            SoundManager.Instance.BgmPitch.Value = 1.5f;
         }
 
         if (ElapsedTime - _lastMpRegenTime > MpRegenInterval)
