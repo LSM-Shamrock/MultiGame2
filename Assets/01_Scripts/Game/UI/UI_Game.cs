@@ -91,14 +91,14 @@ public class UI_Game : MonoBehaviour, ISceneInstance<UI_Game>
                 HandCards[_selectedIndex].SetShow(false);
                 CardSummonArea.gameObject.SetActive(true);
                 CardSummonPos.gameObject.SetActive(true);
-                CardSummonPos.transform.position = _player.WorldToGridPoint(_camera.ScreenToWorldPoint(Input.mousePosition));
+                CardSummonPos.transform.position = _player.ToGridPosition(_camera.ScreenToWorldPoint(Input.mousePosition));
             }
             else if (_isPointerDragArea && Input.GetMouseButtonUp(0) && _displayMP >= _selectedCardData.CostMP)
             {
                 HandCards[_selectedIndex].SetShow(true);
                 HandCards[_selectedIndex].SetSelected(false);
                 CardSummonPos.gameObject.SetActive(false);
-                _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGridIndex(_camera.ScreenToWorldPoint(Input.mousePosition)));
+                _player.SummonCardServerRpc(_selectedIndex, _player.WorldToGrid(_camera.ScreenToWorldPoint(Input.mousePosition)));
                 _selectedIndex = -1;
                 _selectedCardId = -1;
                 _selectedCardData = null;

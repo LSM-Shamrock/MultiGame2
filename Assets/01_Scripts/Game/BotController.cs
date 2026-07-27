@@ -38,8 +38,8 @@ public class BotController : MonoBehaviour
         {
             int posIndex = Random.Range(0, AutoSummonPositions.Length);
             Vector2 pos = AutoSummonPositions[posIndex].position;
-            int gridIndex = Player.WorldToGridIndex(pos);
-            Player.SummonCard(_selectedIndex, gridIndex);
+            Vector2Int gridPos = Player.WorldToGrid(pos);
+            Player.SummonCard(_selectedIndex, gridPos);
         }
     }
 

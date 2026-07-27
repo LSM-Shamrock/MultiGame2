@@ -19,7 +19,7 @@ public class Player : NetworkBehaviour
     private Queue<int> _nextCardIds = new();
 
     [SerializeField, ChildField] private Transform CorePos;
-    [SerializeField, ChildrenArrayField] private Transform[] SummonGrid;
+    [SerializeField, ChildField] private Transform SummonGrid;
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
@@ -89,16 +89,15 @@ public class Player : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void SummonCardServerRpc(int handIndex, int gridIndex)
+    public void SummonCardServerRpc(int handIndex, Vector2Int gridPos)
     {
         Debug.Log("카드 소환 요청 RPC호출됨");
-        SummonCard(handIndex, gridIndex);
+        SummonCard(handIndex, gridPos);
     }
-    public void SummonCard(int handIndex, int gridIndex)
+    public void SummonCard(int handIndex, Vector2Int gridPos)
     {
         if (!IsServer) return;
         if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
-        if (gridIndex < 0 || gridIndex > SummonGrid.Length - 1) return;
 
         int handCardId = HandCardIds[handIndex];
         CardData cardData = RemoteConfigManager.Instance.GameData.Value.CardData.Dictionary[handCardId];
@@ -117,49 +116,56 @@ public class Player : NetworkBehaviour
             NextCardId.Value = _nextCardIds.Peek();
 
             UnitData unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[cardData.UnitId];
-            Vector3 position = SummonGrid[gridIndex].position;
+            Vector3 position = GridToWorld(gridPos);
             position.y += unitData.SummonHeight;
             SummonUnit(unitData, position);
         }
     }
-    public Vector2 WorldToGridPoint(Vector2 worldPos)
+
+    public Vector2 GridToWorld(Vector2Int gridPos)
     {
-        float nearest = float.PositiveInfinity;
-        Vector2 result = Vector2.zero;
+        if (gridPos.x < 0 || gridPos.x > SummonGrid.childCount) gridPos.x = 0;
+        Transform t0 = SummonGrid.GetChild(gridPos.x);
+        
+        if (gridPos.y < 0 || gridPos.y > t0.childCount) gridPos.y = 0;
+        Transform t1 = t0.GetChild(gridPos.y);
+        
+        return t1.position;
+    }
+    public Vector2Int WorldToGrid(Vector2 worldPos)
+    {
+        float nearstX = float.PositiveInfinity;
+        float nearstY = float.PositiveInfinity;
+        Transform nearstXTransform = null;
+        Transform nearstYTransform = null;
 
         foreach (Transform t in SummonGrid)
         {
-            Vector2 p = (Vector2)t.position;
-            float dist = Math.Abs(p.x - worldPos.x);
-
-            if (dist < nearest)
+            float diff = Math.Abs(t.position.x - worldPos.x);
+            if (diff < nearstX)
             {
-                nearest = dist;
-                result = p;
+                nearstX = diff;
+                nearstXTransform = t;
             }
         }
 
-        return result;
-    }
-    public int WorldToGridIndex(Vector2 worldPos)
-    {
-        float nearest = float.PositiveInfinity;
-        int result = 0;
-
-
-        for (int i = 0; i < SummonGrid.Length; i++)
+        foreach (Transform t in nearstXTransform)
         {
-            Vector2 p = (Vector2)SummonGrid[i].position;
-            float dist = Math.Abs(p.x - worldPos.x);
-
-            if (dist < nearest)
+            float diff = Math.Abs(t.position.y - worldPos.y);
+            if (diff < nearstY)
             {
-                nearest = dist;
-                result = i;
+                nearstY = diff;
+                nearstYTransform = t;
             }
         }
 
-        return result;
+        return new Vector2Int(
+            nearstXTransform.GetSiblingIndex(), 
+            nearstYTransform.GetSiblingIndex());
+    }
+    public Vector2 ToGridPosition(Vector2 position)
+    {
+        return GridToWorld(WorldToGrid(position));
     }
 
     private void SummonCore()
