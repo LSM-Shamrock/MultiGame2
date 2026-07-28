@@ -15,9 +15,20 @@ public class Projectile : NetworkBehaviour
     private FieldObject _target;
     private ProjectileData _projectileData;
     private AttackHitData _attackHitData;
-    private Vector3 _moveDirection;
     private float _currentMoveDistance;
     private Dictionary<FieldObject, float> _pierceHitWaitings = new();
+
+    private Vector3 _moveDirection;
+    private Vector3 MoveDirection
+    {
+        get => _moveDirection;
+        set
+        {
+            _moveDirection = value;
+            transform.right = _moveDirection;
+            _spriteRenderer.flipY = _moveDirection.x < 0;
+        }
+    }
 
     public void Init(Unit unit, FieldObject target, ProjectileData data)
     {
@@ -32,8 +43,7 @@ public class Projectile : NetworkBehaviour
         _collider.size = new Vector2(data.ColliderWidth, data.ColliderHeight);
         _collider.offset = new Vector2(data.ColliderOffsetX, data.ColliderOffsetY);
 
-        _moveDirection = GetMoveDirection();
-        transform.right = _moveDirection;
+        MoveDirection = (_target.ColliderCenter - transform.position).normalized;
     }
     public override void OnNetworkSpawn()
     {
@@ -60,30 +70,11 @@ public class Projectile : NetworkBehaviour
         }
     }
 
-    private Vector3 GetMoveDirection()
-    {
-        Vector3 direction = Vector3.zero;
-
-        switch (_projectileData.MoveType)
-        {
-            case ProjectileMoveType.Directional:
-                direction = (_target.ColliderCenter - transform.position).normalized;
-                break;
-
-            case ProjectileMoveType.Horizontal:
-                float xDir = _target.transform.position.x - transform.position.x;
-                xDir = xDir / Mathf.Abs(xDir);
-                direction = Vector3.right * xDir;
-                break;
-        }
-        return direction;
-    }
-
     private void UpdateMove()
     {
         float amount = _projectileData.Speed * Time.deltaTime;
 
-        transform.position += _moveDirection * amount;
+        transform.position += MoveDirection * amount;
         _currentMoveDistance += amount;
 
         if (_currentMoveDistance > _projectileData.MaxDistance)
@@ -104,7 +95,7 @@ public class Projectile : NetworkBehaviour
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;
 
-                FieldObject.ApplyHit(obj, _unit, _attackHitData, _moveDirection);
+                FieldObject.ApplyHit(obj, _unit, _attackHitData, MoveDirection);
 
                 if (_projectileData.IsPierce)
                     _pierceHitWaitings[obj] = _projectileData.PierceHitInterval;

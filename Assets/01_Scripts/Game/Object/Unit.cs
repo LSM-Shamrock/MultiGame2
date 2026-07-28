@@ -278,7 +278,7 @@ public class Unit : FieldObject
         Vector3 position = data.SummonPositionType switch
         {
             ProjectileSummonPositionType.UnitCenter => ColliderCenter,
-            ProjectileSummonPositionType.UnitGround => new Vector3(transform.position.x, GROUND_Y),
+            ProjectileSummonPositionType.UnitGround => transform.position,
             _ => ColliderCenter,
         };
 
