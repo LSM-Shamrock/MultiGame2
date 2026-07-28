@@ -89,7 +89,7 @@ public class Unit : FieldObject
         {
             FindTarget(out _target, out float horizontalDistance);
 
-            float attackDistance = GetColliderDistance(_target.Collider);
+            float attackDistance = GetColliderDistance(_target);
             UpdateMove(_target, attackDistance);
             UpdateAttack(_target, attackDistance);
             UpdateVerticalMove();
@@ -111,7 +111,7 @@ public class Unit : FieldObject
     private void FindTarget(out FieldObject find, out float horizontalDistance)
     {
         find = _opponent.Core;
-        horizontalDistance = GetColliderDistance(find.Collider);
+        horizontalDistance = GetColliderDistance(find);
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
@@ -125,7 +125,7 @@ public class Unit : FieldObject
 
         foreach (Unit unit in units)
         {
-            var dist = GetColliderDistance(unit.Collider);
+            var dist = GetColliderDistance(unit);
             if (dist < horizontalDistance)
             {
                 horizontalDistance = dist;
