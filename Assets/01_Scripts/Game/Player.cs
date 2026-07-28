@@ -117,7 +117,6 @@ public class Player : NetworkBehaviour
 
             UnitData unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[cardData.UnitId];
             Vector3 position = GridToWorld(gridPos);
-            position.y += unitData.SummonHeight;
             SummonUnit(unitData, position);
         }
     }

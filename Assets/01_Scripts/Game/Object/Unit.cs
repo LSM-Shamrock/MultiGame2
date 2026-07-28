@@ -16,15 +16,14 @@ public class Unit : FieldObject
     public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
     public Player Owner => _owner;
     public Player Opponent => _opponent;
-
     public NetworkVariable<int> UnitId { get; } = new();
 
+    [SerializeField, ChildField("HeightPoint")] private Transform _heightPoint;
     [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
     [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
     [SerializeField, AssetField("Projectile")] private GameObject _projectilePrefab;
-
     private int _unitId;
     private Player _owner;
     private Player _opponent;
@@ -41,6 +40,7 @@ public class Unit : FieldObject
 
         _unitId = unitId;
         _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_unitId];
+        _heightPoint.localPosition = new Vector3(0, _unitData.SummonHeight);
         _collider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
         _collider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
@@ -89,12 +89,7 @@ public class Unit : FieldObject
         {
             FindTarget(out _target, out float horizontalDistance);
 
-            float attackDistance = _unitData.AttackRangeType switch
-            {
-                AttackRangeType.Horizontal => horizontalDistance,
-                AttackRangeType.Directional => GetColliderDistance(_target.Collider),
-                _ => horizontalDistance
-            };
+            float attackDistance = GetColliderDistance(_target.Collider);
             UpdateMove(_target, attackDistance);
             UpdateAttack(_target, attackDistance);
             UpdateVerticalMove();
@@ -116,7 +111,7 @@ public class Unit : FieldObject
     private void FindTarget(out FieldObject find, out float horizontalDistance)
     {
         find = _opponent.Core;
-        horizontalDistance = GetColliderHorizontalDistance(find.Collider);
+        horizontalDistance = GetColliderDistance(find.Collider);
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
@@ -130,7 +125,7 @@ public class Unit : FieldObject
 
         foreach (Unit unit in units)
         {
-            var dist = GetColliderHorizontalDistance(unit.Collider);
+            var dist = GetColliderDistance(unit.Collider);
             if (dist < horizontalDistance)
             {
                 horizontalDistance = dist;
@@ -144,16 +139,8 @@ public class Unit : FieldObject
         if (_attackCoroutine != null)
             return;
 
-        float xDir = target.transform.position.x - transform.position.x;
-        xDir = xDir == 0 ? 0 : xDir / Mathf.Abs(xDir);
-        transform.right = Vector3.right * xDir;
-
-        Vector3 dir = _unitData.MoveType switch
-        {
-            MoveType.Directional => (target.ColliderCenter - ColliderCenter).normalized,
-            MoveType.Horizontal => Vector3.right * xDir,
-            _ => default,
-        };
+        Vector3 dir = (target.transform.position - transform.position).normalized;
+        transform.right = Vector3.right * dir.x;
 
         if (distance > _unitData.AttackRange)
         {
@@ -259,29 +246,29 @@ public class Unit : FieldObject
     {
         float amount = Time.deltaTime * data.FallSpeed;
 
-        if (transform.position.y - amount > GROUND_Y)
-            transform.position += Vector3.down * amount;
+        if (_heightPoint.localPosition.y > 0)
+            _heightPoint.localPosition += Vector3.down * amount;
         else
-            transform.position = new Vector3(transform.position.x, GROUND_Y);
+            _heightPoint.localPosition = Vector3.zero;
 
         _verticalMoveCoroutine = null;
         yield break;
     }
     private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
     {
-        while (transform.position.y < GROUND_Y + data.UpHeight)
+        while (_heightPoint.localPosition.y < data.UpHeight)
         {
             yield return null;
 
             if (_attackCoroutine == null)
-                transform.position += Vector3.up * Time.deltaTime * data.UpSpeed;
+                _heightPoint.localPosition += Vector3.up * Time.deltaTime * data.UpSpeed;
         }
-        while (transform.position.y > GROUND_Y + data.DownHeight)
+        while (_heightPoint.localPosition.y > data.DownHeight)
         {
             yield return null;
 
             if (_attackCoroutine == null)
-                transform.position += Vector3.down * Time.deltaTime * data.DownSpeed;
+                _heightPoint.localPosition += Vector3.down * Time.deltaTime * data.DownSpeed;
         }
         _verticalMoveCoroutine = null;
     }
