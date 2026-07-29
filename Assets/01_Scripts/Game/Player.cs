@@ -26,6 +26,7 @@ public class Player : NetworkBehaviour
     public Core Core { get; private set; }
     public HashSet<Unit> GroundUnits { get; } = new();
     public HashSet<Unit> AllUnits { get; } = new();
+    public HashSet<FieldObject> GroundObjects { get; } = new();
     public HashSet<FieldObject> AllObjects { get; } = new();
     public bool IsDead { get; set; } = false;
     public bool IsBot { get; set; } = false;
@@ -176,6 +177,7 @@ public class Player : NetworkBehaviour
         Core.NetworkObject.SpawnWithOwnership(OwnerClientId);
 
         AllObjects.Add(Core);
+        GroundObjects.Add(Core);
     }
     private void SummonUnit(UnitData unitData, Vector2 position)
     {

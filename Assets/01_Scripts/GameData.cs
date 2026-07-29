@@ -7,7 +7,10 @@ public enum AltitudeType { Ground, Air, }
 public enum TargetingType { Core, Ground, GroundOrAir, }
 public enum VerticalMoveType { None, Fall, UpDown, }
 public enum AttackType { Motion, Projectile, }
-public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
+public enum ProjectileSummonPoint { UnitCenter, UnitGround }
+public enum ProjectileTargetPoint { TargetCenter, TargetGround }
+public enum ProjectileFacingType { Rotate, FlipX }
+public enum ProjectileCollisionTarget { Ground, GroundOrAir, }
 #endregion
 
 #region Data
@@ -90,15 +93,20 @@ public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
     [JsonProperty] public int ProjectileId { get; private set; }
     [JsonProperty] public string CodeName { get; private set; }
     [JsonProperty] public string DisplayName { get; private set; }
+
     [JsonProperty] public float Scale { get; private set; }
     [JsonProperty] public float ColliderWidth { get; private set; }
     [JsonProperty] public float ColliderHeight { get; private set; }
     [JsonProperty] public float ColliderOffsetX { get; private set; }
     [JsonProperty] public float ColliderOffsetY { get; private set; }
     [JsonProperty] public string SortingLayerName { get; private set; }
-    [JsonProperty] public ProjectileSummonPositionType SummonPositionType { get; private set; }
+    [JsonProperty] public ProjectileSummonPoint SummonPoint { get; private set; }
+    [JsonProperty] public ProjectileTargetPoint TargetPoint { get; private set; }
+    [JsonProperty] public ProjectileFacingType FacingType { get; private set; }
+
     [JsonProperty] public float Speed { get; private set; }
     [JsonProperty] public float MaxDistance { get; private set; }
+    [JsonProperty] public ProjectileCollisionTarget CollisionTarget { get; private set; }
     [JsonProperty] public bool IsPierce { get; private set; }
     [JsonProperty] public float PierceHitInterval { get; private set; }
     [JsonProperty] public int AttackHitId { get; private set; }

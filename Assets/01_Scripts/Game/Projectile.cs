@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 [AutoInjectionTarget]
 public class Projectile : NetworkBehaviour
@@ -15,20 +16,10 @@ public class Projectile : NetworkBehaviour
     private FieldObject _target;
     private ProjectileData _projectileData;
     private AttackHitData _attackHitData;
+    private Vector3 _moveDirection;
     private float _currentMoveDistance;
     private Dictionary<FieldObject, float> _pierceHitWaitings = new();
 
-    private Vector3 _moveDirection;
-    private Vector3 MoveDirection
-    {
-        get => _moveDirection;
-        set
-        {
-            _moveDirection = value;
-            transform.right = _moveDirection;
-            _spriteRenderer.flipY = _moveDirection.x < 0;
-        }
-    }
 
     public void Init(Unit unit, FieldObject target, ProjectileData data)
     {
@@ -43,7 +34,7 @@ public class Projectile : NetworkBehaviour
         _collider.size = new Vector2(data.ColliderWidth, data.ColliderHeight);
         _collider.offset = new Vector2(data.ColliderOffsetX, data.ColliderOffsetY);
 
-        MoveDirection = (_target.ColliderCenter - transform.position).normalized;
+        RefreshMoveDirection();
     }
     public override void OnNetworkSpawn()
     {
@@ -61,6 +52,46 @@ public class Projectile : NetworkBehaviour
         }
     }
 
+    private void DestroyProjectile()
+    {
+        if (IsSpawned)
+            NetworkObject.Despawn();
+    }
+    private void RefreshMoveDirection()
+    {
+        Vector3 targetPoint = _projectileData.TargetPoint switch
+        {
+            ProjectileTargetPoint.TargetCenter => _target.ColliderCenter,
+            ProjectileTargetPoint.TargetGround => _target.transform.position,
+            _ => _target.ColliderCenter
+        };
+        _moveDirection = (targetPoint - transform.position).normalized;
+
+
+        switch (_projectileData.FacingType)
+        {
+            case ProjectileFacingType.Rotate:
+                transform.right = _moveDirection;
+                _spriteRenderer.flipY = _moveDirection.x < 0;
+                break;
+            case ProjectileFacingType.FlipX:
+                _spriteRenderer.flipX = _moveDirection.x < 0;
+                Debug.Log(_projectileData.FacingType);
+                break;
+        }
+    }
+    private IEnumerable<FieldObject> GetCollisionTargets()
+    {
+        HashSet<FieldObject> targets = _projectileData.CollisionTarget switch
+        {
+            ProjectileCollisionTarget.Ground => _unit.Opponent.GroundObjects,
+            ProjectileCollisionTarget.GroundOrAir => _unit.Opponent.AllObjects,
+            _ => _unit.Opponent.AllObjects,
+        };
+
+        return targets;
+    }
+
     private void Update()
     {
         if (IsServer && IsSpawned)
@@ -69,12 +100,11 @@ public class Projectile : NetworkBehaviour
             UpdateCollision();
         }
     }
-
     private void UpdateMove()
     {
         float amount = _projectileData.Speed * Time.deltaTime;
 
-        transform.position += MoveDirection * amount;
+        transform.position += _moveDirection * amount;
         _currentMoveDistance += amount;
 
         if (_currentMoveDistance > _projectileData.MaxDistance)
@@ -82,10 +112,9 @@ public class Projectile : NetworkBehaviour
     }
     private void UpdateCollision()
     {
-        FieldObject[] fieldObjects = new FieldObject[_unit.Opponent.AllObjects.Count];
-        _unit.Opponent.AllObjects.CopyTo(fieldObjects);
+        var targets = GetCollisionTargets();
 
-        foreach (var obj in fieldObjects)
+        foreach (var obj in targets)
         {
             if (obj == null)
                 continue;
@@ -95,7 +124,7 @@ public class Projectile : NetworkBehaviour
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;
 
-                FieldObject.ApplyHit(obj, _unit, _attackHitData, MoveDirection);
+                FieldObject.ApplyHit(obj, _unit, _attackHitData, _moveDirection);
 
                 if (_projectileData.IsPierce)
                     _pierceHitWaitings[obj] = _projectileData.PierceHitInterval;
@@ -113,11 +142,5 @@ public class Projectile : NetworkBehaviour
             if (_pierceHitWaitings[obj] > 0)
                 _pierceHitWaitings[obj] -= Time.deltaTime;
         }
-    }
-
-    private void DestroyProjectile()
-    {
-        if (IsSpawned)
-            NetworkObject.Despawn();
     }
 }

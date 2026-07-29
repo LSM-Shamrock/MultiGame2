@@ -58,7 +58,10 @@ public class Unit : FieldObject
             _owner.AllObjects.Add(this);
 
             if (_unitData.AltitudeType == AltitudeType.Ground)
+            {
                 _owner.GroundUnits.Add(this);
+                _owner.GroundObjects.Add(this);
+            }
 
             _unitAnimator.Play($"{_unitData.CodeName}");
         }
@@ -275,14 +278,14 @@ public class Unit : FieldObject
 
     private void SummonProjectile(FieldObject target, ProjectileData data)
     {
-        Vector3 position = data.SummonPositionType switch
+        Vector3 position = data.SummonPoint switch
         {
-            ProjectileSummonPositionType.UnitCenter => ColliderCenter,
-            ProjectileSummonPositionType.UnitGround => transform.position,
+            ProjectileSummonPoint.UnitCenter => ColliderCenter,
+            ProjectileSummonPoint.UnitGround => transform.position,
             _ => ColliderCenter,
         };
 
-        GameObject go = Instantiate(_projectilePrefab, position, transform.rotation);
+        GameObject go = Instantiate(_projectilePrefab, position, Quaternion.identity);
         Projectile projectile = go.GetComponent<Projectile>();
         projectile.Init(this, target, data);
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
