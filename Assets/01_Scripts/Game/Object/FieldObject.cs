@@ -31,14 +31,21 @@ public abstract class FieldObject : NetworkBehaviour
             OnHeal(amount);
     }
 
+    public float GetGroundDistance(FieldObject target)
+    {
+        if (target == null)
+            return float.PositiveInfinity;
+
+        float distance = (target.transform.position - transform.position).magnitude;
+        return distance;
+    }
     public float GetColliderDistance(FieldObject target)
     {
         if (Collider == null || target?.Collider == null)
             return float.PositiveInfinity;
 
-        float result = Physics2D.Distance(Collider, target.Collider).distance;
-
-        return result;
+        float distance = Physics2D.Distance(Collider, target.Collider).distance;
+        return distance;
     }
 
     public static void ApplyHit(FieldObject target, FieldObject attacker, AttackHitData data, Vector2 hitDirection)

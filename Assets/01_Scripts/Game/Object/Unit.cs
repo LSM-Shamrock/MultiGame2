@@ -90,11 +90,9 @@ public class Unit : FieldObject
 
         if (IsServer)
         {
-            FindTarget(out _target, out float horizontalDistance);
-
-            float attackDistance = GetColliderDistance(_target);
-            UpdateMove(_target, attackDistance);
-            UpdateAttack(_target, attackDistance);
+            FindTarget(out _target, out float distance);
+            UpdateMove(_target, distance);
+            UpdateAttack(_target, distance);
             UpdateVerticalMove();
         }
     }
@@ -111,10 +109,14 @@ public class Unit : FieldObject
         }
     }
 
-    private void FindTarget(out FieldObject find, out float horizontalDistance)
+    private float GetDistance(FieldObject target)
+    {
+        return GetGroundDistance(target);
+    }
+    private void FindTarget(out FieldObject find, out float distance)
     {
         find = _opponent.Core;
-        horizontalDistance = GetColliderDistance(find);
+        distance = GetDistance(find);
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
@@ -128,10 +130,10 @@ public class Unit : FieldObject
 
         foreach (Unit unit in units)
         {
-            var dist = GetColliderDistance(unit);
-            if (dist < horizontalDistance)
+            var dist = GetDistance(unit);
+            if (dist < distance)
             {
-                horizontalDistance = dist;
+                distance = dist;
                 find = unit;
             }
         }
