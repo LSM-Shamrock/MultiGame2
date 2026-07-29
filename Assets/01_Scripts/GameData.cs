@@ -6,12 +6,9 @@ using System.Linq;
 #region Enum
 public enum AltitudeType { Ground, Air, }
 public enum TargetingType { Core, Ground, GroundOrAir, }
-public enum MoveType { Horizontal, Directional, }
 public enum VerticalMoveType { None, Fall, UpDown, }
-public enum AttackRangeType { Horizontal, Directional, }
 public enum AttackType { Motion, Projectile, }
 public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
-public enum ProjectileMoveType { Directional, Horizontal }
 #endregion
 
 #region Data
@@ -42,7 +39,6 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public TargetingType TargetingType;
     public bool IsKnockbackIgnore;
 
-    public MoveType MoveType;
     public string MoveAnimation;
     public float MoveSpeed;
     public float BackoffRatio;
@@ -50,7 +46,6 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public VerticalMoveType VerticalMoveType;
     public int VerticalMoveId;
 
-    public AttackRangeType AttackRangeType;
     public float AttackRange;
     public AttackType AttackType;
     public int AttackId;
@@ -103,7 +98,6 @@ public enum ProjectileMoveType { Directional, Horizontal }
     public float ColliderOffsetY;
     public string SortingLayerName;
     public ProjectileSummonPositionType SummonPositionType;
-    public ProjectileMoveType MoveType;
     public float Speed;
     public float MaxDistance;
     public bool IsPierce;
