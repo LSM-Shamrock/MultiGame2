@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 #region Enum
 public enum AltitudeType { Ground, Air, }
@@ -129,21 +128,6 @@ public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
     [JsonProperty] public string EffectAnimation { get; private set; }
 }
 #endregion
-
-public abstract class TableData
-{
-    public abstract int Key { get; }
-}
-public class Table<T> where T : TableData
-{
-    public IReadOnlyList<T> List { get; }
-    public IReadOnlyDictionary<int, T> Dictionary { get; }
-    public Table(IReadOnlyList<T> datas)
-    {
-        List = datas;
-        Dictionary = datas.ToDictionary(e => e.Key);
-    }
-}
 
 [Serializable]
 public class GameData
