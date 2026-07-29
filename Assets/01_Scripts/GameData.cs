@@ -15,118 +15,118 @@ public enum ProjectileSummonPositionType { UnitCenter, UnitGround }
 [Serializable] public class CardData : TableData
 {
     public override int Key => CardId;
-    public int CardId;
-    public string CodeName;
-    public string DisplayName;
-    public string Description;
-    public int CostMP;
-    public int UnitId;
+    [JsonProperty] public int CardId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public string DisplayName { get; private set; }
+    [JsonProperty] public string Description { get; private set; }
+    [JsonProperty] public int CostMP { get; private set; }
+    [JsonProperty] public int UnitId { get; private set; }
 }
 [Serializable] public class UnitData : TableData
 {
     public override int Key => UnitId;
-    public int UnitId;
-    public string CodeName;
-    public string DisplayName;
+    [JsonProperty] public int UnitId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public string DisplayName { get; private set; }
 
-    public float SummonHeight;
-    public float Scale;
-    public float ColliderWidth;
-    public float ColliderHeight;
+    [JsonProperty] public float SummonHeight { get; private set; }
+    [JsonProperty] public float Scale { get; private set; }
+    [JsonProperty] public float ColliderWidth { get; private set; }
+    [JsonProperty] public float ColliderHeight { get; private set; }
 
-    public int Health;
-    public AltitudeType AltitudeType;
-    public TargetingType TargetingType;
-    public bool IsKnockbackIgnore;
+    [JsonProperty] public int Health { get; private set; }
+    [JsonProperty] public AltitudeType AltitudeType { get; private set; }
+    [JsonProperty] public TargetingType TargetingType { get; private set; }
+    [JsonProperty] public bool IsKnockbackIgnore { get; private set; }
 
-    public string MoveAnimation;
-    public float MoveSpeed;
-    public float BackoffRatio;
-    public float BackoffSpeedRatio;
-    public VerticalMoveType VerticalMoveType;
-    public int VerticalMoveId;
+    [JsonProperty] public string MoveAnimation { get; private set; }
+    [JsonProperty] public float MoveSpeed { get; private set; }
+    [JsonProperty] public float BackoffRatio { get; private set; }
+    [JsonProperty] public float BackoffSpeedRatio { get; private set; }
+    [JsonProperty] public VerticalMoveType VerticalMoveType { get; private set; }
+    [JsonProperty] public int VerticalMoveId { get; private set; }
 
-    public float AttackRange;
-    public AttackType AttackType;
-    public int AttackId;
+    [JsonProperty] public float AttackRange { get; private set; }
+    [JsonProperty] public AttackType AttackType { get; private set; }
+    [JsonProperty] public int AttackId { get; private set; }
 }
 [Serializable] public class VerticalMove_FallData : TableData
 {
     public override int Key => VerticalMoveId;
-    public int VerticalMoveId;
-    public float FallSpeed;
+    [JsonProperty] public int VerticalMoveId { get; private set; }
+    [JsonProperty] public float FallSpeed { get; private set; }
 }
 [Serializable] public class VerticalMove_UpDownData : TableData
 {
     public override int Key => VerticalMoveId;
-    public int VerticalMoveId;
-    public float UpHeight;
-    public float DownHeight;
-    public float UpSpeed;
-    public float DownSpeed;
+    [JsonProperty] public int VerticalMoveId { get; private set; }
+    [JsonProperty] public float UpHeight { get; private set; }
+    [JsonProperty] public float DownHeight { get; private set; }
+    [JsonProperty] public float UpSpeed { get; private set; }
+    [JsonProperty] public float DownSpeed { get; private set; }
 }
 [Serializable] public class AttackData : TableData
 {
     public override int Key => AttackId;
-    public int AttackId;
-    public string CodeName;
-    public string DisplayName;
-    public float Cooltime;
+    [JsonProperty] public int AttackId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public string DisplayName { get; private set; }
+    [JsonProperty] public float Cooltime { get; private set; }
 }
 [Serializable] public class Attack_MotionData : AttackData
 {
-    public float MotionTime;
-    public string MotionAnimation;
-    public float HitNomalizedTime;
-    public int AttackHitId;
+    [JsonProperty] public float MotionTime { get; private set; }
+    [JsonProperty] public string MotionAnimation { get; private set; }
+    [JsonProperty] public float HitNomalizedTime { get; private set; }
+    [JsonProperty] public int AttackHitId { get; private set; }
 }
 [Serializable] public class Attack_ProjectileData : AttackData
 {
-    public string MotionAnimation;
-    public int ProjectileId;
+    [JsonProperty] public string MotionAnimation { get; private set; }
+    [JsonProperty] public int ProjectileId { get; private set; }
 }
 [Serializable] public class ProjectileData : TableData
 {
     public override int Key => ProjectileId;
-    public int ProjectileId;
-    public string CodeName;
-    public string DisplayName;
-    public float Scale;
-    public float ColliderWidth;
-    public float ColliderHeight;
-    public float ColliderOffsetX;
-    public float ColliderOffsetY;
-    public string SortingLayerName;
-    public ProjectileSummonPositionType SummonPositionType;
-    public float Speed;
-    public float MaxDistance;
-    public bool IsPierce;
-    public float PierceHitInterval;
-    public int AttackHitId;
+    [JsonProperty] public int ProjectileId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public string DisplayName { get; private set; }
+    [JsonProperty] public float Scale { get; private set; }
+    [JsonProperty] public float ColliderWidth { get; private set; }
+    [JsonProperty] public float ColliderHeight { get; private set; }
+    [JsonProperty] public float ColliderOffsetX { get; private set; }
+    [JsonProperty] public float ColliderOffsetY { get; private set; }
+    [JsonProperty] public string SortingLayerName { get; private set; }
+    [JsonProperty] public ProjectileSummonPositionType SummonPositionType { get; private set; }
+    [JsonProperty] public float Speed { get; private set; }
+    [JsonProperty] public float MaxDistance { get; private set; }
+    [JsonProperty] public bool IsPierce { get; private set; }
+    [JsonProperty] public float PierceHitInterval { get; private set; }
+    [JsonProperty] public int AttackHitId { get; private set; }
 }
 [Serializable] public class AttackHitData : TableData
 {
     public override int Key => AttackHitId;
-    public int AttackHitId;
-    public string CodeName;
-    public int Damage;
-    public float KnockbackDistance;
-    public float KnockbackSpeed;
-    public float DrainRatio;
-    public string EffectAnimation;
-    public float EffectTime;
-    public int DotEffectId;
+    [JsonProperty] public int AttackHitId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public int Damage { get; private set; }
+    [JsonProperty] public float KnockbackDistance { get; private set; }
+    [JsonProperty] public float KnockbackSpeed { get; private set; }
+    [JsonProperty] public float DrainRatio { get; private set; }
+    [JsonProperty] public string EffectAnimation { get; private set; }
+    [JsonProperty] public float EffectTime { get; private set; }
+    [JsonProperty] public int DotEffectId { get; private set; }
 }
 [Serializable] public class DotEffectData : TableData
 {
     public override int Key => DotEffectId;
-    public int DotEffectId;
-    public string CodeName;
-    public string DisplayName;
-    public int DotDamage;
-    public float DotInterval;
-    public float DotCount;
-    public string EffectAnimation;
+    [JsonProperty] public int DotEffectId { get; private set; }
+    [JsonProperty] public string CodeName { get; private set; }
+    [JsonProperty] public string DisplayName { get; private set; }
+    [JsonProperty] public int DotDamage { get; private set; }
+    [JsonProperty] public float DotInterval { get; private set; }
+    [JsonProperty] public float DotCount { get; private set; }
+    [JsonProperty] public string EffectAnimation { get; private set; }
 }
 #endregion
 
