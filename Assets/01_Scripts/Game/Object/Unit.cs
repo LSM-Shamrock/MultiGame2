@@ -215,14 +215,19 @@ public class Unit : FieldObject
     }
     private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
     {
-        while (_heightPoint.localPosition.y < data.UpHeight)
+        float standardHeight = GameConfig.GetUnitHeight(_unitData.AltitudeType);
+        float upHeight = standardHeight + data.UpHeight;
+        float downHeight = standardHeight - data.DownHeight;
+    
+
+        while (_heightPoint.localPosition.y < upHeight)
         {
             yield return null;
 
             if (_attackCoroutine == null)
                 _heightPoint.localPosition += Vector3.up * Time.deltaTime * data.UpSpeed;
         }
-        while (_heightPoint.localPosition.y > data.DownHeight)
+        while (_heightPoint.localPosition.y > downHeight)
         {
             yield return null;
 
