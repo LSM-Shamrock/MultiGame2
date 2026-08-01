@@ -5,7 +5,6 @@ using System.Collections.Generic;
 #region Enum
 public enum AltitudeType { Ground, Air, }
 public enum TargetingType { Core, Ground, GroundOrAir, }
-public enum VerticalMoveType { None, Fall, UpDown, }
 public enum AttackType { Motion, Projectile, }
 public enum ProjectileSummonPoint { UnitCenter, UnitGround }
 public enum ProjectileTargetPoint { TargetCenter, TargetGround }
@@ -44,27 +43,11 @@ public enum ProjectileCollisionTarget { Ground, GroundOrAir, }
     [JsonProperty] public float MoveSpeed { get; private set; }
     [JsonProperty] public float BackoffRatio { get; private set; }
     [JsonProperty] public float BackoffSpeedRatio { get; private set; }
-    [JsonProperty] public VerticalMoveType VerticalMoveType { get; private set; }
     [JsonProperty] public int VerticalMoveId { get; private set; }
 
     [JsonProperty] public float AttackRange { get; private set; }
     [JsonProperty] public AttackType AttackType { get; private set; }
     [JsonProperty] public int AttackId { get; private set; }
-}
-[Serializable] public class VerticalMove_FallData : TableData
-{
-    public override int Key => VerticalMoveId;
-    [JsonProperty] public int VerticalMoveId { get; private set; }
-    [JsonProperty] public float FallSpeed { get; private set; }
-}
-[Serializable] public class VerticalMove_UpDownData : TableData
-{
-    public override int Key => VerticalMoveId;
-    [JsonProperty] public int VerticalMoveId { get; private set; }
-    [JsonProperty] public float UpHeight { get; private set; }
-    [JsonProperty] public float DownHeight { get; private set; }
-    [JsonProperty] public float UpSpeed { get; private set; }
-    [JsonProperty] public float DownSpeed { get; private set; }
 }
 [Serializable] public class AttackData : TableData
 {
@@ -141,8 +124,6 @@ public class GameData
 {
     [JsonProperty] private List<CardData> Card;
     [JsonProperty] private List<UnitData> Unit;
-    [JsonProperty] private List<VerticalMove_FallData> VerticalMove_Fall;
-    [JsonProperty] private List<VerticalMove_UpDownData> VerticalMove_UpDown;
     [JsonProperty] private List<Attack_MotionData> Attack_Motion;
     [JsonProperty] private List<Attack_ProjectileData> Attack_Projectile;
     [JsonProperty] private List<ProjectileData> Projectile;
@@ -154,8 +135,6 @@ public class GameData
     public Table<CardData> CardData => GetOrCreateTable(Card);
     public Table<UnitData> UnitData => GetOrCreateTable(Unit);
     public Table<AttackHitData> AttackHitData => GetOrCreateTable(AttackHit);
-    public Table<VerticalMove_FallData> VerticalMove_FallData => GetOrCreateTable(VerticalMove_Fall);
-    public Table<VerticalMove_UpDownData> VerticalMove_UpDownData => GetOrCreateTable(VerticalMove_UpDown);
     public Table<Attack_MotionData> Attack_MotionData => GetOrCreateTable(Attack_Motion);
     public Table<Attack_ProjectileData> Attack_ProjectileData => GetOrCreateTable(Attack_Projectile);
     public Table<ProjectileData> ProjectileData => GetOrCreateTable(Projectile);
