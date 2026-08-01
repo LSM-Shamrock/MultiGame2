@@ -15,8 +15,8 @@ public class Unit : FieldObject
     public override Collider2D GroundCollider => _groundCollider;
     public override Collider2D BodyCollider => _bodyCollider;
     public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
-    public Player Owner => _owner;
-    public Player Opponent => _opponent;
+    public Player Owner { get; private set; }
+    public Player Opponent { get; private set; }
     public NetworkVariable<int> UnitId { get; } = new();
 
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
@@ -30,8 +30,6 @@ public class Unit : FieldObject
     private GameObject _projectilePrefab;
     
     private int _unitId;
-    private Player _owner;
-    private Player _opponent;
     private UnitData _unitData;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
@@ -40,8 +38,8 @@ public class Unit : FieldObject
 
     public void Init(int unitId, Player owner, Player opponent)
     {
-        _owner = owner;
-        _opponent = opponent;
+        Owner = owner;
+        Opponent = opponent;
 
         _unitId = unitId;
         _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_unitId];
@@ -59,13 +57,13 @@ public class Unit : FieldObject
             MaxHealth.Value = _unitData.Health;
             CurrentHealth.Value = _unitData.Health;
 
-            _owner.AllUnits.Add(this);
-            _owner.AllObjects.Add(this);
+            Owner.AllUnits.Add(this);
+            Owner.AllObjects.Add(this);
 
             if (_unitData.AltitudeType == AltitudeType.Ground)
             {
-                _owner.GroundUnits.Add(this);
-                _owner.GroundObjects.Add(this);
+                Owner.GroundUnits.Add(this);
+                Owner.GroundObjects.Add(this);
             }
 
             _unitAnimator.Play($"{_unitData.CodeName}");
@@ -84,9 +82,9 @@ public class Unit : FieldObject
 
         if (IsServer)
         {
-            _owner.AllUnits.Remove(this);
-            _owner.GroundUnits.Remove(this);
-            _owner.AllObjects.Remove(this);
+            Owner.AllUnits.Remove(this);
+            Owner.GroundUnits.Remove(this);
+            Owner.AllObjects.Remove(this);
         }
     }
     protected override void Update()
@@ -129,7 +127,7 @@ public class Unit : FieldObject
     }
     private void FindTarget(out FieldObject find, out float distance)
     {
-        find = _opponent.Core;
+        find = Opponent.Core;
         distance = GetDistance(find);
 
         if (_unitData.TargetingType == TargetingType.Core)
@@ -137,8 +135,8 @@ public class Unit : FieldObject
 
         HashSet<Unit> units = _unitData.TargetingType switch
         {
-            TargetingType.Ground => _opponent.GroundUnits,
-            TargetingType.GroundOrAir => _opponent.AllUnits,
+            TargetingType.Ground => Opponent.GroundUnits,
+            TargetingType.GroundOrAir => Opponent.AllUnits,
             _ => null
         };
 
