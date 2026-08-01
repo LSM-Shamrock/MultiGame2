@@ -9,7 +9,6 @@ using UnityEngine.AI;
 [AutoInjectionTarget]
 public class Unit : FieldObject
 {
-    private const float GROUND_Y = -2.5f;
     private const float X_MIN = -18f;
     private const float X_MAX = 18f;
 
@@ -114,6 +113,15 @@ public class Unit : FieldObject
                 transform.position = new Vector3(X_MIN, transform.position.y);
         }
     }
+    protected override void OnDead()
+    {
+        base.OnDead();
+
+        if (IsServer)
+        {
+            NetworkObject.Despawn();
+        }
+    }
 
     private float GetDistance(FieldObject target)
     {
@@ -183,6 +191,52 @@ public class Unit : FieldObject
             transform.position -= dir * Time.deltaTime * _unitData.MoveSpeed * _unitData.BackoffSpeedRatio;
         }
     }
+
+    private void UpdateVerticalMove()
+    {
+        if (_verticalMoveCoroutine == null)
+        {
+            var enumerator = _unitData.VerticalMoveType switch
+            {
+                VerticalMoveType.Fall => VerticalMove_Fall(RemoteConfigManager.Instance.GameData.Value.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.UpDown => VerticalMove_UpDown(RemoteConfigManager.Instance.GameData.Value.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
+                _ => null
+            };
+            if (enumerator != null)
+                _verticalMoveCoroutine = StartCoroutine(enumerator);
+        }
+    }
+    private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
+    {
+        float amount = Time.deltaTime * data.FallSpeed;
+
+        if (_heightPoint.localPosition.y > 0)
+            _heightPoint.localPosition += Vector3.down * amount;
+        else
+            _heightPoint.localPosition = Vector3.zero;
+
+        _verticalMoveCoroutine = null;
+        yield break;
+    }
+    private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
+    {
+        while (_heightPoint.localPosition.y < data.UpHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                _heightPoint.localPosition += Vector3.up * Time.deltaTime * data.UpSpeed;
+        }
+        while (_heightPoint.localPosition.y > data.DownHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                _heightPoint.localPosition += Vector3.down * Time.deltaTime * data.DownSpeed;
+        }
+        _verticalMoveCoroutine = null;
+    }
+
     private void UpdateAttack(FieldObject target, float distance)
     {
         if (_attackCoroutine != null)
@@ -217,21 +271,6 @@ public class Unit : FieldObject
             }
         }
     }
-    private void UpdateVerticalMove()
-    {
-        if (_verticalMoveCoroutine == null)
-        {
-            var enumerator = _unitData.VerticalMoveType switch
-            {
-                VerticalMoveType.Fall => VerticalMove_Fall(RemoteConfigManager.Instance.GameData.Value.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
-                VerticalMoveType.UpDown => VerticalMove_UpDown(RemoteConfigManager.Instance.GameData.Value.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
-                _ => null
-            };
-            if (enumerator != null)
-                _verticalMoveCoroutine = StartCoroutine(enumerator);
-        }
-    }
-
     private IEnumerator Attack_Motion(FieldObject target, Attack_MotionData data)
     {
         var clip = _unitAnimator.runtimeAnimatorController.animationClips.First(c => c.name == data.MotionAnimation);
@@ -271,38 +310,6 @@ public class Unit : FieldObject
         _attackCoroutine = null;
         _unitAnimator.Play(_unitData.CodeName, 0, 0f);
     }
-
-    private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
-    {
-        float amount = Time.deltaTime * data.FallSpeed;
-
-        if (_heightPoint.localPosition.y > 0)
-            _heightPoint.localPosition += Vector3.down * amount;
-        else
-            _heightPoint.localPosition = Vector3.zero;
-
-        _verticalMoveCoroutine = null;
-        yield break;
-    }
-    private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
-    {
-        while (_heightPoint.localPosition.y < data.UpHeight)
-        {
-            yield return null;
-
-            if (_attackCoroutine == null)
-                _heightPoint.localPosition += Vector3.up * Time.deltaTime * data.UpSpeed;
-        }
-        while (_heightPoint.localPosition.y > data.DownHeight)
-        {
-            yield return null;
-
-            if (_attackCoroutine == null)
-                _heightPoint.localPosition += Vector3.down * Time.deltaTime * data.DownSpeed;
-        }
-        _verticalMoveCoroutine = null;
-    }
-
     private void SummonProjectile(FieldObject target, ProjectileData data)
     {
         Vector3 position = data.SummonPoint switch
@@ -316,15 +323,5 @@ public class Unit : FieldObject
         Projectile projectile = go.GetComponent<Projectile>();
         projectile.Init(this, target, data);
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
-    }
-
-    protected override void OnDead()
-    {
-        base.OnDead();
-
-        if (IsServer)
-        {
-            NetworkObject.Despawn();
-        }
     }
 }

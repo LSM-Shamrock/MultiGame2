@@ -5,10 +5,10 @@ using UnityEngine;
 
 public abstract class FieldObject : NetworkBehaviour
 {
+    public abstract bool IsKnockbackIgnore { get; }
     public abstract Collider2D GroundCollider { get; }
     public abstract Collider2D BodyCollider { get; }
-    public Vector3 BodyColliderCenter => BodyCollider.bounds.center;
-    public abstract bool IsKnockbackIgnore { get; }
+    public Vector2 BodyColliderCenter => BodyCollider.bounds.center;
 
     public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
