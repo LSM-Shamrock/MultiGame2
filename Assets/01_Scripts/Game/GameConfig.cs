@@ -9,15 +9,4 @@ public class GameConfig
     public const float X_MAX = 18;
     public const float Y_MIN = -5;
     public const float Y_MAX = 5;
-
-    public static float GetUnitHeight(AltitudeType altitudeType)
-    {
-        float result = altitudeType switch
-        {
-            AltitudeType.Ground => 0,
-            AltitudeType.Air => 1.5f,
-            _ => 0,
-        };
-        return result;
-    }
 }

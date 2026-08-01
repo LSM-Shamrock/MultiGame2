@@ -44,7 +44,7 @@ public class UI_CardSummonPos : MonoBehaviour
         else
         {
             UnitSprite.sprite = _sprite;
-            UnitSprite.transform.localPosition = new Vector3(0, GameConfig.GetUnitHeight(_unitData.AltitudeType));
+            UnitSprite.transform.localPosition = new Vector3(0, _unitData.SummonHeight);
             NameText.text = _cardData.DisplayName;
 
             if (_playerMP >= _cardData.CostMP)
