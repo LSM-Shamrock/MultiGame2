@@ -5,7 +5,7 @@ using UnityEngine;
 public class BotController : MonoBehaviour
 {
     [SerializeField, ComponentField] private Player Player;
-    [SerializeField, ChildrenArrayField] private Transform[] AutoSummonPositions;
+    [SerializeField, ChildField("SummonGrid")] private Transform SummonGrid;
 
     private float _mp;
     private int[] _handCardIds = new int[4];
@@ -22,6 +22,22 @@ public class BotController : MonoBehaviour
     }
     private void Update()
     {
+        UpdateSummon();
+    }
+
+    private Vector2Int GetRandomGridPoint()
+    {
+        Transform grid0 = SummonGrid;
+        int i0 = Random.Range(0, grid0.childCount);
+        
+        Transform grid1 = grid0.GetChild(i0);
+        int i1 = Random.Range(0, grid1.childCount);
+
+        Vector2Int result = new Vector2Int(i0, i1);
+        return result;
+    }
+    private void UpdateSummon()
+    {
         if (!Player.IsSpawned) return;
         if (!Player.IsBot) return;
 
@@ -36,9 +52,7 @@ public class BotController : MonoBehaviour
 
         if (_mp >= _selectedCard.CostMP)
         {
-            int posIndex = Random.Range(0, AutoSummonPositions.Length);
-            Vector2 pos = AutoSummonPositions[posIndex].position;
-            Vector2Int gridPos = Player.WorldToGrid(pos);
+            Vector2Int gridPos = GetRandomGridPoint();
             Player.SummonCard(_selectedIndex, gridPos);
         }
     }
