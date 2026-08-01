@@ -1,10 +1,6 @@
-﻿using NavMeshPlus.Components;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Timers;
 using Unity.Netcode;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -37,18 +33,6 @@ public struct GameFinishData : INetworkSerializable
         serializer.SerializeValue(ref _isDraw);
         serializer.SerializeValue(ref _winnerClientId);
     }
-}
-
-public class GameConfig
-{
-    public const float DEFAULT_MP_REGEN_SPEED = 0.5f;
-    public const float GAME_DURATION = 60 * 3;
-    public const float MP_DOUBLE_START_TIME = 60 * 1;
-
-    public const float X_MIN = -18;
-    public const float X_MAX = 18;
-    public const float Y_MIN = -5;
-    public const float Y_MAX = 5;
 }
 
 [AutoInjectionTarget]
