@@ -16,7 +16,7 @@ public class Projectile : NetworkBehaviour
     private FieldObject _target;
     private ProjectileData _projectileData;
     private AttackHitData _attackHitData;
-    private Vector3 _moveDirection;
+    private Vector2 _moveDirection;
     private float _currentMoveDistance;
     private Dictionary<FieldObject, float> _pierceHitWaitings = new();
 
@@ -67,7 +67,6 @@ public class Projectile : NetworkBehaviour
         };
         _moveDirection = (targetPoint - transform.position).normalized;
 
-
         switch (_projectileData.FacingType)
         {
             case ProjectileFacingType.Rotate:
@@ -76,7 +75,6 @@ public class Projectile : NetworkBehaviour
                 break;
             case ProjectileFacingType.FlipX:
                 _spriteRenderer.flipX = _moveDirection.x < 0;
-                Debug.Log(_projectileData.FacingType);
                 break;
         }
     }
@@ -104,7 +102,7 @@ public class Projectile : NetworkBehaviour
     {
         float amount = _projectileData.Speed * Time.deltaTime;
 
-        transform.position += _moveDirection * amount;
+        transform.position += (Vector3)_moveDirection * amount;
         _currentMoveDistance += amount;
 
         if (_currentMoveDistance > _projectileData.MaxDistance)

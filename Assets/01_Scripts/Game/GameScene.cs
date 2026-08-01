@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using NavMeshPlus.Components;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -49,8 +50,8 @@ public class GameConfig
 public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 {
     [SerializeField, AssetField("Player")] private GameObject _playerPrefab;
-    [SerializeField, ChildField("RotationRoot")] private Transform RotationRoot;
-
+    [SerializeField, ChildField("RotationRoot")] private Transform _rotationRoot;
+    
     public ObservableValue<Player> LocalPlayer { get; private set; } = new();
     public ObservableValue<Player> OpponentPlayer { get; private set; } = new();
     private PlayerSessionData _localPlayerSessionData;
@@ -120,7 +121,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         }
 
         if (IsHost == false)
-            RotationRoot.rotation = Quaternion.Euler(0, 180, 0);
+            _rotationRoot.rotation = Quaternion.Euler(0, 180, 0);
     }
 
     [Rpc(SendTo.ClientsAndHost)]

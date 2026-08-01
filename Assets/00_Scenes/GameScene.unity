@@ -8668,7 +8668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _playerPrefab: {fileID: 3771861134317787343, guid: cd5fc06d0f4a3754faf8651b2cea3771, type: 3}
-  RotationRoot: {fileID: 790352598}
+  _rotationRoot: {fileID: 790352598}
 --- !u!114 &1940161633
 MonoBehaviour:
   m_ObjectHideFlags: 0

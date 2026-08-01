@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 [AutoInjectionTarget]
@@ -144,12 +145,31 @@ public class Unit : FieldObject
         }
     }
 
+    private Vector2 GetMoveDirection(FieldObject target)
+    {
+        NavMeshPath path = new NavMeshPath();
+
+        Vector2 a = transform.position;
+        Vector2 b = target.transform.position;
+        Vector2 result;
+
+        if (NavMesh.CalculatePath(a, b, NavMesh.AllAreas, path) && path.corners.Length > 1)
+        {
+            result = ((Vector2)path.corners[1] - a).normalized;
+        }
+        else
+        {
+            result = Vector2.zero;
+        }
+
+        return result;
+    }
     private void UpdateMove(FieldObject target, float distance)
     {
         if (_attackCoroutine != null)
             return;
 
-        Vector3 dir = (target.transform.position - transform.position).normalized;
+        Vector3 dir = GetMoveDirection(target);
         transform.right = Vector3.right * dir.x;
 
         if (distance > _unitData.AttackRange)
