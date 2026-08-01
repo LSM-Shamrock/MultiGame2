@@ -31,7 +31,6 @@ public enum ProjectileCollisionTarget { Ground, GroundOrAir, }
     [JsonProperty] public string CodeName { get; private set; }
     [JsonProperty] public string DisplayName { get; private set; }
 
-    [JsonProperty] public float SummonHeight { get; private set; }
     [JsonProperty] public float Scale { get; private set; }
     [JsonProperty] public float ColliderWidth { get; private set; }
     [JsonProperty] public float ColliderHeight { get; private set; }
