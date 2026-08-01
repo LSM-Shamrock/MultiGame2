@@ -13,7 +13,7 @@ public class DotEffect : MonoBehaviour
     private void LateUpdate()
     {
         if (_target != null && _target.IsDead.Value == false)
-            transform.position = _target.ColliderCenter;
+            transform.position = _target.BodyColliderCenter;
     }
 
     private void Hide()
@@ -31,7 +31,7 @@ public class DotEffect : MonoBehaviour
         }
 
         _target = target;
-        transform.position = _target.ColliderCenter;
+        transform.position = _target.BodyColliderCenter;
         transform.localScale = _target.transform.localScale;
         gameObject.SetActive(true);
 

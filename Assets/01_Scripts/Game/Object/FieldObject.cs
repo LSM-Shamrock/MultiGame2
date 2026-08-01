@@ -5,8 +5,9 @@ using UnityEngine;
 
 public abstract class FieldObject : NetworkBehaviour
 {
-    public abstract Collider2D Collider { get; }
-    public Vector3 ColliderCenter => Collider.bounds.center;
+    public abstract Collider2D GroundCollider { get; }
+    public abstract Collider2D BodyCollider { get; }
+    public Vector3 BodyColliderCenter => BodyCollider.bounds.center;
     public abstract bool IsKnockbackIgnore { get; }
 
     public NetworkVariable<bool> IsDead { get; } = new();
@@ -31,20 +32,24 @@ public abstract class FieldObject : NetworkBehaviour
             OnHeal(amount);
     }
 
-    public float GetGroundDistance(FieldObject target)
+    public float GetGroundColliderDistance(FieldObject target)
     {
-        if (target == null)
+        Collider2D a = GroundCollider;
+        Collider2D b = target?.GroundCollider;
+        if (a == null || b == null)
             return float.PositiveInfinity;
 
-        float distance = (target.transform.position - transform.position).magnitude;
+        float distance = Physics2D.Distance(a, b).distance;
         return distance;
     }
-    public float GetColliderDistance(FieldObject target)
+    public float GetBodyColliderDistance(FieldObject target)
     {
-        if (Collider == null || target?.Collider == null)
+        Collider2D a = BodyCollider;
+        Collider2D b = target?.BodyCollider;
+        if (a == null || b == null)
             return float.PositiveInfinity;
 
-        float distance = Physics2D.Distance(Collider, target.Collider).distance;
+        float distance = Physics2D.Distance(a, b).distance;
         return distance;
     }
 
@@ -60,7 +65,7 @@ public abstract class FieldObject : NetworkBehaviour
 
         if (string.IsNullOrEmpty(data.EffectAnimation) == false)
         {
-            ISceneInstance<EffectPool>.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.ColliderCenter);
+            ISceneInstance<EffectPool>.SceneInstance.ShowHitEffectRpc(data.AttackHitId, target.BodyColliderCenter);
         }
 
         if (RemoteConfigManager.Instance.GameData.Value.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))

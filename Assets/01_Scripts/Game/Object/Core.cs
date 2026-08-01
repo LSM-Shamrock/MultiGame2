@@ -3,11 +3,13 @@
 [AutoInjectionTarget]
 public class Core : FieldObject
 {
-    public override Collider2D Collider => _collider;
+    public override Collider2D GroundCollider => _groundCollider;
+    public override Collider2D BodyCollider => _bodyCollider;
     public override bool IsKnockbackIgnore => true;
 
-    [SerializeField, ComponentField] private SpriteRenderer _spriteRenderer;
-    [SerializeField, ComponentField] private Collider2D _collider;
+    [SerializeField, ChildField("Sprite")] private SpriteRenderer _spriteRenderer;
+    [SerializeField, ChildField("Sprite")] private Collider2D _bodyCollider;
+    [SerializeField, ChildField("Shadow")] private Collider2D _groundCollider;
 
     private Player _owner;
 

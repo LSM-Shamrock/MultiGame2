@@ -145,6 +145,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4580960891633172316}
   - component: {fileID: 1431821370270736180}
+  - component: {fileID: 183206144390787023}
   m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
@@ -222,6 +223,43 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!70 &183206144390787023
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301063177407365397}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 1}
+  m_Direction: 1
 --- !u!1 &2525431417944658854
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,11 +380,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _heightPoint: {fileID: 5681577095286573530}
-  _animationPoint: {fileID: 3991467076792880822}
   _unitSpriteRenderer: {fileID: 7279577024822690357}
   _unitAnimator: {fileID: 4887616612757464482}
-  _collider: {fileID: 1835200029809010581}
+  _animationDirection: {fileID: 3991467076792880822}
+  _heightPoint: {fileID: 5681577095286573530}
+  _bodyCollider: {fileID: 8903616882873293335}
+  _groundCollider: {fileID: 183206144390787023}
   _projectilePrefab: {fileID: 3884218659786432794, guid: ba2aeaa032827c04c8ec2d38a5fa41d3, type: 3}
 --- !u!1 &3192784909305857813
 GameObject:
@@ -646,6 +685,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5681577095286573530}
+  - component: {fileID: 8903616882873293335}
   m_Layer: 0
   m_Name: HeightPoint
   m_TagString: Untagged
@@ -666,50 +706,17 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1479337208778780363}
   - {fileID: 3991467076792880822}
   - {fileID: 7279915135498808884}
   m_Father: {fileID: 168701379678017959}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &5501901558676319172
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1479337208778780363}
-  - component: {fileID: 1835200029809010581}
-  m_Layer: 0
-  m_Name: Collider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1479337208778780363
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5501901558676319172}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5681577095286573530}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &1835200029809010581
+--- !u!61 &8903616882873293335
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5501901558676319172}
+  m_GameObject: {fileID: 5375206204940864630}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -834,7 +841,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3991467076792880822}
   m_Layer: 0
-  m_Name: AnimationPoint
+  m_Name: AnimationDirection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

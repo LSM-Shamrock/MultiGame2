@@ -61,9 +61,9 @@ public class Projectile : NetworkBehaviour
     {
         Vector3 targetPoint = _projectileData.TargetPoint switch
         {
-            ProjectileTargetPoint.TargetCenter => _target.ColliderCenter,
+            ProjectileTargetPoint.TargetCenter => _target.BodyColliderCenter,
             ProjectileTargetPoint.TargetGround => _target.transform.position,
-            _ => _target.ColliderCenter
+            _ => _target.BodyColliderCenter
         };
         _moveDirection = (targetPoint - transform.position).normalized;
 
@@ -119,7 +119,7 @@ public class Projectile : NetworkBehaviour
             if (obj == null)
                 continue;
 
-            if (obj.Collider.bounds.Intersects(_collider.bounds))
+            if (obj.BodyCollider.bounds.Intersects(_collider.bounds))
             {
                 if (_pierceHitWaitings.TryGetValue(obj, out float waiting) && waiting > 0)
                     continue;

@@ -12,18 +12,23 @@ public class Unit : FieldObject
     private const float X_MIN = -18f;
     private const float X_MAX = 18f;
 
-    public override Collider2D Collider => _collider;
+    public override Collider2D GroundCollider => _groundCollider;
+    public override Collider2D BodyCollider => _bodyCollider;
     public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
     public Player Owner => _owner;
     public Player Opponent => _opponent;
     public NetworkVariable<int> UnitId { get; } = new();
 
-    [SerializeField, ChildField("HeightPoint")] private Transform _heightPoint;
-    [SerializeField, ChildField("AnimationPoint")] private Transform _animationPoint;
     [SerializeField, ChildField("UnitSprite")] private SpriteRenderer _unitSpriteRenderer;
     [SerializeField, ChildField("UnitSprite")] private Animator _unitAnimator;
-    [SerializeField, ChildField("Collider")] private BoxCollider2D _collider;
-    [SerializeField, AssetField("Projectile")] private GameObject _projectilePrefab;
+    [SerializeField, ChildField("AnimationDirection")] private Transform _animationDirection;
+    [SerializeField, ChildField("HeightPoint")] private Transform _heightPoint;
+    [SerializeField, ChildField("HeightPoint")] private BoxCollider2D _bodyCollider;
+    [SerializeField, ChildField("Shadow")] private Collider2D _groundCollider;
+
+    [SerializeField, AssetField("Projectile")] 
+    private GameObject _projectilePrefab;
+    
     private int _unitId;
     private Player _owner;
     private Player _opponent;
@@ -41,8 +46,8 @@ public class Unit : FieldObject
         _unitId = unitId;
         _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_unitId];
         _heightPoint.localPosition = new Vector3(0, _unitData.SummonHeight);
-        _collider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
-        _collider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
+        _bodyCollider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
+        _bodyCollider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
     public override void OnNetworkSpawn()
     {
@@ -111,7 +116,7 @@ public class Unit : FieldObject
 
     private float GetDistance(FieldObject target)
     {
-        return GetGroundDistance(target);
+        return GetGroundColliderDistance(target);
     }
     private void FindTarget(out FieldObject find, out float distance)
     {
@@ -213,7 +218,7 @@ public class Unit : FieldObject
 
         var dir = (target.transform.position - transform.position).normalized;
 
-        _animationPoint.right = dir;
+        _animationDirection.right = dir;
         _unitSpriteRenderer.transform.rotation = transform.rotation;
         _unitAnimator.SetFloat("AnimationSpeed", clip.length / data.MotionTime);
         _unitAnimator.Play(data.MotionAnimation, 0, 0f);
@@ -282,9 +287,9 @@ public class Unit : FieldObject
     {
         Vector3 position = data.SummonPoint switch
         {
-            ProjectileSummonPoint.UnitCenter => ColliderCenter,
+            ProjectileSummonPoint.UnitCenter => BodyColliderCenter,
             ProjectileSummonPoint.UnitGround => transform.position,
-            _ => ColliderCenter,
+            _ => BodyColliderCenter,
         };
 
         GameObject go = Instantiate(_projectilePrefab, position, Quaternion.identity);
