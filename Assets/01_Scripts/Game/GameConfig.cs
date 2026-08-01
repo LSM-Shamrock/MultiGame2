@@ -10,15 +10,12 @@ public class GameConfig
     public const float Y_MIN = -5;
     public const float Y_MAX = 5;
 
-    public const float AIR_UNIT_HEIGHT = 1.5f;
-    public const float GROUND_UNIT_FALL_SPEED = 10;
-
     public static float GetUnitHeight(AltitudeType altitudeType)
     {
         float result = altitudeType switch
         {
             AltitudeType.Ground => 0,
-            AltitudeType.Air => AIR_UNIT_HEIGHT,
+            AltitudeType.Air => 1.5f,
             _ => 0,
         };
         return result;

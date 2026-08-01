@@ -30,6 +30,7 @@ public class Unit : FieldObject
     private UnitData _unitData;
     private FieldObject _target;
     private Coroutine _attackCoroutine;
+    private Coroutine _verticalMoveCoroutine;
     private float _attackCooltime;
 
     public void Init(int unitId, Player owner, Player opponent)
@@ -92,7 +93,7 @@ public class Unit : FieldObject
             FindTarget(out _target, out float distance);
             UpdateMove(_target, distance);
             UpdateAttack(_target, distance);
-            UpdateFall();
+            UpdateVerticalMove();
         }
     }
     protected override void LateUpdate()
@@ -185,17 +186,50 @@ public class Unit : FieldObject
             transform.position -= dir * Time.deltaTime * _unitData.MoveSpeed * _unitData.BackoffSpeedRatio;
         }
     }
-    private void UpdateFall()
+
+    private void UpdateVerticalMove()
     {
-        if (_unitData.AltitudeType != AltitudeType.Ground)
-            return;
+        if (_verticalMoveCoroutine == null)
+        {
+            var enumerator = _unitData.VerticalMoveType switch
+            {
+                VerticalMoveType.Fall => VerticalMove_Fall(RemoteConfigManager.Instance.GameData.Value.VerticalMove_FallData.Dictionary[_unitData.VerticalMoveId]),
+                VerticalMoveType.UpDown => VerticalMove_UpDown(RemoteConfigManager.Instance.GameData.Value.VerticalMove_UpDownData.Dictionary[_unitData.VerticalMoveId]),
+                _ => null
+            };
+            if (enumerator != null)
+                _verticalMoveCoroutine = StartCoroutine(enumerator);
+        }
+    }
+    private IEnumerator VerticalMove_Fall(VerticalMove_FallData data)
+    {
+        float amount = Time.deltaTime * data.FallSpeed;
 
-        float amount = Time.deltaTime * GameConfig.GROUND_UNIT_FALL_SPEED;
-
-        if (_heightPoint.localPosition.y > amount)
+        if (_heightPoint.localPosition.y > 0)
             _heightPoint.localPosition += Vector3.down * amount;
         else
             _heightPoint.localPosition = Vector3.zero;
+
+        _verticalMoveCoroutine = null;
+        yield break;
+    }
+    private IEnumerator VerticalMove_UpDown(VerticalMove_UpDownData data)
+    {
+        while (_heightPoint.localPosition.y < data.UpHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                _heightPoint.localPosition += Vector3.up * Time.deltaTime * data.UpSpeed;
+        }
+        while (_heightPoint.localPosition.y > data.DownHeight)
+        {
+            yield return null;
+
+            if (_attackCoroutine == null)
+                _heightPoint.localPosition += Vector3.down * Time.deltaTime * data.DownSpeed;
+        }
+        _verticalMoveCoroutine = null;
     }
 
     private void UpdateAttack(FieldObject target, float distance)
