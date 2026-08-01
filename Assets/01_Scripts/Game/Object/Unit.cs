@@ -40,7 +40,7 @@ public class Unit : FieldObject
 
         _unitId = unitId;
         _unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[_unitId];
-        _heightPoint.localPosition = new Vector3(0, _unitData.SummonHeight);
+        _heightPoint.localPosition = new Vector3(0, GameConfig.GetUnitHeight(_unitData.AltitudeType));
         _bodyCollider.size = new Vector2(_unitData.ColliderWidth, _unitData.ColliderHeight);
         _bodyCollider.offset = new Vector2(0, _unitData.ColliderHeight / 2f);
     }
