@@ -9,9 +9,6 @@ using UnityEngine.AI;
 [AutoInjectionTarget]
 public class Unit : FieldObject
 {
-    private const float X_MIN = -18f;
-    private const float X_MAX = 18f;
-
     public override Collider2D GroundCollider => _groundCollider;
     public override Collider2D BodyCollider => _bodyCollider;
     public override bool IsKnockbackIgnore => _unitData.IsKnockbackIgnore;
@@ -105,10 +102,10 @@ public class Unit : FieldObject
 
         if (IsServer)
         {
-            if (transform.position.x > X_MAX)
-                transform.position = new Vector3(X_MAX, transform.position.y);
-            if (transform.position.x < X_MIN)
-                transform.position = new Vector3(X_MIN, transform.position.y);
+            Vector3 min = new Vector3(GameConfig.X_MIN, GameConfig.Y_MIN);
+            Vector3 max = new Vector3(GameConfig.X_MAX, GameConfig.Y_MAX);
+            transform.position = Vector3.Min(transform.position, max);
+            transform.position = Vector3.Max(transform.position, min);
         }
     }
     protected override void OnDead()
