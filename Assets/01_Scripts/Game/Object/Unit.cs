@@ -122,10 +122,16 @@ public class Unit : FieldObject
     {
         return GetGroundColliderDistance(target);
     }
-    private void FindTarget(out FieldObject find, out float distance)
+    private void FindTargetCore(out Core find, out float distance)
     {
         find = Opponent.Core;
         distance = GetDistance(find);
+    }
+    private void FindTarget(out FieldObject find, out float distance)
+    {
+        FindTargetCore(out Core core, out float coreDistance);
+        find = core;
+        distance = coreDistance;
 
         if (_unitData.TargetingType == TargetingType.Core)
             return;
