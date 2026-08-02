@@ -10,8 +10,6 @@ public enum StatDisplayType
     Unit_TargetingType,
     Unit_MoveSpeed,
     Unit_AttackRange,
-    Unit_BackoffRatio,
-    Unit_BackoffSpeedRatio,
     AttackHit,
     AttackHit_Damage,
     AttackHit_KnockbackDistance,
@@ -106,16 +104,6 @@ public class UI_StatItem : MonoBehaviour, IPointerClickHandler
             case StatDisplayType.Unit_AttackRange:
                 statName = "공격 범위";
                 statValue = $"{data.AttackRange} 타일";
-                break;
-            case StatDisplayType.Unit_BackoffRatio:
-                statName = "백무빙 거리";
-                statValue = $"공격 범위의 {data.BackoffRatio * 100}%";
-                hide = data.BackoffRatio == 0;
-                break;
-            case StatDisplayType.Unit_BackoffSpeedRatio:
-                statName = "백무빙 속도";
-                statValue = $"기본 속도의 {data.BackoffSpeedRatio * 100}%";
-                hide = data.BackoffRatio == 0;
                 break;
         }
         SetDiplay(type, data, statName, statValue, hide, additionalInfo);

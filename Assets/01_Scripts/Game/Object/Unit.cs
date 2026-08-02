@@ -153,10 +153,10 @@ public class Unit : FieldObject
             _unitAnimator.Play(_unitData.MoveAnimation);
             transform.position += dir * Time.deltaTime * _unitData.MoveSpeed;
         }
-        else if (distance < _unitData.AttackRange * _unitData.BackoffRatio)
+        else if (_unitData.UseBackoff && distance < _unitData.AttackRange * GameConfig.BACKOFF_RATIO)
         {
             _unitAnimator.Play(_unitData.MoveAnimation);
-            transform.position -= dir * Time.deltaTime * _unitData.MoveSpeed * _unitData.BackoffSpeedRatio;
+            transform.position -= dir * Time.deltaTime * _unitData.MoveSpeed * GameConfig.BACKOFF_SPEED_RATIO;
         }
     }
 

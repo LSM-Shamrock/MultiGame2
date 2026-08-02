@@ -42,8 +42,7 @@ public enum ProjectileCollisionTarget { Ground, GroundOrAir, }
 
     [JsonProperty] public string MoveAnimation { get; private set; }
     [JsonProperty] public float MoveSpeed { get; private set; }
-    [JsonProperty] public float BackoffRatio { get; private set; }
-    [JsonProperty] public float BackoffSpeedRatio { get; private set; }
+    [JsonProperty] public bool UseBackoff { get; private set; }
     [JsonProperty] public VerticalMoveType VerticalMoveType { get; private set; }
     [JsonProperty] public int VerticalMoveId { get; private set; }
 

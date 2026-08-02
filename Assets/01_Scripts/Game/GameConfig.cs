@@ -11,6 +11,8 @@ public class GameConfig
     public const float Y_MAX = 5;
 
     public const float CHASE_DISTANCE = 5;
+    public const float BACKOFF_RATIO = 0.5f;
+    public const float BACKOFF_SPEED_RATIO = 0.5f;
 
     public static float GetUnitHeight(AltitudeType altitudeType)
     {
