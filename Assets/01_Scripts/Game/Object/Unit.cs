@@ -84,39 +84,6 @@ public class Unit : FieldObject
             Owner.AllObjects.Remove(this);
         }
     }
-    protected override void Update()
-    {
-        base.Update();
-
-        if (IsServer)
-        {
-            FindTarget(out _target, out float distance);
-            UpdateMove(_target, distance);
-            UpdateAttack(_target, distance);
-            UpdateVerticalMove();
-        }
-    }
-    protected override void LateUpdate()
-    {
-        base.LateUpdate();
-
-        if (IsServer)
-        {
-            Vector3 min = new Vector3(GameConfig.X_MIN, GameConfig.Y_MIN);
-            Vector3 max = new Vector3(GameConfig.X_MAX, GameConfig.Y_MAX);
-            transform.position = Vector3.Min(transform.position, max);
-            transform.position = Vector3.Max(transform.position, min);
-        }
-    }
-    protected override void OnDead()
-    {
-        base.OnDead();
-
-        if (IsServer)
-        {
-            NetworkObject.Despawn();
-        }
-    }
 
     private float GetDistance(FieldObject target)
     {
@@ -336,5 +303,60 @@ public class Unit : FieldObject
         Projectile projectile = go.GetComponent<Projectile>();
         projectile.Init(this, target, data);
         projectile.NetworkObject.SpawnWithOwnership(OwnerClientId);
+    }
+
+    private void RefreshTarget(out float distance)
+    {
+        // 기존 타겟 그대로 유지
+        if (_target != null)
+        {
+            distance = GetDistance(_target);
+            if (distance <= _unitData.AttackRange)
+                return; 
+        }
+
+        // 추적 범위의 오브젝트로 타겟 설정
+        FindTarget(out _target, out distance);
+        if (distance <= GameConfig.CHASE_DISTANCE || 
+            distance <= _unitData.AttackRange)
+            return;
+
+        // 가까운 코어로 타겟 설정
+        FindTargetCore(out Core core, out distance);
+        _target = core;
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        if (IsServer)
+        {
+            RefreshTarget(out float distance);
+            UpdateMove(_target, distance);
+            UpdateAttack(_target, distance);
+            UpdateVerticalMove();
+        }
+    }
+    protected override void LateUpdate()
+    {
+        base.LateUpdate();
+
+        if (IsServer)
+        {
+            Vector3 min = new Vector3(GameConfig.X_MIN, GameConfig.Y_MIN);
+            Vector3 max = new Vector3(GameConfig.X_MAX, GameConfig.Y_MAX);
+            transform.position = Vector3.Min(transform.position, max);
+            transform.position = Vector3.Max(transform.position, min);
+        }
+    }
+    protected override void OnDead()
+    {
+        base.OnDead();
+
+        if (IsServer)
+        {
+            NetworkObject.Despawn();
+        }
     }
 }

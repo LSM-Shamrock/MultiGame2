@@ -10,6 +10,8 @@ public class GameConfig
     public const float Y_MIN = -5;
     public const float Y_MAX = 5;
 
+    public const float CHASE_DISTANCE = 5;
+
     public static float GetUnitHeight(AltitudeType altitudeType)
     {
         float result = altitudeType switch
