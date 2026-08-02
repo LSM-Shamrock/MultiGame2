@@ -252,24 +252,31 @@ public class Unit : FieldObject
 
             if (distance <= _unitData.AttackRange)
             {
-                IEnumerator enumerator = null;
-
-                switch (_unitData.AttackType)
-                {
-                    case AttackType.Motion:
-                        Attack_MotionData attack_motionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId];
-                        enumerator = Attack_Motion(target, attack_motionData);
-                        break;
-                    case AttackType.Projectile:
-                        Attack_ProjectileData attack_projectileData = RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId];
-                        enumerator = Attack_Projectile(target, attack_projectileData);
-                        break;
-                }
-
-                if (enumerator != null)
-                    _attackCoroutine = StartCoroutine(enumerator);
+                Attack(target);
             }
         }
+    }
+    private void Attack(FieldObject target)
+    {
+        if (_attackCoroutine != null) return;
+        if (_attackCooltime > 0f) return;
+
+        IEnumerator enumerator = null;
+
+        switch (_unitData.AttackType)
+        {
+            case AttackType.Motion:
+                Attack_MotionData attack_motionData = RemoteConfigManager.Instance.GameData.Value.Attack_MotionData.Dictionary[_unitData.AttackId];
+                enumerator = Attack_Motion(target, attack_motionData);
+                break;
+            case AttackType.Projectile:
+                Attack_ProjectileData attack_projectileData = RemoteConfigManager.Instance.GameData.Value.Attack_ProjectileData.Dictionary[_unitData.AttackId];
+                enumerator = Attack_Projectile(target, attack_projectileData);
+                break;
+        }
+
+        if (enumerator != null)
+            _attackCoroutine = StartCoroutine(enumerator);
     }
     private IEnumerator Attack_Motion(FieldObject target, Attack_MotionData data)
     {
