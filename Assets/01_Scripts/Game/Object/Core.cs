@@ -56,6 +56,8 @@ public class Core : FieldObject
         {
             _spriteRenderer.sprite = Resources.Load<Sprite>("CoreSprite/Core_Red");
         }
+
+        IsDead.OnValueChanged += OnDead;
     }
 
     protected override void ApplyDead()
@@ -63,5 +65,10 @@ public class Core : FieldObject
         base.ApplyDead();
 
         OnCoreDead?.Invoke(this);
+    }
+
+    private void OnDead(bool oldValue, bool newValue)
+    {
+        gameObject.SetActive(false);
     }
 }

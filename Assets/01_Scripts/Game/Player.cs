@@ -211,6 +211,5 @@ public class Player : NetworkBehaviour
     private void OnSubCoreDead(Core core)
     {
         Cores.Remove(core);
-        core.gameObject.SetActive(false);
     }
 }
