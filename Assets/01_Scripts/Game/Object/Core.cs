@@ -1,5 +1,21 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using UnityEngine;
+
+public class CoreData
+{
+    public float Scale { get; set; }
+    public float ColliderWidth { get; set; }
+    public float ColliderHeight { get; set; }
+    public int Health { get; set; }
+    public CoreData(float scale, float colliderWidth, float colliderHeight, int health)
+    {
+        Scale = scale;
+        ColliderWidth = colliderWidth;
+        ColliderHeight = colliderHeight;
+        Health = health;
+    }
+}
 
 [AutoInjectionTarget]
 public class Core : FieldObject
@@ -9,24 +25,27 @@ public class Core : FieldObject
     public override bool IsKnockbackIgnore => true;
 
     [SerializeField, ChildField("Sprite")] private SpriteRenderer _spriteRenderer;
-    [SerializeField, ChildField("Sprite")] private Collider2D _bodyCollider;
+    [SerializeField, ChildField("Sprite")] private CapsuleCollider2D _bodyCollider;
     [SerializeField, ChildField("Shadow")] private Collider2D _groundCollider;
 
-    private Player _owner;
+    private CoreData _coreData;
 
     public event Action<Core> OnCoreDead;
 
-    public void Init(Player owner)
+    public void Init(CoreData coreData)
     {
-        _owner = owner;
+        _coreData = coreData;
+        _bodyCollider.size = new Vector2(_coreData.ColliderWidth, _coreData.ColliderHeight);
+        _bodyCollider.offset = new Vector2(0, _bodyCollider.size.y / 2f);
+        transform.localScale = Vector3.one * _coreData.Scale;
     }
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
-            MaxHealth.Value = 5000;
-            CurrentHealth.Value = 5000;
+            MaxHealth.Value = _coreData.Health;
+            CurrentHealth.Value = _coreData.Health;
         }
 
         if (IsOwner)

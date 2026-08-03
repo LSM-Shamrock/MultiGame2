@@ -100,18 +100,19 @@ public class Player : NetworkBehaviour
         AllObjects.Add(core);
         GroundObjects.Add(core);
 
-        core.Init(this);
-        core.NetworkObject.SpawnWithOwnership(OwnerClientId);
-
         if (isMain)
         {
             MainCore = core;
+            core.Init(GameConfig.CORE_DATA_MAIN);
             core.OnCoreDead += OnMainCoreDead;
         }
         else
         {
+            core.Init(GameConfig.CORE_DATA_SUB);
             core.OnCoreDead += OnSubCoreDead;
         }
+
+        core.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 
     public Vector2 GridToWorld(Vector2Int gridPos)
