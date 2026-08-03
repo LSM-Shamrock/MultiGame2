@@ -31,7 +31,6 @@ public class UI_GameResult : MonoBehaviour
         SoundManager.Instance.BgmPitch.Value = 1f;
         SoundManager.Instance.StopBgm();
 
-        Debug.Log(data.WinnerClientId);
         if (data.WinnerClientId == null)
         {
             ResultText.text = "무승부";
