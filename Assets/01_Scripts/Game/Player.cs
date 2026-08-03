@@ -18,7 +18,8 @@ public class Player : NetworkBehaviour
     private int[] _deckCardIds;
     private Queue<int> _nextCardIds = new();
 
-    [SerializeField, ChildField] private Transform CorePos;
+    [SerializeField, ChildField] private Transform MainCorePos;
+    [SerializeField, ChildrenArrayField] private Transform[] SubCorePos;
     [SerializeField, ChildField] private Transform SummonGrid;
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
@@ -170,7 +171,7 @@ public class Player : NetworkBehaviour
 
     private void SummonCore()
     {
-        GameObject go = Instantiate(_corePrefab, (Vector2)CorePos.position, CorePos.rotation);
+        GameObject go = Instantiate(_corePrefab, (Vector2)MainCorePos.position, MainCorePos.rotation);
         Core = go.GetComponent<Core>();
 
         Core.Init(this);
