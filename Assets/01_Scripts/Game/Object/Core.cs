@@ -36,9 +36,9 @@ public class Core : FieldObject
         }
     }
 
-    protected override void OnDead()
+    protected override void ApplyDead()
     {
-        base.OnDead();
+        base.ApplyDead();
 
         _owner.IsDead = true;
     }

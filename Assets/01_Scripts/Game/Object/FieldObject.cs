@@ -21,15 +21,15 @@ public abstract class FieldObject : NetworkBehaviour
     protected virtual void Update()
     {
         while (KnockbackQueue.TryDequeue(out var knockback))
-            OnKnockback(knockback.direction, knockback.distance, knockback.speed);
+            ApplyKnockback(knockback.direction, knockback.distance, knockback.speed);
 
         while (DamageQueue.TryDequeue(out int damage))
-            OnDamage(damage);
+            ApplyDamage(damage);
     }
     protected virtual void LateUpdate()
     {
         while (HealQueue.TryDequeue(out int amount))
-            OnHeal(amount);
+            ApplyHeal(amount);
     }
 
     public float GetGroundColliderDistance(FieldObject target)
@@ -70,11 +70,11 @@ public abstract class FieldObject : NetworkBehaviour
 
         if (RemoteConfigManager.Instance.GameData.Value.DotEffectData.Dictionary.TryGetValue(data.DotEffectId, out var dotEffectData))
         {
-            target.OnDotEffect(dotEffectData);
+            target.ApplyDotEffect(dotEffectData);
         }
     }
 
-    protected virtual void OnDamage(int damage)
+    protected virtual void ApplyDamage(int damage)
     {
         if (IsDead.Value)
             return;
@@ -86,22 +86,22 @@ public abstract class FieldObject : NetworkBehaviour
         else
         {
             CurrentHealth.Value = 0;
-            OnDead();
+            ApplyDead();
         }
     }
-    protected virtual void OnHeal(int amount)
+    protected virtual void ApplyHeal(int amount)
     {
         if (CurrentHealth.Value + amount > MaxHealth.Value)
             CurrentHealth.Value = MaxHealth.Value;
         else
             CurrentHealth.Value += amount;
     }
-    protected virtual void OnDead()
+    protected virtual void ApplyDead()
     {
         IsDead.Value = true;
     }
 
-    private void OnKnockback(Vector2 direction, float distance, float speed)
+    private void ApplyKnockback(Vector2 direction, float distance, float speed)
     {
         if (IsKnockbackIgnore == false)
             StartCoroutine(Knockback(direction, distance, speed));
@@ -121,7 +121,7 @@ public abstract class FieldObject : NetworkBehaviour
         }
     }
 
-    private void OnDotEffect(DotEffectData data)
+    private void ApplyDotEffect(DotEffectData data)
     {
         StartCoroutine(DotEffect(data));
 
@@ -135,7 +135,7 @@ public abstract class FieldObject : NetworkBehaviour
         {
             yield return waitForInterval;
 
-            OnDamage(data.DotDamage);
+            ApplyDamage(data.DotDamage);
         }
     }
 }

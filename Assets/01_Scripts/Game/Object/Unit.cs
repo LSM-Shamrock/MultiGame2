@@ -350,9 +350,9 @@ public class Unit : FieldObject
             transform.position = Vector3.Max(transform.position, min);
         }
     }
-    protected override void OnDead()
+    protected override void ApplyDead()
     {
-        base.OnDead();
+        base.ApplyDead();
 
         if (IsServer)
         {
