@@ -24,12 +24,13 @@ public class Player : NetworkBehaviour
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
-    public Core Core { get; private set; }
+    public Core MainCore { get; private set; }
+    public HashSet<Core> Cores { get; } = new();
     public HashSet<Unit> GroundUnits { get; } = new();
     public HashSet<Unit> AllUnits { get; } = new();
     public HashSet<FieldObject> GroundObjects { get; } = new();
     public HashSet<FieldObject> AllObjects { get; } = new();
-    public bool IsDead { get; set; } = false;
+    public bool IsDead { get; private set; } = false;
     public bool IsBot { get; set; } = false;
 
     public void Init(string playerName, int[] deckCardIds)
@@ -46,8 +47,10 @@ public class Player : NetworkBehaviour
             foreach (var cardId in _deckCardIds)
                 DeckCardIds.Add(cardId);
 
-            SummonCore();
             SetupHandAndNextCards(_deckCardIds);
+            SummonCore(MainCorePos, true);
+            foreach (var pos in SubCorePos) 
+                SummonCore(pos, false);
         }
 
         if (IsOwner)
@@ -61,7 +64,6 @@ public class Player : NetworkBehaviour
             ISceneInstance<UI_Game>.SceneInstance.SetOpponentPlayer(this);
         }
     }
-
     private void SetupHandAndNextCards(int[] deck)
     {
         int[] shuffled = new int[deck.Length];
@@ -89,37 +91,26 @@ public class Player : NetworkBehaviour
         Debug.Log("패, 다음 카드들 셋업 완료");
         Debug.Log("다음 카드 Id : " + NextCardId.Value);
     }
-
-    [ServerRpc]
-    public void SummonCardServerRpc(int handIndex, Vector2Int gridPos)
+    private void SummonCore(Transform pos, bool isMain)
     {
-        Debug.Log("카드 소환 요청 RPC호출됨");
-        SummonCard(handIndex, gridPos);
-    }
-    public void SummonCard(int handIndex, Vector2Int gridPos)
-    {
-        if (!IsServer) return;
-        if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
+        GameObject go = Instantiate(_corePrefab, (Vector2)pos.position, pos.rotation);
+        Core core = go.GetComponent<Core>();
 
-        int handCardId = HandCardIds[handIndex];
-        CardData cardData = RemoteConfigManager.Instance.GameData.Value.CardData.Dictionary[handCardId];
+        Cores.Add(core);
+        AllObjects.Add(core);
+        GroundObjects.Add(core);
 
-        if (MP.Value < cardData.CostMP)
+        core.Init(this);
+        core.NetworkObject.SpawnWithOwnership(OwnerClientId);
+
+        if (isMain)
         {
-            Debug.Log("MP가 부족하여 유닛 소환 안함");
-            return;
+            MainCore = core;
+            core.OnCoreDead += OnMainCoreDead;
         }
         else
         {
-            MP.Value -= cardData.CostMP;
-
-            _nextCardIds.Enqueue(handCardId);
-            HandCardIds[handIndex] = _nextCardIds.Dequeue();
-            NextCardId.Value = _nextCardIds.Peek();
-
-            UnitData unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[cardData.UnitId];
-            Vector3 position = GridToWorld(gridPos);
-            SummonUnit(unitData, position);
+            core.OnCoreDead += OnSubCoreDead;
         }
     }
 
@@ -169,16 +160,37 @@ public class Player : NetworkBehaviour
         return GridToWorld(WorldToGrid(position));
     }
 
-    private void SummonCore()
+    [ServerRpc]
+    public void SummonCardServerRpc(int handIndex, Vector2Int gridPos)
     {
-        GameObject go = Instantiate(_corePrefab, (Vector2)MainCorePos.position, MainCorePos.rotation);
-        Core = go.GetComponent<Core>();
+        Debug.Log("카드 소환 요청 RPC호출됨");
+        SummonCard(handIndex, gridPos);
+    }
+    public void SummonCard(int handIndex, Vector2Int gridPos)
+    {
+        if (!IsServer) return;
+        if (handIndex < 0 || handIndex > HandCardIds.Count - 1) return;
 
-        Core.Init(this);
-        Core.NetworkObject.SpawnWithOwnership(OwnerClientId);
+        int handCardId = HandCardIds[handIndex];
+        CardData cardData = RemoteConfigManager.Instance.GameData.Value.CardData.Dictionary[handCardId];
 
-        AllObjects.Add(Core);
-        GroundObjects.Add(Core);
+        if (MP.Value < cardData.CostMP)
+        {
+            Debug.Log("MP가 부족하여 유닛 소환 안함");
+            return;
+        }
+        else
+        {
+            MP.Value -= cardData.CostMP;
+
+            _nextCardIds.Enqueue(handCardId);
+            HandCardIds[handIndex] = _nextCardIds.Dequeue();
+            NextCardId.Value = _nextCardIds.Peek();
+
+            UnitData unitData = RemoteConfigManager.Instance.GameData.Value.UnitData.Dictionary[cardData.UnitId];
+            Vector3 position = GridToWorld(gridPos);
+            SummonUnit(unitData, position);
+        }
     }
     private void SummonUnit(UnitData unitData, Vector2 position)
     {
@@ -189,5 +201,15 @@ public class Player : NetworkBehaviour
 
         unit.Init(unitData.UnitId, this, opponent);
         unit.NetworkObject.SpawnWithOwnership(OwnerClientId);
+    }
+
+    private void OnMainCoreDead(Core core)
+    {
+        IsDead = true;
+    }
+    private void OnSubCoreDead(Core core)
+    {
+        Cores.Remove(core);
+        core.gameObject.SetActive(false);
     }
 }

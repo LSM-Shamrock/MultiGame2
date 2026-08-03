@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [AutoInjectionTarget]
 public class Core : FieldObject
@@ -12,6 +13,8 @@ public class Core : FieldObject
     [SerializeField, ChildField("Shadow")] private Collider2D _groundCollider;
 
     private Player _owner;
+
+    public event Action<Core> OnCoreDead;
 
     public void Init(Player owner)
     {
@@ -40,6 +43,6 @@ public class Core : FieldObject
     {
         base.ApplyDead();
 
-        _owner.IsDead = true;
+        OnCoreDead?.Invoke(this);
     }
 }

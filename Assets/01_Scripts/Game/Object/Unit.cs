@@ -91,8 +91,18 @@ public class Unit : FieldObject
     }
     private void FindTargetCore(out Core find, out float distance)
     {
-        find = Opponent.Core;
-        distance = GetDistance(find);
+        find = null;
+        distance = float.PositiveInfinity;
+
+        foreach (Core core in Opponent.Cores)
+        {
+            var dist = GetDistance(core);
+            if (dist < distance)
+            {
+                distance = dist;
+                find = core;
+            }
+        }
     }
     private void FindTarget(out FieldObject find, out float distance)
     {
@@ -308,7 +318,7 @@ public class Unit : FieldObject
     private void RefreshTarget(out float distance)
     {
         // 기존 타겟 그대로 유지
-        if (_target != null)
+        if (_target != null && !_target.IsDead.Value)
         {
             distance = GetDistance(_target);
             if (distance <= _unitData.AttackRange)
