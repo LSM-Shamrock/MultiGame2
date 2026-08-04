@@ -21,6 +21,7 @@ public class UI_GameResult : MonoBehaviour
     private void Start()
     {
         ISceneInstance<GameScene>.SceneInstance.OnGameFinished += OnGameFinished;
+        ISceneInstance<GameScene>.SceneInstance.OnGameFinishedDueToOpponentDisconnect += OnGameFinishedDueToOpponentDisconnect;
         OkButton.onClick.AddListener(OnOkButtonClick);
     }
 
@@ -55,6 +56,18 @@ public class UI_GameResult : MonoBehaviour
 
         StartCoroutine(ShowRoutine());
     }
+    private void OnGameFinishedDueToOpponentDisconnect()
+    {
+        SoundManager.Instance.BgmPitch.Value = 1f;
+        SoundManager.Instance.StopBgm();
+
+        ResultText.text = "승리";
+        ResultText.color = new Color(0.0f, 0.2f, 1.0f);
+        SoundManager.Instance.PlaySfx(_sfx_win);
+
+        StartCoroutine(ShowRoutine());
+    }
+
 
     private IEnumerator ShowRoutine()
     {

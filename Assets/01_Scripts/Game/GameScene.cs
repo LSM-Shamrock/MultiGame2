@@ -49,6 +49,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
     public bool IsGameFinished { get; private set; } = false;
     public event Action<GameFinishData> OnGameFinished;
+    public event Action OnGameFinishedDueToOpponentDisconnect;
     
     private Stopwatch _timer = new();
     private float _lastMpRegenTime;
@@ -119,54 +120,54 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     [Rpc(SendTo.ClientsAndHost)]
     private void FinishGameRpc(GameFinishData data)
     {
-        FinishGameLocal(data);
-    }
-    private void FinishGameLocal(GameFinishData data)
-    {
         if (IsGameFinished)
             return;
 
         IsGameFinished = true;
         OnGameFinished?.Invoke(data);
     }
+    private void FinishGameOnOpponentDisconnect()
+    {
+        if (IsGameFinished)
+            return;
+
+        IsGameFinished = true;
+        OnGameFinishedDueToOpponentDisconnect?.Invoke();
+    }
+
     private void OnClientDisconect(ulong clientId)
     {
-        if (!IsGameFinished)
-        {
-            if (IsHost)
-            {
-                if (clientId == _opponentPlayerSessionData.ClientId)
-                {
-                    Debug.Log("상대 클라이언트의 접속이 끊어져 자신의 승리로 처리함.");
-                    FinishGameLocal(new GameFinishData(
-                        gameFinishType: GameFinishType.ClientDisconected, 
-                        winnerClientId: NetworkManager.LocalClientId));
-                }
-            }
-            else
-            {
-                if (clientId == NetworkManager.LocalClientId)
-                {
-                    bool serverDown = NetworkManager.DisconnectEvent switch
-                    {
-                        NetworkTransport.DisconnectEvents.TransportShutdown         => false,
-                        NetworkTransport.DisconnectEvents.Disconnected              => false,
-                        NetworkTransport.DisconnectEvents.ProtocolTimeout           => true,
-                        NetworkTransport.DisconnectEvents.MaxConnectionAttempts     => false,
-                        NetworkTransport.DisconnectEvents.ClosedByRemote            => true,
-                        NetworkTransport.DisconnectEvents.ClosedRemoteConnection    => false,
-                        NetworkTransport.DisconnectEvents.AuthenticationFailure     => false,
-                        NetworkTransport.DisconnectEvents.ProtocolError             => true,
-                        _ => false
-                    };
+        if (IsGameFinished)
+            return;
 
-                    if (serverDown)
-                    {
-                        Debug.Log("서버의 연결이 끊어져 자신의 승리로 처리함.");
-                        FinishGameLocal(new GameFinishData(
-                            gameFinishType: GameFinishType.ClientDisconected,
-                            winnerClientId: NetworkManager.LocalClientId));
-                    }
+        if (IsHost)
+        {
+            if (clientId == _opponentPlayerSessionData.ClientId)
+            {
+                Debug.Log("상대 클라이언트의 접속이 끊어져 자신의 승리로 처리함.");
+                FinishGameOnOpponentDisconnect();
+            }
+        }
+        else
+        {
+            if (clientId == NetworkManager.LocalClientId)
+            {
+                bool serverDown = NetworkManager.DisconnectEvent switch
+                {
+                    NetworkTransport.DisconnectEvents.TransportShutdown         => false,
+                    NetworkTransport.DisconnectEvents.Disconnected              => false,
+                    NetworkTransport.DisconnectEvents.ProtocolTimeout           => true,
+                    NetworkTransport.DisconnectEvents.MaxConnectionAttempts     => false,
+                    NetworkTransport.DisconnectEvents.ClosedByRemote            => true,
+                    NetworkTransport.DisconnectEvents.ClosedRemoteConnection    => false,
+                    NetworkTransport.DisconnectEvents.AuthenticationFailure     => false,
+                    NetworkTransport.DisconnectEvents.ProtocolError             => true,
+                    _ => false
+                };
+                if (serverDown)
+                {
+                    Debug.Log("서버의 연결이 끊어져 자신의 승리로 처리함.");
+                    FinishGameOnOpponentDisconnect();
                 }
             }
         }
