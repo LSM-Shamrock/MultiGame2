@@ -8,12 +8,6 @@ public class ApplicationController : MonoBehaviour
     private void Awake()
     {
         DontDestroyOnLoad(this);
-
-        Application.wantsToQuit += OnWantsToQuit;
-    }
-    private void OnDestroy()
-    {
-        Application.wantsToQuit -= OnWantsToQuit;
     }
     private void Update()
     {
@@ -40,16 +34,4 @@ public class ApplicationController : MonoBehaviour
         }
     }
 
-    private bool OnWantsToQuit()
-    {
-        if (PopupManager.Instance.CurrentPopup is UI_QuitGamePopup)
-        {
-            return true;
-        }
-        else
-        {
-            PopupManager.Instance.ShowPopup<UI_QuitGamePopup>();
-            return false;
-        }
-    }
 }
