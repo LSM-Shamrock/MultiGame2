@@ -24,6 +24,7 @@ public class Player : NetworkBehaviour
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
+    public Player Opponent { get; set; }
     public Core MainCore { get; private set; }
     public HashSet<Core> Cores { get; } = new();
     public HashSet<Unit> GroundUnits { get; } = new();
@@ -198,9 +199,7 @@ public class Player : NetworkBehaviour
         GameObject go = Instantiate(_unitPrefab, position, Quaternion.identity);
         Unit unit = go.GetComponent<Unit>();
 
-        Player opponent = IsOwner ? ISceneInstance<GameScene>.SceneInstance.OpponentPlayer.Value : ISceneInstance<GameScene>.SceneInstance.LocalPlayer.Value;
-
-        unit.Init(unitData.UnitId, this, opponent);
+        unit.Init(unitData.UnitId, this, Opponent);
         unit.NetworkObject.SpawnWithOwnership(OwnerClientId);
     }
 

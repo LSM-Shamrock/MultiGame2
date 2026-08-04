@@ -103,6 +103,9 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
             _opponentPlayerSessionData = MatchingManager.Instance.OpponentPlayerSessionData;
             var localPlayer = SpawnPlayer(_localPlayerSessionData, false);
             var opponentPlayer = SpawnPlayer(_opponentPlayerSessionData, true);
+
+            localPlayer.Opponent = opponentPlayer;
+            opponentPlayer.Opponent = localPlayer;
             opponentPlayer.IsBot = MatchingManager.Instance.MatchingType == MatchingType.PvE;
 
             _players.Add(localPlayer);
