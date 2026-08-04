@@ -42,6 +42,8 @@ public class Core : FieldObject
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             MaxHealth.Value = _coreData.Health;
@@ -56,19 +58,13 @@ public class Core : FieldObject
         {
             _spriteRenderer.sprite = Resources.Load<Sprite>("CoreSprite/Core_Red");
         }
-
-        IsDead.OnValueChanged += OnDead;
     }
 
-    protected override void ApplyDead()
+    protected override void OnDead()
     {
-        base.ApplyDead();
+        base.OnDead();
 
         OnCoreDead?.Invoke(this);
-    }
-
-    private void OnDead(bool oldValue, bool newValue)
-    {
         gameObject.SetActive(false);
     }
 

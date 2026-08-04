@@ -208,7 +208,6 @@ public class Player : NetworkBehaviour
     {
         Core[] cores = new Core[Cores.Count];
         Cores.CopyTo(cores);
-
         foreach (var c in cores)
         {
             if (c != null)

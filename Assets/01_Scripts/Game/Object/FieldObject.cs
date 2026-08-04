@@ -18,6 +18,11 @@ public abstract class FieldObject : NetworkBehaviour
     protected Queue<int> DamageQueue = new();
     protected Queue<int> HealQueue = new();
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        IsDead.OnValueChanged += OnIsDeadChanged;
+    }
     protected virtual void Update()
     {
         while (KnockbackQueue.TryDequeue(out var knockback))
@@ -96,8 +101,11 @@ public abstract class FieldObject : NetworkBehaviour
         else
             CurrentHealth.Value += amount;
     }
-    protected virtual void ApplyDead()
+    protected void ApplyDead()
     {
+        if (IsDead.Value)
+            return;
+
         IsDead.Value = true;
     }
 
@@ -137,5 +145,15 @@ public abstract class FieldObject : NetworkBehaviour
 
             ApplyDamage(data.DotDamage);
         }
+    }
+
+    private void OnIsDeadChanged(bool oldV, bool newV)
+    {
+        if (oldV == false && newV == true)
+            OnDead();
+    }
+    protected virtual void OnDead()
+    {
+
     }
 }
