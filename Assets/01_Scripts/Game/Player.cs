@@ -206,6 +206,15 @@ public class Player : NetworkBehaviour
 
     private void OnMainCoreDead(Core core)
     {
+        Core[] cores = new Core[Cores.Count];
+        Cores.CopyTo(cores);
+
+        foreach (var c in cores)
+        {
+            if (c != null)
+                c.OnMainCoreDead();
+        }
+
         IsDead = true;
     }
     private void OnSubCoreDead(Core core)

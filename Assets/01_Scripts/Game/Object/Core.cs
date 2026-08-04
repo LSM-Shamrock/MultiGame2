@@ -71,4 +71,10 @@ public class Core : FieldObject
     {
         gameObject.SetActive(false);
     }
+
+    public void OnMainCoreDead()
+    {
+        if (IsDead.Value == false)
+            ApplyDead();
+    }
 }
