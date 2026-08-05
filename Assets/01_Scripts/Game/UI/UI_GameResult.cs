@@ -13,6 +13,8 @@ public class UI_GameResult : MonoBehaviour
     [SerializeField, ChildField("MainPanel")] private Image MainPanel;
     [SerializeField, ChildField("OkButton")] private Button OkButton;
     [SerializeField, ChildField("ResultText")] private TextMeshProUGUI ResultText;
+    [SerializeField, ChildField("Display_Normal")] private GameObject Display_Normal;
+    [SerializeField, ChildField("Display_OpponentDisconnect")] private GameObject Display_OpponentDisconnect;
     [SerializeField, ChildField("LocalPlayerNameText")] private TextMeshProUGUI LocalPlayerNameText;
     [SerializeField, ChildField("OpponentPlayerNameText")] private TextMeshProUGUI OpponentPlayerNameText;
     [SerializeField, ChildrenArrayField("LocalCorePointImages")] private Image[] LocalCorePointImages;
@@ -32,6 +34,9 @@ public class UI_GameResult : MonoBehaviour
 
     private void OnGameFinished(GameFinishData data)
     {
+        Display_Normal.SetActive(true);
+        Display_OpponentDisconnect.SetActive(false);
+
         SoundManager.Instance.BgmPitch.Value = 1f;
         SoundManager.Instance.StopBgm();
 
@@ -58,6 +63,9 @@ public class UI_GameResult : MonoBehaviour
     }
     private void OnGameFinishedDueToOpponentDisconnect()
     {
+        Display_Normal.SetActive(false);
+        Display_OpponentDisconnect.SetActive(true);
+
         SoundManager.Instance.BgmPitch.Value = 1f;
         SoundManager.Instance.StopBgm();
 
