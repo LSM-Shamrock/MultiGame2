@@ -10,6 +10,8 @@ public abstract class FieldObject : NetworkBehaviour
     public abstract Collider2D BodyCollider { get; }
     public Vector2 BodyColliderCenter => BodyCollider.bounds.center;
 
+    public static bool IsGameFinished => ISceneInstance<GameScene>.SceneInstance.IsGameFinished;
+    
     public NetworkVariable<bool> IsDead { get; } = new();
     public NetworkVariable<int> MaxHealth { get; } = new();
     public NetworkVariable<int> CurrentHealth { get; } = new();
@@ -60,8 +62,8 @@ public abstract class FieldObject : NetworkBehaviour
 
     public static void ApplyHit(FieldObject target, FieldObject attacker, AttackHitData data, Vector2 hitDirection)
     {
-        if (target.IsDead.Value)
-            return;
+        if (IsGameFinished) return;
+        if (target.IsDead.Value) return;
 
         target.DamageQueue.Enqueue(data.Damage);
         target.KnockbackQueue.Enqueue((hitDirection.normalized, data.KnockbackDistance, data.KnockbackSpeed));
@@ -96,6 +98,9 @@ public abstract class FieldObject : NetworkBehaviour
     }
     protected virtual void ApplyHeal(int amount)
     {
+        if (IsDead.Value)
+            return;
+
         if (CurrentHealth.Value + amount > MaxHealth.Value)
             CurrentHealth.Value = MaxHealth.Value;
         else
