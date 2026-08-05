@@ -71,10 +71,10 @@ public class Projectile : NetworkBehaviour
         {
             case ProjectileFacingType.Rotate:
                 transform.right = _moveDirection;
-                _spriteRenderer.flipY = _moveDirection.x < 0;
+                _spriteRenderer.transform.localScale = new Vector3(1f, Mathf.Sign(_moveDirection.x));
                 break;
             case ProjectileFacingType.FlipX:
-                _spriteRenderer.flipX = _moveDirection.x < 0;
+                _spriteRenderer.transform.localScale = new Vector3(Mathf.Sign(_moveDirection.x), 1f);
                 break;
         }
     }

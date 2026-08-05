@@ -2,8 +2,8 @@
 
 public class ApplicationController : MonoBehaviour
 {
-    private int DEFAULT_WINDOW_WIDTH = 960;
-    private int DEFAULT_WINDOW_HEIGHT = 640;
+    private int DEFAULT_WINDOW_WIDTH = 768;
+    private int DEFAULT_WINDOW_HEIGHT = 512;
 
     private void Awake()
     {
