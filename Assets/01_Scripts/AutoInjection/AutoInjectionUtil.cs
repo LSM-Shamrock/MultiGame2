@@ -20,7 +20,7 @@ public class AutoInjectionUtil
         return null;
     }
 
-    public static object GetComponentOrGameObject(Transform target, Type t)
+    public static UnityEngine.Object GetComponentOrGameObject(Transform target, Type t)
     {
         if (t == typeof(Transform))
             return target;

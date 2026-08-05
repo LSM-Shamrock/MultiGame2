@@ -145,15 +145,15 @@ public class ChildrenArrayField : AutoInjectionField
             return false;
         }
 
-        var components = new List<Component>();
+        var objects = new List<UnityEngine.Object>();
         foreach (Transform child in find.transform)
         {
-            var childComponent = child.GetComponent(elementType);
-            if (childComponent != null) components.Add(childComponent); 
+            var childObj = AutoInjectionUtil.GetComponentOrGameObject(child, elementType);
+            if (childObj != null) objects.Add(childObj); 
         }
 
-        var arr = Array.CreateInstance(elementType, components.Count);
-        Array.Copy(components.ToArray(), arr, components.Count);
+        var arr = Array.CreateInstance(elementType, objects.Count);
+        Array.Copy(objects.ToArray(), arr, objects.Count);
 
         field.SetValue(target, arr);
         return true;

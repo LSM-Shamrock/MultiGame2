@@ -5,33 +5,49 @@ using Unity.Netcode;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-public enum GameFinishType
+public struct PlayerGameFinishData : INetworkSerializable
 {
-    CoreDestroyed,
-    Timeout,
-    ClientDisconected,
-}
-public struct GameFinishData : INetworkSerializable
-{
-    private GameFinishType _gameFinishType;
-    private bool _isDraw;
-    private ulong _winnerClientId;
+    private ulong _clientId;
+    private int _corePoint;
+    private string _playerName;
+    
+    public ulong ClientId => _clientId;
+    public int CorePoint => _corePoint;
+    public string PlayerName => _playerName;
 
-    public GameFinishType GameFinishType => _gameFinishType;
-    public ulong? WinnerClientId => _isDraw ? null : _winnerClientId;
-
-    public GameFinishData(GameFinishType gameFinishType, ulong? winnerClientId)
+    public PlayerGameFinishData(ulong clientId, int corePoint, string playerName)
     {
-        _gameFinishType = gameFinishType;
-        _isDraw = winnerClientId == null;
-        _winnerClientId = winnerClientId ?? 0;
+        _clientId = clientId;
+        _corePoint = corePoint;
+        _playerName = playerName;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        serializer.SerializeValue(ref _gameFinishType);
-        serializer.SerializeValue(ref _isDraw);
-        serializer.SerializeValue(ref _winnerClientId);
+        serializer.SerializeValue(ref _clientId);
+        serializer.SerializeValue(ref _corePoint);
+        serializer.SerializeValue(ref _playerName);
+    }
+}
+
+public struct GameFinishData : INetworkSerializable
+{
+    private PlayerGameFinishData _playerData1;
+    private PlayerGameFinishData _playerData2;
+
+    public PlayerGameFinishData PlayerData1 => _playerData1;
+    public PlayerGameFinishData PlayerData2 => _playerData2;
+
+    public GameFinishData(PlayerGameFinishData playerData1, PlayerGameFinishData playerData2)
+    {
+        _playerData1 = playerData1;
+        _playerData2 = playerData2;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref _playerData1);
+        serializer.SerializeValue(ref _playerData2);
     }
 }
 
@@ -126,6 +142,25 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
         IsGameFinished = true;
         OnGameFinished?.Invoke(data);
     }
+    private void FinishGame()
+    {
+        Player player1 = LocalPlayer.Value;
+        Player player2 = OpponentPlayer.Value;
+
+        var playerData1 = new PlayerGameFinishData(
+            clientId: player1.OwnerClientId,
+            corePoint: player1.CorePoint,
+            playerName: player1.PlayerName.Value.ToString());
+
+        var playerData2 = new PlayerGameFinishData(
+            clientId: player2.OwnerClientId,
+            corePoint: player2.CorePoint,
+            playerName: player2.PlayerName.Value.ToString());
+
+        var gameFinishData = new GameFinishData(playerData1, playerData2);
+        FinishGameRpc(gameFinishData);
+    }
+
     private void FinishGameOnOpponentDisconnect()
     {
         if (IsGameFinished)
@@ -174,28 +209,14 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     }
     private void CheckCoreDead()
     {
-        if (IsServer)
+        if (!IsServer)
+            return;
+        
+        if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
         {
-            if (LocalPlayer.Value != null && OpponentPlayer.Value != null && !IsGameFinished)
+            if (LocalPlayer.Value.IsDead || OpponentPlayer.Value.IsDead)
             {
-                if (LocalPlayer.Value.IsDead && OpponentPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: null));
-                }
-                else if (LocalPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: OpponentPlayer.Value.OwnerClientId));
-                }
-                else if (OpponentPlayer.Value.IsDead)
-                {
-                    FinishGameRpc(new GameFinishData(
-                        gameFinishType: GameFinishType.CoreDestroyed,
-                        winnerClientId: LocalPlayer.Value.OwnerClientId));
-                }
+                FinishGame();
             }
         }
     }
@@ -206,7 +227,7 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
         if (IsServer && RemainingTime <= 0)
         {
-            FinishGameRpc(new GameFinishData(GameFinishType.Timeout, null));
+            FinishGame();
         }
     }
     private void UpdateMpRegen()

@@ -1408,14 +1408,14 @@ MonoBehaviour:
   Display_OpponentDisconnect: {fileID: 507820190}
   LocalPlayerNameText: {fileID: 335634589}
   OpponentPlayerNameText: {fileID: 421102820}
-  LocalCorePointImages:
-  - {fileID: 886477470}
-  - {fileID: 1870110360}
-  - {fileID: 983311285}
-  OpponentCorePointImages:
-  - {fileID: 1219708917}
-  - {fileID: 1728493045}
-  - {fileID: 852978213}
+  LocalCorePoints:
+  - {fileID: 1870110358}
+  - {fileID: 886477468}
+  - {fileID: 983311283}
+  OpponentCorePoints:
+  - {fileID: 1728493043}
+  - {fileID: 1219708915}
+  - {fileID: 852978211}
 --- !u!1 &278295201
 GameObject:
   m_ObjectHideFlags: 0
@@ -1426,7 +1426,7 @@ GameObject:
   m_Component:
   - component: {fileID: 278295202}
   m_Layer: 5
-  m_Name: OpponentCorePointImages
+  m_Name: OpponentCorePoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1444,8 +1444,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1219708916}
   - {fileID: 1728493044}
+  - {fileID: 1219708916}
   - {fileID: 852978212}
   m_Father: {fileID: 423385424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4782,7 +4782,7 @@ GameObject:
   - component: {fileID: 852978214}
   - component: {fileID: 852978213}
   m_Layer: 5
-  m_Name: CorePointImage (2)
+  m_Name: CorePointImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5642,7 +5642,7 @@ GameObject:
   - component: {fileID: 983311286}
   - component: {fileID: 983311285}
   m_Layer: 5
-  m_Name: CorePointImage (2)
+  m_Name: CorePointImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7040,7 +7040,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1339769705}
   m_Layer: 5
-  m_Name: LocalCorePointImages
+  m_Name: LocalCorePoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7058,8 +7058,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 886477469}
   - {fileID: 1870110359}
+  - {fileID: 886477469}
   - {fileID: 983311284}
   m_Father: {fileID: 1200875432}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8320,7 +8320,7 @@ GameObject:
   - component: {fileID: 1728493046}
   - component: {fileID: 1728493045}
   m_Layer: 5
-  m_Name: CorePointImage (1)
+  m_Name: CorePointImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9366,7 +9366,7 @@ GameObject:
   - component: {fileID: 1870110361}
   - component: {fileID: 1870110360}
   m_Layer: 5
-  m_Name: CorePointImage (1)
+  m_Name: CorePointImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

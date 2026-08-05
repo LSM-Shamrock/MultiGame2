@@ -24,6 +24,7 @@ public class Player : NetworkBehaviour
     [SerializeField, AssetField("Unit")] private GameObject _unitPrefab;
     [SerializeField, AssetField("Core")] private GameObject _corePrefab;
 
+    public int CorePoint { get; private set; }
     public Player Opponent { get; set; }
     public Core MainCore { get; private set; }
     public HashSet<Core> Cores { get; } = new();
@@ -213,10 +214,12 @@ public class Player : NetworkBehaviour
                 c.OnMainCoreDead();
         }
 
+        Opponent.CorePoint++;
         IsDead = true;
     }
     private void OnSubCoreDead(Core core)
     {
+        Opponent.CorePoint++;
         Cores.Remove(core);
     }
 }
