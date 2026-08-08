@@ -66,11 +66,11 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
     public bool IsGameFinished { get; private set; } = false;
     public event Action<GameFinishData> OnGameFinished;
     public event Action OnGameFinishedDueToOpponentDisconnect;
+    public NetworkVariable<double> StartTime = new();
     
-    private Stopwatch _timer = new();
     private float _lastMpRegenTime;
     public float GameDuration => GameConfig.GAME_DURATION;
-    public float ElapsedTime => (float)_timer.Elapsed.TotalSeconds;
+    public float ElapsedTime => (float)(NetworkManager.ServerTime.Time - StartTime.Value);
     public float RemainingTime => ElapsedTime < GameDuration ? GameDuration - ElapsedTime : 0f;
     public float MpRegenScale { get; private set; } = 1f;
     public float MpRegenSpeed => GameConfig.DEFAULT_MP_REGEN_SPEED * MpRegenScale;
@@ -85,8 +85,16 @@ public class GameScene : NetworkBehaviour, ISceneInstance<GameScene>
 
         SetupPlayer();
         
-        _timer.Start();
         _lastMpRegenTime = ElapsedTime;
+    }
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            StartTime.Value = NetworkManager.ServerTime.Time;
+        }
     }
     public override void OnDestroy()
     {
